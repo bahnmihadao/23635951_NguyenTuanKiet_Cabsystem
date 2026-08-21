@@ -356,298 +356,638 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **FR10.2** | Phân quyền vai trò (Role-Based Access) | Phân chia quyền hạn rõ ràng giữa Khách hàng, Tài xế và Nhân viên vận hành |
 | **FR10.3** | Nhật ký kiểm toán (Audit Logging) | Ghi nhận thời điểm, người thực hiện và nội dung các thao tác quản trị quan trọng |
 
-## 7. MÔ HÌNH HÓA VÀ ĐẶC TẢ USE CASE (USE CASE MODELING & SPECIFICATIONS)
+## 7. SƠ ĐỒ USE CASE HỆ THỐNG (USE CASE DIAGRAM)
 
-### 7.1. Danh sách các Tác nhân (Actors)
+### 7.1. Sơ đồ Use Case trực quan (UML Use Case Diagram)
 
-| Tác nhân (Actor) | Phân loại | Vai trò và Trách nhiệm chính |
-| :--- | :---: | :--- |
-| **Khách hàng (Customer)** | Primary Actor | Người dùng có nhu cầu di chuyển, khởi tạo yêu cầu đặt xe, theo dõi hành trình, thực hiện thanh toán và đánh giá tài xế. |
-| **Tài xế (Driver)** | Primary Actor | Đối tác vận chuyển trực tiếp, tiếp nhận cuốc xe, cập nhật trạng thái đón/trả khách, chia sẻ vị trí GPS và quản lý phương tiện. |
-| **Nhân viên vận hành (Operator)** | Secondary Actor | Quản lý dữ liệu người dùng, giám sát các cuốc xe đang diễn ra trong thời gian thực, can thiệp xử lý chuyến lỗi và theo dõi báo cáo. |
-| **Cổng thanh toán (Payment Gateway - PG)** | Supporting System | Hệ thống bên thứ ba tiếp nhận yêu cầu thanh toán không tiền mặt, xác thực bảo mật và hoàn trả kết quả giao dịch. |
-| **Dịch vụ thông báo (Notification Service - NS)** | Supporting System | Hệ thống bên thứ ba cung cấp hạ tầng gửi mã OTP qua SMS và đẩy tin nhắn thông báo (Push Notification) đến thiết bị người dùng. |
+![Sơ đồ Use Case Hệ thống CAB](usecase_diagram.jpg)
 
 ---
 
-### 7.2. Sơ đồ Use Case tổng quan (Use Case Diagram)
+## 8. Đặc tả USE CASE HỆ THỐNG
 
-#### 7.2.1. Sơ đồ trực quan (Mermaid Use Case Diagram)
+### 8.1. Đăng nhập
 
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Đăng nhập** |
+| **UCID** | UC001 |
+| **Mô tả** | Chức năng cho phép người dùng (Khách hàng, Tài xế, Nhân viên vận hành) xác thực tài khoản để truy cập vào hệ thống. |
+| **Actor chính** | Khách hàng, Tài xế, Nhân viên vận hành |
+| **Tiền điều kiện** | Người dùng đã có tài khoản trên hệ thống và thiết bị có kết nối mạng. |
+| **Hậu điều kiện** | Người dùng đăng nhập thành công và được chuyển hướng tới giao diện theo đúng vai trò. |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor | System |
+| :---: | :--- | :--- |
+| **1** | Người dùng chọn chức năng "Đăng nhập". | |
+| **2** | | Hệ thống hiển thị biểu mẫu đăng nhập (Số điện thoại / Email và Mật khẩu). |
+| **3** | Người dùng nhập thông tin tài khoản và mật khẩu. | |
+| **4** | | Hệ thống kiểm tra và xác thực tính hợp lệ của thông tin. |
+| **5** | Người dùng nhấn nút "Đăng nhập". | |
+| **6** | | Hệ thống xác thực danh tính và phân quyền truy cập. |
+| **7** | | Hệ thống khởi tạo phiên làm việc (Token / Session). |
+| **8** | | Hệ thống chuyển hướng người dùng đến màn hình chính tương ứng. |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **4.1. Sai thông tin đăng nhập** | 1. Hệ thống hiển thị thông báo lỗi: "Tài khoản hoặc mật khẩu không chính xác".<br>2. Quay lại bước 3 của luồng chính. |
+| **4.2. Tài khoản bị khóa** | 1. Hệ thống hiển thị thông báo: "Tài khoản đã bị khóa, vui lòng liên hệ quản trị viên".<br>2. Dừng use case. |
+
+### 8.2. Đăng ký tài khoản
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Đăng ký tài khoản** |
+| **UCID** | UC002 |
+| **Mô tả** | Chức năng cho phép người dùng mới (Khách hàng hoặc Tài xế) đăng ký tạo tài khoản trên hệ thống CAB. |
+| **Actor chính** | Khách hàng, Tài xế |
+| **Tiền điều kiện** | Người dùng chưa có tài khoản trên hệ thống và thiết bị có kết nối mạng. |
+| **Hậu điều kiện** | Tài khoản mới được tạo thành công, có mã định danh duy nhất và sẵn sàng đăng nhập/sử dụng. |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor | System |
+| :---: | :--- | :--- |
+| **1** | Người dùng chọn chức năng "Đăng ký". | |
+| **2** | | Hệ thống hiển thị biểu mẫu đăng ký theo vai trò (Khách hàng: họ tên, SĐT, email, mật khẩu; Tài xế: bổ sung CCCD, bằng lái, thông tin xe). |
+| **3** | Người dùng điền đầy đủ thông tin theo yêu cầu và nhấn nút "Đăng ký". | |
+| **4** | | Hệ thống kiểm tra tính hợp lệ và duy nhất của thông tin (định dạng, tài khoản đã tồn tại chưa). |
+| **5** | | Hệ thống gửi mã xác thực (OTP) qua SMS hoặc Email đã đăng ký. |
+| **6** | Người dùng nhập mã OTP để xác nhận. | |
+| **7** | | Hệ thống kiểm tra mã OTP, tạo mã định danh (ID) duy nhất và lưu thông tin người dùng vào cơ sở dữ liệu. |
+| **8** | | Hệ thống hiển thị thông báo "Đăng ký thành công" và chuyển hướng đến màn hình đăng nhập (hoặc tự động đăng nhập). |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **4.1. Thông tin không hợp lệ / Thiếu trường bắt buộc** | 1. Hệ thống hiển thị thông báo lỗi cụ thể tại từng trường (ví dụ: SĐT sai định dạng, mật khẩu không đủ độ dài).<br>2. Quay lại bước 3 của luồng chính. |
+| **4.2. Số điện thoại / Email đã tồn tại** | 1. Hệ thống hiển thị thông báo: "Số điện thoại/Email này đã được sử dụng. Vui lòng đăng nhập hoặc dùng thông tin khác".<br>2. Quay lại bước 3 của luồng chính. |
+| **7.1. Mã OTP không chính xác hoặc hết hạn** | 1. Hệ thống hiển thị thông báo lỗi: "Mã OTP không đúng hoặc đã hết hạn".<br>2. Cho phép người dùng nhập lại mã hoặc nhấn "Gửi lại mã OTP". |
+
+### 8.3. Tạo yêu cầu đặt xe
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Tạo yêu cầu đặt xe** |
+| **UCID** | UC003 |
+| **Mô tả** | Chức năng cho phép Khách hàng chọn lộ trình, loại xe, xem cước phí dự kiến và gửi yêu cầu đặt xe lên hệ thống CAB. |
+| **Actor chính** | Khách hàng |
+| **Actor phụ** | Tài xế, Hệ thống thông báo |
+| **Tiền điều kiện** | Khách hàng đã đăng nhập thành công vào ứng dụng và có kết nối mạng. |
+| **Hậu điều kiện** | Yêu cầu đặt xe được khởi tạo ở trạng thái "Đang tìm tài xế" và chuyển thông tin đến tài xế phù hợp. |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor | System |
+| :---: | :--- | :--- |
+| **1** | Khách hàng mở giao diện đặt xe và nhập điểm đón, điểm đến. | |
+| **2** | | Hệ thống xác định tọa độ, vẽ lộ trình di chuyển và tính khoảng cách dự kiến. |
+| **3** | Khách hàng chọn loại phương tiện (xe máy, ô tô 4 chỗ, ô tô 7 chỗ) và phương thức thanh toán. | |
+| **4** | | Hệ thống tính toán và hiển thị giá cước ước tính cùng thời gian dự kiến di chuyển. |
+| **5** | Khách hàng nhấn nút "Đặt xe". | |
+| **6** | | Hệ thống tạo bản ghi chuyến đi với trạng thái "Đang tìm tài xế". |
+| **7** | | Hệ thống quét vị trí các tài xế gần điểm đón đang sẵn sàng và gửi thông báo cuốc xe đến tài xế ưu tiên nhất. |
+| **8** | | Hệ thống hiển thị màn hình chờ và thông báo cho Khách hàng: "Đang tìm tài xế xung quanh bạn". |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **2.1. Không xác định được vị trí / Địa chỉ không hợp lệ** | 1. Hệ thống hiển thị thông báo lỗi: "Không thể định vị địa chỉ này, vui lòng chọn lại điểm đón/đến".<br>2. Quay lại bước 1 của luồng chính. |
+| **6.1. Không có tài xế nào khả dụng trong khu vực** | 1. Hệ thống thông báo: "Hiện không tìm thấy tài xế phù hợp xung quanh khu vực này. Vui lòng thử lại sau".<br>2. Hủy yêu cầu đặt xe và dừng use case. |
+| **7.1. Khách hàng chủ động hủy khi đang tìm tài xế** | 1. Khách hàng nhấn "Hủy tìm kiếm".<br>2. Hệ thống cập nhật trạng thái hủy và dừng use case. |
+
+### 8.4. Tìm và phân công tài xế
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Tìm và phân công tài xế** |
+| **UCID** | UC004 |
+| **Mô tả** | Hệ thống tự động tìm kiếm, chọn lọc và gửi yêu cầu cuốc xe đến tài xế phù hợp gần khách hàng nhất, đồng thời gán tài xế vào chuyến khi được chấp nhận. |
+| **Actor chính** | Hệ thống (Hệ thống CAB thực hiện tự động) |
+| **Actor phụ** | Tài xế, Khách hàng, Hệ thống thông báo |
+| **Tiền điều kiện** | Yêu cầu đặt xe của Khách hàng đã được khởi tạo ở trạng thái "Đang tìm tài xế". |
+| **Hậu điều kiện** | Tài xế được gán thành công vào chuyến đi, trạng thái chuyến chuyển sang "Tài xế đang đến đón". |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor (Tài xế / Khách hàng) | System |
+| :---: | :--- | :--- |
+| **1** | | Hệ thống truy xuất danh sách tài xế đang ở trạng thái "Sẵn sàng" và có loại phương tiện phù hợp xung quanh điểm đón. |
+| **2** | | Hệ thống sắp xếp mức độ ưu tiên theo tiêu chí (khoảng cách gần nhất, hiệu quả hoạt động). |
+| **3** | | Hệ thống gửi thông báo chuyến đi kèm bộ đếm thời gian phản hồi đến tài xế ưu tiên đầu tiên. |
+| **4** | Tài xế nhận thông báo và nhấn "Chấp nhận". | |
+| **5** | | Hệ thống ghi nhận, khóa trạng thái sẵn sàng của tài xế và gán tài xế vào mã chuyến đi. |
+| **6** | | Hệ thống cập nhật trạng thái chuyến đi thành "Đã nhận chuyến / Đang đến điểm đón". |
+| **7** | | Hệ thống gửi thông báo xác nhận thành công cho Tài xế và hiển thị thông tin lộ trình di chuyển tới điểm đón. |
+| **8** | | Hệ thống gửi thông báo đến Khách hàng kèm thông tin tài xế (họ tên, biển số xe, SĐT, định vị thời gian thực và thời gian dự kiến đến). |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **4.1. Tài xế từ chối hoặc hết thời gian phản hồi** | 1. Hệ thống tự động chuyển yêu cầu sang tài xế có mức độ ưu tiên tiếp theo trong danh sách mà không bắt khách hàng đặt lại.<br>2. Quay lại bước 3 của luồng chính. |
+| **4.2. Không còn tài xế nào tiếp theo hoặc hết lượt quét** | 1. Hệ thống cập nhật trạng thái chuyến sang "Không tìm thấy tài xế".<br>2. Gửi thông báo đến Khách hàng: "Hiện không tìm thấy tài xế phù hợp, vui lòng thử lại sau".<br>3. Dừng use case. |
+| **4.3. Khách hàng hủy chuyến trong lúc đang điều phối tài xế** | 1. Khách hàng bấm "Hủy chuyến".<br>2. Hệ thống dừng quy trình tìm kiếm, gửi thông báo hủy đến thiết bị của tài xế đang nhận tín hiệu (nếu có) và kết thúc use case. |
+
+### 8.5. Gửi thông báo tới tài xế
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Gửi thông báo tới tài xế** |
+| **UCID** | UC005 |
+| **Mô tả** | Hệ thống tự động đẩy các thông báo quan trọng đến ứng dụng của Tài xế (chuyến mới, khách hủy chuyến, thay đổi lộ trình, thông báo vận hành). |
+| **Actor chính** | Hệ thống (Hệ thống CAB thực hiện tự động) |
+| **Actor phụ** | Tài xế, Hệ thống thông báo (Notification Service) |
+| **Tiền điều kiện** | Tài xế đã đăng nhập vào ứng dụng và thiết bị có kết nối mạng / bật quyền nhận thông báo. |
+| **Hậu điều kiện** | Nội dung thông báo được chuyển đến thiết bị của tài xế và lưu vào lịch sử thông báo. |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor (Tài xế / Notification Service) | System |
+| :---: | :--- | :--- |
+| **1** | | Hệ thống ghi nhận sự kiện phát sinh cần gửi tin (ví dụ: có cuốc xe mới phù hợp, khách hàng hủy chuyến, cập nhật trạng thái hệ thống). |
+| **2** | | Hệ thống xác định danh sách tài xế nhận tin và đóng gói nội dung thông báo (tiêu đề, chi tiết, âm thanh cảnh báo, dữ liệu đính kèm). |
+| **3** | | Hệ thống chuyển dữ liệu đến Hệ thống thông báo (Notification Service). |
+| **4** | Notification Service gửi thông báo đẩy (Push Notification) đến thiết bị của Tài xế. | |
+| **5** | Thiết bị Tài xế nhận thông báo, phát âm thanh chuông báo và hiển thị popup thông tin trên màn hình. | |
+| **6** | Tài xế chạm vào thông báo để mở màn hình chi tiết tương ứng trên ứng dụng. | |
+| **7** | | Hệ thống ghi nhận trạng thái "Đã nhận / Đã đọc" và lưu vết vào cơ sở dữ liệu. |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **4.1. Thiết bị tài xế mất kết nối mạng hoặc tắt ứng dụng** | 1. Hệ thống thông báo lưu tin vào hàng đợi (queue) để tự động gửi lại khi thiết bị kết nối mạng trở lại.<br>2. Nếu là thông báo nhận chuyến mới và hết thời gian chờ, hệ thống tự động hủy lượt gửi và chuyển cho tài xế khác. |
+| **4.2. Gửi thông báo đẩy thất bại qua kênh chính** | 1. Hệ thống ghi log lỗi.<br>2. Kích hoạt kênh gửi dự phòng (SMS hoặc kênh thông báo thứ cấp) nếu là thông tin nghiệp vụ quan trọng. |
+
+### 8.6. Nhận yêu cầu chuyến
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Nhận yêu cầu chuyến** |
+| **UCID** | UC006 |
+| **Mô tả** | Chức năng cho phép Tài xế xem thông tin cuốc xe được hệ thống phân bổ và quyết định chấp nhận hoặc từ chối chuyến đi trong một khoảng thời gian giới hạn. |
+| **Actor chính** | Tài xế |
+| **Actor phụ** | Hệ thống, Khách hàng |
+| **Tiền điều kiện** | Tài xế đang bật trạng thái sẵn sàng làm việc và vừa nhận được thông báo yêu cầu cuốc xe mới từ hệ thống. |
+| **Hậu điều kiện** | Cuốc xe được gán cho tài xế thành công (chuyển trạng thái sang đang đến đón) hoặc bị hệ thống thu hồi để chuyển cho tài xế khác. |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor (Tài xế) | System |
+| :---: | :--- | :--- |
+| **1** | | Hệ thống hiển thị màn hình thông báo cuốc xe mới với các thông tin tóm tắt (điểm đón, khoảng cách ước tính, điểm đến, loại dịch vụ) kèm theo đồng hồ đếm ngược thời gian phản hồi. |
+| **2** | Tài xế xem thông tin và nhấn nút "Chấp nhận" trước khi đồng hồ đếm ngược kết thúc. | |
+| **3** | | Hệ thống ghi nhận phản hồi, khóa tạm thời trạng thái nhận cuốc mới của tài xế. |
+| **4** | | Hệ thống chính thức gán mã tài xế vào chuyến đi và cập nhật trạng thái chuyến thành "Đã nhận chuyến / Đang đến điểm đón". |
+| **5** | | Hệ thống chuyển ứng dụng của tài xế sang màn hình điều hướng lộ trình di chuyển tới điểm đón khách. |
+| **6** | | Hệ thống gửi thông báo cho Khách hàng rằng tài xế đã nhận chuyến kèm thông tin chi tiết của tài xế. |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **2.1. Tài xế chủ động từ chối chuyến** | 1. Tài xế nhấn nút "Từ chối" hoặc "Bỏ qua".<br>2. Hệ thống đóng màn hình thông báo, ghi nhận tỷ lệ từ chối của tài xế và giữ tài xế ở trạng thái sẵn sàng.<br>3. Hệ thống tiếp tục tìm và phân công cuốc xe cho tài xế khác phù hợp hơn (không bắt khách hàng tạo lại yêu cầu). |
+| **2.2. Hết thời gian chờ phản hồi (Timeout)** | 1. Đồng hồ đếm ngược kết thúc nhưng tài xế không có thao tác xác nhận.<br>2. Hệ thống tự động thu hồi thông báo, đóng màn hình nhận chuyến.<br>3. Hệ thống chuyển cuốc xe cho tài xế khác theo cơ chế điều phối. |
+| **2.3. Khách hàng hủy yêu cầu khi tài xế chưa kịp nhận** | 1. Trong lúc đếm ngược, Khách hàng hủy yêu cầu trên ứng dụng.<br>2. Hệ thống hiển thị popup: "Khách hàng đã hủy yêu cầu đặt xe".<br>3. Đóng màn hình nhận chuyến và trả tài xế về màn hình chính (trạng thái sẵn sàng). |
+
+### 8.7. Chấp nhận và từ chối chuyến
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Chấp nhận và từ chối chuyến** |
+| **UCID** | UC007 |
+| **Mô tả** | Chức năng cho phép Tài xế đưa ra quyết định tiếp nhận thực hiện chuyến đi hoặc chủ động từ chối yêu cầu vừa được hệ thống phân bổ. |
+| **Actor chính** | Tài xế |
+| **Actor phụ** | Hệ thống CAB, Khách hàng |
+| **Tiền điều kiện** | Tài xế đang ở trạng thái sẵn sàng và màn hình đang hiển thị thông tin cuốc xe mới được phân bổ. |
+| **Hậu điều kiện** | - Nếu chấp nhận: Chuyến xe được gán cho tài xế, tài xế chuyển sang trạng thái bận và bắt đầu di chuyển đón khách.<br>- Nếu từ chối: Yêu cầu được chuyển tiếp cho tài xế khác, tài xế hiện tại tiếp tục ở trạng thái sẵn sàng. |
+
+#### Luồng sự kiện chính (Trường hợp Chấp nhận)
+
+| Bước | Actor (Tài xế) | System |
+| :---: | :--- | :--- |
+| **1** | Tài xế xem thông tin tóm tắt chuyến đi (điểm đón, điểm đến, khoảng cách, loại xe) và đồng hồ đếm ngược. | |
+| **2** | Tài xế nhấn nút **"Chấp nhận"**. | |
+| **3** | | Hệ thống dừng đồng hồ đếm ngược và kiểm tra tính khả dụng của chuyến đi. |
+| **4** | | Hệ thống ghi nhận trạng thái hoạt động của tài xế sang "Đang thực hiện chuyến" (bận) để không nhận cuốc khác. |
+| **5** | | Hệ thống gán tài xế vào mã chuyến đi và chuyển trạng thái chuyến sang "Đang đến điểm đón". |
+| **6** | | Hệ thống mở màn hình bản đồ điều hướng lộ trình tới điểm đón cho Tài xế. |
+| **7** | | Hệ thống gửi thông báo xác nhận kèm thông tin tài xế và thời gian dự kiến đến cho Khách hàng. |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **2.1. Tài xế chủ động từ chối chuyến** | 1. Tài xế nhấn nút **"Từ chối"** hoặc **"Bỏ qua"** trên màn hình.<br>2. Hệ thống đóng màn hình cuốc xe hiện tại và ghi nhận chỉ số từ chối vào hồ sơ tài xế.<br>3. Hệ thống giữ nguyên trạng thái tài xế là "Sẵn sàng" để tiếp tục nhận cuốc khác.<br>4. Hệ thống tự động chuyển yêu cầu chuyến sang tài xế phù hợp tiếp theo mà không bắt khách hàng đặt lại. |
+| **2.2. Hết thời gian chờ phản hồi (Không thao tác)** | 1. Hết thời gian đếm ngược mà tài xế không nhấn Chấp nhận hay Từ chối.<br>2. Hệ thống tự động xử lý như một lần từ chối cuốc, đóng giao diện nhận chuyến.<br>3. Hệ thống chuyển chuyến đi sang tài xế tiếp theo theo cơ chế điều phối. |
+| **3.1. Chuyến đi đã bị hủy trước khi tài xế bấm chấp nhận** | 1. Khách hàng hủy cuốc xe trong tích tắc trước khi tài xế xác nhận.<br>2. Hệ thống hiển thị thông báo: "Khách hàng đã hủy chuyến đi này".<br>3. Hệ thống đóng giao diện nhận chuyến và trả tài xế về màn hình chính ở trạng thái sẵn sàng. |
+
+### 8.8. Cập nhật trạng thái chuyến
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Cập nhật trạng thái chuyến** |
+| **UCID** | UC008 |
+| **Mô tả** | Chức năng cho phép Tài xế cập nhật từng bước tiến trình thực hiện chuyến đi (Đã đến điểm đón, Đã đón khách, Đang di chuyển, Hoàn thành) để hệ thống và Khách hàng theo dõi thời gian thực. |
+| **Actor chính** | Tài xế |
+| **Actor phụ** | Khách hàng, Hệ thống CAB, Hệ thống thông báo |
+| **Tiền điều kiện** | Tài xế đã chấp nhận cuốc xe và chuyến đi đang ở trạng thái hoạt động. |
+| **Hậu điều kiện** | Trạng thái chuyến đi trên hệ thống được đồng bộ mới nhất; Khách hàng nhận được thông báo cập nhật tương ứng. |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor (Tài xế) | System |
+| :---: | :--- | :--- |
+| **1** | Khi di chuyển tới vị trí đón, Tài xế nhấn nút **"Đã đến điểm đón"**. | |
+| **2** | | Hệ thống cập nhật trạng thái chuyến sang "Tài xế đã đến", gửi thông báo cho Khách hàng biết xe đã tới nơi. |
+| **3** | Khách hàng lên xe, Tài xế nhấn nút **"Bắt đầu chuyến đi"** (Đã đón khách). | |
+| **4** | | Hệ thống cập nhật trạng thái chuyến sang "Đang di chuyển", ghi nhận thời gian bắt đầu và bật chế độ theo dõi hành trình thời gian thực. |
+| **5** | Khi đưa khách tới điểm đến an toàn, Tài xế nhấn nút **"Hoàn thành chuyến đi"**. | |
+| **6** | | Hệ thống cập nhật trạng thái chuyến sang "Đã hoàn thành", kết thúc ghi nhận hành trình. |
+| **7** | | Hệ thống tự động kích hoạt tính cước phí và chuyển tiếp sang màn hình thanh toán cho cả hai bên. |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **1.1. Tài xế bấm "Đã đến" nhưng vị trí GPS còn cách xa điểm đón** | 1. Hệ thống phát hiện vị trí hiện tại chưa khớp với tọa độ điểm đón.<br>2. Hệ thống hiển thị cảnh báo: "Bạn chưa đến gần điểm đón, vui lòng kiểm tra lại".<br>3. Tài xế xác nhận lại vị trí hoặc tiếp tục di chuyển tới đúng điểm hẹn. |
+| **3.1. Khách hàng không xuất hiện tại điểm đón** | 1. Sau thời gian chờ quy định, Tài xế chọn tính năng "Không liên lạc được với khách / Khách không đến".<br>2. Hệ thống cập nhật trạng thái chuyến sang "Hủy do khách vắng mặt", ghi nhận log và giải phóng tài xế về trạng thái sẵn sàng. |
+| **5.1. Mất kết nối mạng khi tài xế bấm hoàn thành** | 1. Ứng dụng lưu trạng thái hoàn thành và tọa độ điểm kết thúc vào bộ nhớ tạm (offline).<br>2. Khi có kết nối mạng trở lại, ứng dụng tự động đồng bộ dữ liệu lên hệ thống để chốt cước phí. |
+
+### 8.9. Theo dõi trạng thái chuyến
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Theo dõi trạng thái chuyến** |
+| **UCID** | UC009 |
+| **Mô tả** | Chức năng cho phép Khách hàng theo dõi vị trí tài xế, lộ trình di chuyển và tiến trình chuyến đi theo thời gian thực từ lúc đặt xe đến khi hoàn thành. |
+| **Actor chính** | Khách hàng |
+| **Actor phụ** | Tài xế, Hệ thống định vị (GPS), Hệ thống thông báo |
+| **Tiền điều kiện** | Khách hàng đã tạo yêu cầu đặt xe thành công và chuyến đi đang trong tiến trình xử lý hoặc thực hiện. |
+| **Hậu điều kiện** | Khách hàng nắm bắt được thông tin trạng thái chuyến đi, vị trí xe và thời gian dự kiến đến theo thời gian thực. |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor (Khách hàng) | System |
+| :---: | :--- | :--- |
+| **1** | Khách hàng mở màn hình chi tiết chuyến đi đang diễn ra. | |
+| **2** | | Hệ thống truy xuất trạng thái hiện tại của chuyến (Đang tìm tài xế, Tài xế đang đến, Đã đến điểm đón, Đang di chuyển). |
+| **3** | | Hệ thống hiển thị bản đồ trực quan gồm vị trí điểm đón, điểm đến và lộ trình di chuyển. |
+| **4** | | Hệ thống liên tục nhận tọa độ GPS từ thiết bị Tài xế và cập nhật biểu tượng xe di chuyển trên bản đồ theo thời gian thực. |
+| **5** | | Hệ thống tính toán và hiển thị thời gian dự kiến tài xế đến điểm đón hoặc thời gian dự kiến tới điểm đến (ETA). |
+| **6** | | Khi tài xế cập nhật trạng thái mới (đến điểm đón, bắt đầu đi, hoàn thành), hệ thống lập tức cập nhật giao diện và gửi thông báo tương ứng cho Khách hàng. |
+| **7** | | Khi chuyến đi kết thúc, hệ thống chuyển giao diện của Khách hàng sang màn hình chi tiết cước phí và đánh giá chuyến đi. |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **4.1. Mất tín hiệu GPS hoặc mất kết nối mạng từ tài xế** | 1. Hệ thống giữ biểu tượng xe ở vị trí ghi nhận gần nhất và hiển thị cảnh báo: "Đang cập nhật lại vị trí tài xế...".<br>2. Khi có lại tín hiệu, hệ thống tự động đồng bộ lại vị trí mới nhất trên bản đồ. |
+| **6.1. Tài xế hoặc Khách hàng hủy chuyến** | 1. Hệ thống nhận lệnh hủy, cập nhật trạng thái chuyến thành "Đã hủy".<br>2. Hệ thống hiển thị thông báo hủy chuyến kèm lý do cho Khách hàng và đóng màn hình theo dõi hành trình. |
+
+### 8.10. Thanh toán cước phí
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Thanh toán cước phí** |
+| **UCID** | UC010 |
+| **Mô tả** | Chức năng cho phép xác định tổng cước phí sau khi kết thúc chuyến đi và xử lý thanh toán của Khách hàng bằng Tiền mặt hoặc qua Cổng thanh toán điện tử bên ngoài. |
+| **Actor chính** | Khách hàng |
+| **Actor phụ** | Tài xế, Hệ thống CAB, Cổng thanh toán điện tử (Payment Gateway), Hệ thống thông báo |
+| **Tiền điều kiện** | Chuyến đi đã hoàn thành và hệ thống đã tính toán xong số tiền cước phí cuối cùng. |
+| **Hậu điều kiện** | Giao dịch được ghi nhận thành công, trạng thái chuyến chuyển sang "Đã thanh toán" và hóa đơn được lưu vào lịch sử chuyến đi. |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor (Khách hàng / Tài xế / Cổng thanh toán) | System |
+| :---: | :--- | :--- |
+| **1** | | Khi chuyến đi hoàn thành, Hệ thống tính toán tổng tiền cước dựa trên loại dịch vụ và thông tin hành trình thực tế, sau đó hiển thị chi tiết hóa đơn lên ứng dụng của Khách hàng và Tài xế. |
+| **2** | Khách hàng lựa chọn phương thức thanh toán (Tiền mặt hoặc Thanh toán điện tử). | |
+| **3** | | **Trường hợp A - Thanh toán điện tử:**<br>1. Hệ thống chuyển tiếp yêu cầu sang Cổng thanh toán điện tử bên ngoài (không lưu trực tiếp thông tin thẻ nhạy cảm).<br>2. Cổng thanh toán xử lý giao dịch và trả kết quả thành công về Hệ thống CAB. |
+| **4** | | **Trường hợp B - Thanh toán tiền mặt:**<br>1. Khách hàng thanh toán tiền mặt trực tiếp cho Tài xế.<br>2. Tài xế nhận tiền và nhấn nút "Đã nhận tiền mặt" trên ứng dụng để xác nhận. |
+| **5** | | Hệ thống cập nhật trạng thái thanh toán của chuyến đi thành "Đã thanh toán". |
+| **6** | | Hệ thống gửi thông báo xác nhận thanh toán thành công kèm kết quả/hóa đơn điện tử cho cả Khách hàng và Tài xế. |
+| **7** | | Hệ thống chuyển hướng Khách hàng sang màn hình đánh giá chuyến đi. |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **3.1. Giao dịch thanh toán điện tử thất bại (lỗi thẻ, không đủ số dư, lỗi kết nối)** | 1. Cổng thanh toán trả về mã lỗi giao dịch.<br>2. Hệ thống hiển thị thông báo lỗi cho Khách hàng: "Thanh toán không thành công. Vui lòng thử lại hoặc đổi phương thức thanh toán".<br>3. Cho phép Khách hàng thực hiện thanh toán lại hoặc chuyển sang hình thức trả Tiền mặt theo chính sách.<br>4. Quay lại bước 2 của luồng chính. |
+| **4.1. Tài xế chưa xác nhận nhận tiền mặt** | 1. Hệ thống gửi thông báo nhắc nhở Tài xế xác nhận nhận tiền.<br>2. Nếu có tranh chấp phát sinh, chuyển thông tin cuốc xe để bộ phận Vận hành tra cứu và xử lý. |
+
+### 8.11. Xử lý thanh toán điện tử
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Xử lý thanh toán điện tử** |
+| **UCID** | UC011 |
+| **Mô tả** | Chức năng tích hợp và xử lý giao dịch thanh toán không dùng tiền mặt (thẻ ngân hàng, ví điện tử) qua cổng thanh toán bên ngoài đảm bảo an toàn bảo mật dữ liệu thẻ. |
+| **Actor chính** | Cổng thanh toán điện tử (Payment Gateway) |
+| **Actor phụ** | Khách hàng, Hệ thống CAB, Hệ thống thông báo |
+| **Tiền điều kiện** | Chuyến đi đã hoàn tất và khách hàng chọn phương thức thanh toán điện tử. |
+| **Hậu điều kiện** | Giao dịch trừ tiền thành công, trạng thái thanh toán được cập nhật và ghi log giao dịch vào hệ thống. |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor (Khách hàng / Cổng thanh toán) | System |
+| :---: | :--- | :--- |
+| **1** | Khách hàng xác nhận thực hiện thanh toán điện tử cho chuyến đi. | |
+| **2** | | Hệ thống đóng gói yêu cầu thanh toán (mã giao dịch, số tiền, mã định danh người dùng) và chuyển hướng yêu cầu sang Cổng thanh toán bên ngoài (không lưu trực tiếp thông tin nhạy cảm của thẻ). |
+| **3** | Cổng thanh toán hiển thị giao diện xác thực hoặc tự động trừ tiền qua token liên kết của Khách hàng. | |
+| **4** | Khách hàng hoàn tất bước xác thực bảo mật (OTP ngân hàng, FaceID/vân tay trên ví) nếu được yêu cầu. | |
+| **5** | Cổng thanh toán xử lý giao dịch thành công và trả về tín hiệu phản hồi (mã giao dịch bên thứ ba, trạng thái SUCCESS) cho Hệ thống CAB. | |
+| **6** | | Hệ thống tiếp nhận phản hồi, kiểm tra tính hợp lệ của chữ ký dữ liệu (signature verification). |
+| **7** | | Hệ thống cập nhật trạng thái chuyến đi thành "Đã thanh toán" và lưu log lịch sử giao dịch. |
+| **8** | | Hệ thống kích hoạt gửi thông báo kết quả thanh toán thành công đến Khách hàng và Tài xế. |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **5.1. Cổng thanh toán trả kết quả thất bại (không đủ số dư, thẻ hết hạn, lỗi kết nối ngân hàng)** | 1. Cổng thanh toán gửi mã lỗi chi tiết về Hệ thống CAB.<br>2. Hệ thống ghi log lỗi giao dịch.<br>3. Hệ thống hiển thị thông báo lỗi rõ ràng cho Khách hàng: "Giao dịch thanh toán thất bại".<br>4. Cho phép Khách hàng thực hiện thanh toán lại hoặc chuyển sang hình thức tiền mặt theo chính sách. |
+| **5.2. Mất kết nối mạng / Hết thời gian chờ (Timeout) với cổng thanh toán** | 1. Hệ thống tạm thời chuyển trạng thái giao dịch sang "Đang chờ đối soát / Pending".<br>2. Hệ thống tự động gửi yêu cầu truy vấn trạng thái giao dịch (Query/Webhook check) sang Cổng thanh toán.<br>3. Nếu vẫn không nhận được kết quả, hệ thống thông báo cho Khách hàng thử lại sau và ghi nhận sự cố để bộ phận vận hành hỗ trợ. |
+
+### 8.12. Đánh giá tài xế
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Đánh giá tài xế** |
+| **UCID** | UC012 |
+| **Mô tả** | Chức năng cho phép Khách hàng chấm điểm chất lượng dịch vụ (số sao) và để lại phản hồi/nhận xét cho Tài xế sau khi hoàn thành chuyến đi. |
+| **Actor chính** | Khách hàng |
+| **Actor phụ** | Tài xế, Hệ thống CAB |
+| **Tiền điều kiện** | Chuyến đi đã kết thúc và quá trình thanh toán cước phí đã hoàn tất thành công. |
+| **Hậu điều kiện** | Điểm đánh giá và nhận xét được ghi nhận vào hệ thống, điểm đánh giá trung bình của tài xế được cập nhật. |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor (Khách hàng) | System |
+| :---: | :--- | :--- |
+| **1** | | Sau khi thanh toán hoàn tất, Hệ thống tự động hiển thị biểu mẫu "Đánh giá chuyến đi" (chọn số sao từ 1-5, danh sách nhãn phản hồi nhanh, ô nhập nhận xét chi tiết). |
+| **2** | Khách hàng chọn số sao đánh giá, tích chọn tiêu chí (lái xe an toàn, xe sạch sẽ, thái độ tốt, v.v.) và nhập nhận xét (tùy chọn). | |
+| **3** | Khách hàng nhấn nút **"Gửi đánh giá"**. | |
+| **4** | | Hệ thống kiểm tra tính hợp lệ của dữ liệu đánh giá. |
+| **5** | | Hệ thống lưu thông tin đánh giá gắn liền với mã chuyến đi và hồ sơ của tài xế vào cơ sở dữ liệu. |
+| **6** | | Hệ thống tự động tính toán lại điểm đánh giá trung bình và cập nhật hiệu quả hoạt động của tài xế. |
+| **7** | | Hệ thống hiển thị thông báo "Cảm ơn bạn đã đánh giá dịch vụ" và đưa Khách hàng quay về màn hình chính của ứng dụng. |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **1.1. Khách hàng bỏ qua bước đánh giá ngay sau chuyến** | 1. Khách hàng nhấn nút "Bỏ qua" hoặc đóng cửa sổ đánh giá.<br>2. Hệ thống đóng biểu mẫu và chuyển về màn hình chính.<br>3. Hệ thống giữ quyền cho phép Khách hàng đánh giá lại chuyến đi đó từ mục "Lịch sử chuyến đi" trong khoảng thời gian quy định. |
+| **2.1. Đánh giá mức độ hài lòng thấp (1 - 2 sao)** | 1. Hệ thống tự động kích hoạt thêm danh sách chọn lý do phản ánh (lái xe ẩu, thái độ không tốt, xe không sạch, sai lộ trình).<br>2. Khách hàng chọn lý do và gửi.<br>3. Hệ thống lưu đánh giá và đánh dấu gắn cờ (flag) chuyến đi này để bộ phận Vận hành kiểm tra chất lượng dịch vụ nếu cần. |
+
+### 8.13. Quản lý tài khoản và phương tiện
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Quản lý tài khoản và phương tiện** |
+| **UCID** | UC013 |
+| **Mô tả** | Chức năng cho phép Nhân viên vận hành tạo, tra cứu, kiểm duyệt, cập nhật và khóa/mở khóa tài khoản người dùng (Khách hàng, Tài xế) cùng thông tin phương tiện hoạt động trên hệ thống. |
+| **Actor chính** | Nhân viên vận hành (Operator/Admin) |
+| **Actor phụ** | Tài xế, Khách hàng, Hệ thống thông báo |
+| **Tiền điều kiện** | Nhân viên vận hành đã đăng nhập vào giao diện quản trị và có quyền quản lý tài khoản/phương tiện. |
+| **Hậu điều kiện** | Thông tin tài khoản và phương tiện được tạo mới hoặc cập nhật trạng thái vào cơ sở dữ liệu; nhật ký thao tác (log) được lưu lại. |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor (Nhân viên vận hành) | System |
+| :---: | :--- | :--- |
+| **1** | Nhân viên truy cập vào mục "Quản lý tài khoản & phương tiện" trên giao diện quản trị. | |
+| **2** | | Hệ thống kiểm tra quyền truy cập và hiển thị danh sách tài khoản kèm bộ lọc tìm kiếm (vai trò, trạng thái, biển số xe, SĐT). |
+| **3** | Nhân viên chọn một hành động quản trị: Tạo tài khoản mới cho tài xế/khách hàng, Duyệt hồ sơ & phương tiện, Cập nhật thông tin hoặc Khóa/Mở khóa tài khoản. | |
+| **4** | Nhân viên nhập/chỉnh sửa các trường thông tin cần thiết (Họ tên, SĐT, CCCD, loại xe, biển số xe, hãng xe, màu xe, giấy tờ xe) và nhấn "Xác nhận lưu". | |
+| **5** | | Hệ thống kiểm tra tính hợp lệ của dữ liệu nhập (định dạng, trùng lặp biển số xe hoặc SĐT). |
+| **6** | | Hệ thống cập nhật dữ liệu tài khoản và phương tiện vào cơ sở dữ liệu. |
+| **7** | | Hệ thống lưu vết thao tác quản trị (Audit Log: người thực hiện, thời gian, nội dung thay đổi). |
+| **8** | | Hệ thống hiển thị thông báo "Thao tác thành công" và gửi thông báo cập nhật trạng thái đến người dùng liên quan. |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **2.1. Nhân viên không có quyền thực hiện** | 1. Hệ thống phát hiện tài khoản không đủ quyền hạn quản trị thao tác nhạy cảm.<br>2. Hiển thị thông báo: "Bạn không có quyền thực hiện chức năng này".<br>3. Dừng use case. |
+| **5.1. Dữ liệu không hợp lệ hoặc trùng lặp** | 1. Hệ thống báo lỗi cụ thể (ví dụ: "Biển số xe đã được đăng ký cho tài xế khác", "Số điện thoại đã tồn tại").<br>2. Cho phép nhân viên chỉnh sửa lại dữ liệu tại bước 4. |
+| **3.1. Khóa tài khoản do vi phạm/sự cố** | 1. Nhân viên chọn tài khoản, nhập lý do khóa và xác nhận khóa.<br>2. Hệ thống hủy phiên đăng nhập hiện tại của người dùng, chuyển trạng thái tài khoản sang "Đã khóa", gửi thông báo lý do khóa và ghi log. |
+
+### 8.14. Theo dõi chuyến đang diễn ra
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Theo dõi chuyến đang diễn ra** |
+| **UCID** | UC014 |
+| **Mô tả** | Chức năng cho phép Nhân viên vận hành giám sát trực tiếp các chuyến xe đang hoạt động trong hệ thống theo thời gian thực (vị trí xe, trạng thái chuyến, thông tin tài xế và khách hàng) nhằm điều phối và hỗ trợ kịp thời. |
+| **Actor chính** | Nhân viên vận hành (Operator/Admin) |
+| **Actor phụ** | Tài xế, Khách hàng, Hệ thống CAB |
+| **Tiền điều kiện** | Nhân viên vận hành đã đăng nhập vào hệ thống quản trị và có quyền giám sát vận hành. |
+| **Hậu điều kiện** | Thông tin chi tiết và lộ trình di chuyển của các chuyến đi đang hoạt động được hiển thị trực quan và cập nhật liên tục. |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor (Nhân viên vận hành) | System |
+| :---: | :--- | :--- |
+| **1** | Nhân viên truy cập vào mục "Giám sát chuyến xe đang diễn ra" trên bảng điều khiển quản trị. | |
+| **2** | | Hệ thống truy xuất và hiển thị danh sách các chuyến đi có trạng thái hoạt động (Đang tìm tài xế, Đang đón khách, Đang di chuyển) kèm bản đồ tổng quan khu vực. |
+| **3** | Nhân viên sử dụng bộ lọc (theo mã chuyến, khu vực, tên/SĐT tài xế, tên/SĐT khách hàng) hoặc chọn trực tiếp một chuyến xe trên danh sách/bản đồ. | |
+| **4** | | Hệ thống hiển thị chi tiết thông tin chuyến đi: thông tin khách hàng, tài xế, loại xe, điểm đón, điểm đến, lộ trình dự kiến, cước ước tính và tọa độ GPS thời gian thực của phương tiện. |
+| **5** | | Hệ thống tự động làm mới (polling/websocket) vị trí xe và cập nhật các mốc thay đổi trạng thái cuốc xe trên bản đồ. |
+| **6** | Nhân viên theo dõi tiến trình hoặc chọn can thiệp hỗ trợ nếu phát hiện bất thường. | |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **3.1. Phát hiện sự cố hoặc chuyến đi có dấu hiệu bất thường (đứng yên quá lâu, sai lộ trình)** | 1. Hệ thống gắn cờ cảnh báo (Warning flag) trên giao diện giám sát.<br>2. Nhân viên vận hành mở bảng điều khiển chi tiết chuyến xe để liên hệ tài xế/khách hàng hoặc kích hoạt chức năng hỗ trợ xử lý sự cố. |
+| **5.1. Mất tín hiệu kết nối từ thiết bị tài xế** | 1. Hệ thống hiển thị cảnh báo "Mất tín hiệu GPS / Ngoại tuyến" tại chuyến đi tương ứng.<br>2. Hệ thống hiển thị mốc thời gian và vị trí cập nhật cuối cùng để nhân viên vận hành chủ động kiểm tra. |
+
+### 8.15. Xử lý chuyến lỗi
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Xử lý chuyến lỗi** |
+| **UCID** | UC015 |
+| **Mô tả** | Chức năng cho phép Nhân viên vận hành tiếp nhận, can thiệp và xử lý các cuốc xe gặp sự cố (lỗi kỹ thuật, tài xế hỏng xe giữa đường, tranh chấp khách - tài xế, thanh toán lỗi, mất tín hiệu kéo dài) để hoàn tất hoặc hủy chuyến hợp lệ. |
+| **Actor chính** | Nhân viên vận hành (Operator/Admin) |
+| **Actor phụ** | Khách hàng, Tài xế, Hệ thống CAB |
+| **Tiền điều kiện** | Nhân viên vận hành đã đăng nhập hệ thống quản trị, có quyền xử lý sự cố và chuyến xe đang ở trạng thái lỗi hoặc có yêu cầu trợ giúp. |
+| **Hậu điều kiện** | Sự cố chuyến xe được giải quyết (hủy, điều phối lại, cập nhật cước phí/hoàn tiền), lưu log kiểm tra và trạng thái chuyến được cập nhật chính xác. |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor (Nhân viên vận hành) | System |
+| :---: | :--- | :--- |
+| **1** | Nhân viên truy cập danh sách "Sự cố & Chuyến xe lỗi" trên giao diện quản trị. | |
+| **2** | | Hệ thống hiển thị danh sách các chuyến bị gắn cờ lỗi (lỗi thanh toán, hệ thống treo, tài xế/khách báo sự cố). |
+| **3** | Nhân viên chọn một chuyến lỗi cụ thể để kiểm tra chi tiết. | |
+| **4** | | Hệ thống truy xuất toàn bộ thông tin: lịch sử trạng thái, lộ trình đã đi, dữ liệu thanh toán và nhật ký hệ thống của chuyến. |
+| **5** | Nhân viên chọn phương án can thiệp phù hợp (Hủy chuyến khẩn cấp, Điều phối xe thay thế, Điều chỉnh lại tiền cước, Chuyển trạng thái thanh toán). | |
+| **6** | Nhân viên nhập lý do xử lý và nhấn nút "Xác nhận can thiệp". | |
+| **7** | | Hệ thống cập nhật trạng thái chuyến đi theo quyết định của nhân viên. |
+| **8** | | Hệ thống ghi nhận nhật ký thao tác (Audit Log: mã nhân viên, thời gian, hành động, lý do) để phục vụ kiểm tra. |
+| **9** | | Hệ thống tự động gửi thông báo cập nhật kết quả xử lý sự cố tới Khách hàng và Tài xế liên quan. |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **5.1. Chuyến xe bị hỏng phương tiện / tai nạn giữa đường** | 1. Nhân viên chọn thao tác "Hủy chuyến do sự cố kỹ thuật".<br>2. Hệ thống tính cước cho đoạn đường thực tế đã đi (hoặc miễn phí theo chính sách) và giải phóng trạng thái cho tài xế.<br>3. Hệ thống tạo yêu cầu đặt xe mới ưu tiên cho Khách hàng nếu khách có nhu cầu tiếp tục di chuyển. |
+| **5.2. Chuyến xe bị lỗi treo thanh toán điện tử** | 1. Nhân viên tra cứu mã giao dịch bên cổng thanh toán.<br>2. Nếu tiền đã trừ bên khách: Nhân viên cập nhật trạng thái chuyến thành "Đã thanh toán".<br>3. Nếu tiền chưa trừ: Nhân viên chuyển trạng thái chuyến về "Chờ thanh toán lại" hoặc chuyển sang phương thức tiền mặt. |
+| **6.1. Thao tác vượt quá thẩm quyền của nhân viên** | 1. Hệ thống yêu cầu xác nhận duyệt từ cấp Quản lý cao hơn đối với các thao tác nhạy cảm (như hoàn tiền lớn, hủy doanh thu).<br>2. Chuyến xe được chuyển sang hàng đợi "Chờ quản lý phê duyệt". |
+
+### 8.16. Xem báo cáo cơ bản
+
+| **Trường thông tin** | **Nội dung chi tiết** |
+| :--- | :--- |
+| **Tên use case** | **Xem báo cáo cơ bản** |
+| **UCID** | UC016 |
+| **Mô tả** | Chức năng cho phép Ban lãnh đạo và Nhân viên vận hành xem, lọc và xuất các số liệu thống kê cơ bản về hoạt động của hệ thống (số lượng chuyến đi, doanh thu, tỷ lệ hoàn thành, tỷ lệ hủy và hiệu quả hoạt động của tài xế). |
+| **Actor chính** | Nhân viên vận hành, Ban lãnh đạo (Operator/Admin) |
+| **Actor phụ** | Hệ thống CAB |
+| **Tiền điều kiện** | Người dùng đã đăng nhập vào hệ thống quản trị và được phân quyền xem báo cáo thống kê. |
+| **Hậu điều kiện** | Báo cáo thống kê được hiển thị trực quan dạng bảng/biểu đồ và có thể xuất ra tệp dữ liệu theo nhu cầu. |
+
+#### Luồng sự kiện chính
+
+| Bước | Actor (Ban lãnh đạo / Nhân viên vận hành) | System |
+| :---: | :--- | :--- |
+| **1** | Người dùng truy cập vào mục "Báo cáo thống kê" trên thanh điều hướng quản trị. | |
+| **2** | | Hệ thống kiểm tra quyền truy cập và hiển thị màn hình tổng quan báo cáo cơ bản. |
+| **3** | Người dùng thiết lập các tiêu chí lọc: khoảng thời gian (ngày, tuần, tháng, quý), loại dịch vụ, khu vực hoạt động hoặc theo mã tài xế. | |
+| **4** | Người dùng nhấn nút **"Xem báo cáo"**. | |
+| **5** | | Hệ thống tổng hợp dữ liệu từ cơ sở dữ liệu và tính toán các chỉ số nghiệp vụ: tổng số chuyến, doanh thu, tỷ lệ chuyến hoàn thành, tỷ lệ hủy chuyến và đánh giá hiệu quả hoạt động của tài xế. |
+| **6** | | Hệ thống hiển thị kết quả trực quan dưới dạng biểu đồ và bảng số liệu chi tiết. |
+| **7** | Người dùng nhấn nút **"Xuất báo cáo"** (Excel/PDF) nếu cần lưu trữ ngoại tuyến. | |
+| **8** | | Hệ thống tạo tệp báo cáo tương ứng và tải về thiết bị của người dùng. |
+
+#### Luồng sự kiện thay thế
+
+| Trường hợp | Các bước xử lý |
+| :--- | :--- |
+| **2.1. Không có quyền truy cập module báo cáo** | 1. Hệ thống phát hiện tài khoản không đủ quyền hạn xem số liệu doanh thu/báo cáo tổng thể.<br>2. Hiển thị thông báo: "Bạn không có quyền truy cập báo cáo này".<br>3. Dừng use case. |
+| **3.1. Khoảng thời gian lọc không hợp lệ** | 1. Hệ thống phát hiện ngày bắt đầu lớn hơn ngày kết thúc.<br>2. Hiển thị thông báo cảnh báo: "Khoảng thời gian không hợp lệ, vui lòng chọn lại".<br>3. Người dùng nhập lại mốc thời gian tại bước 3. |
+| **5.1. Không có dữ liệu trong khoảng thời gian đã chọn** | 1. Hệ thống hiển thị thông báo: "Không có dữ liệu chuyến đi trong khoảng thời gian này".<br>2. Hiển thị bảng số liệu trống với giá trị 0 cho các chỉ số. |
+
+### 9. Business Diagram
 ```mermaid
-flowchart LR
-    %% Actors
-    Customer(["👤 Khách hàng<br>(Customer)"]):::actorStyle
-    Driver(["🚗 Tài xế<br>(Driver)"]):::actorStyle
-    Operator(["👨‍💼 Nhân viên vận hành<br>(Operator)"]):::actorStyle
-    PG["💳 Cổng thanh toán (PG)"]:::systemStyle
-    NS["🔔 Dịch vụ thông báo (NS)"]:::systemStyle
+flowchart TD
 
-    subgraph SYSTEM ["CAB SYSTEM (HỆ THỐNG ĐẶT XE TRỰC TUYẾN)"]
-        direction TB
+    %% ĐỊNH DẠNG MÀU SẮC CHO TỪNG LÀN
+    classDef client fill:#E3F2FD,stroke:#1E88E5,stroke-width:2px,color:#0D47A1;
+    classDef system fill:#E8F5E9,stroke:#43A047,stroke-width:2px,color:#1B5E20;
+    classDef driver fill:#FFF8E1,stroke:#FB8C00,stroke-width:2px,color:#E65100;
+    classDef payment fill:#F3E5F5,stroke:#8E24AA,stroke-width:2px,color:#4A148C;
+    classDef decision fill:#FFFDE7,stroke:#FBC02D,stroke-width:2px,stroke-dasharray: 3 3,color:#F57F17;
+    classDef stateNode fill:#ECEFF1,stroke:#607D8B,stroke-width:2px,color:#263238;
 
-        %% Customer UseCases
-        UC_Auth(["Đăng ký / Đăng nhập"]):::ucStyle
-        UC_Booking(["Tạo yêu cầu đặt xe"]):::ucStyle
-        UC_Track(["Theo dõi trạng thái chuyến"]):::ucStyle
-        UC_History(["Xem lịch sử chuyến"]):::ucStyle
-        UC_Pay(["Thanh toán"]):::ucStyle
-        UC_Rate(["Đánh giá tài xế"]):::ucStyle
-
-        %% Driver UseCases
-        UC_Profile(["Quản lý hồ sơ & phương tiện"]):::ucStyle
-        UC_Receive(["Nhận yêu cầu chuyến"]):::ucStyle
-        UC_AcceptReject(["Chấp nhận / Từ chối chuyến"]):::ucStyle
-        UC_UpdateStatus(["Cập nhật trạng thái chuyến"]):::ucStyle
-        UC_ShareLocation(["Chia sẻ vị trí"]):::ucStyle
-
-        %% Internal / System Dispatching UseCases
-        UC_Dispatch(["Tìm & Phân công tài xế"]):::sysUcStyle
-        UC_NotifyDriver(["Gửi thông báo tới tài xế"]):::sysUcStyle
-        UC_ProcessEPayment(["Xử lý thanh toán điện tử"]):::sysUcStyle
-        UC_SendNotification(["Gửi thông báo"]):::sysUcStyle
-
-        %% Operator UseCases
-        UC_ManageCust(["Quản lý khách hàng"]):::ucStyle
-        UC_ManageDriver(["Quản lý tài xế"]):::ucStyle
-        UC_ManageVehicle(["Quản lý phương tiện"]):::ucStyle
-        UC_MonitorTrips(["Theo dõi chuyến đang diễn ra"]):::ucStyle
-        UC_HandleErrors(["Xử lý chuyến lỗi"]):::ucStyle
-        UC_ViewReports(["Xem báo cáo cơ bản"]):::ucStyle
-
-        %% Include / Extend Relationships
-        UC_Booking -.->|<<include>>| UC_Dispatch
-        UC_Dispatch -.->|<<include>>| UC_NotifyDriver
-        UC_NotifyDriver -.->|<<trigger>>| UC_Receive
-        UC_Pay -.->|<<extend>>| UC_ProcessEPayment
-        UC_NotifyDriver -.->|<<delegate>>| UC_SendNotification
+    %% 1. LÀN KHÁCH HÀNG
+    subgraph LAN_CUSTOMER["👤 1. Khách hàng (Customer)"]
+        Start([● Bắt đầu]):::stateNode
+        C1["1. Nhập điểm đón, đến & Chọn loại xe"]:::client
+        C2{"2. Xác nhận đặt xe?"}:::decision
+        C_Cancel([✖ Hủy đặt xe]):::stateNode
+        C3["3. Nhận thông tin xe & Chờ đón"]:::client
+        C4["4. Lên xe & Di chuyển"]:::client
+        C5{"5. Chọn phương thức thanh toán"}:::decision
+        C_Cash["6. Trả tiền mặt trực tiếp"]:::client
+        C_Online["7. Xác thực thanh toán Online"]:::client
+        C6["8. Đánh giá chất lượng (1 - 5 sao)"]:::client
+        EndSuccess([★ Kết thúc chuyến đi]):::stateNode
     end
 
-    %% Customer Connections
-    Customer --- UC_Auth
-    Customer --- UC_Booking
-    Customer --- UC_Track
-    Customer --- UC_History
-    Customer --- UC_Pay
-    Customer --- UC_Rate
+    %% 2. LÀN HỆ THỐNG CAB
+    subgraph LAN_SYSTEM["🖥️ 2. Hệ thống CAB (System)"]
+        S1["Tính cước phí dự kiến"]:::system
+        S2["Tạo yêu cầu & Quét tài xế gần nhất"]:::system
+        S3{"Tìm thấy tài xế?"}:::decision
+        S_NoDriver["Thông báo không tìm thấy xe"]:::system
+        S_EndNoDriver([✖ Kết thúc yêu cầu]):::stateNode
+        S4["Gán chuyến & Điều phối lộ trình"]:::system
+        S5["Cập nhật GPS theo thời gian thực"]:::system
+        S6["Tính cước phí thực tế & Lập hóa đơn"]:::system
+        S7["Ghi nhận thanh toán thành công"]:::system
+    end
 
-    %% Driver Connections
-    Driver --- UC_Auth
-    Driver --- UC_Profile
-    Driver --- UC_Receive
-    Driver --- UC_AcceptReject
-    Driver --- UC_UpdateStatus
-    Driver --- UC_ShareLocation
+    %% 3. LÀN TÀI XẾ
+    subgraph LAN_DRIVER["🚗 3. Tài xế (Driver)"]
+        D1["Nhận thông báo cuốc xe mới"]:::driver
+        D2{"Chấp nhận chuyến?"}:::decision
+        D3["Di chuyển đón & Bấm Đã đến"]:::driver
+        D4["Bấm Bắt đầu chuyến đi"]:::driver
+        D5["Đến nơi & Bấm Hoàn thành"]:::driver
+        D6["Xác nhận đã nhận tiền mặt"]:::driver
+    end
 
-    %% Operator Connections
-    Operator --- UC_ManageCust
-    Operator --- UC_ManageDriver
-    Operator --- UC_ManageVehicle
-    Operator --- UC_MonitorTrips
-    Operator --- UC_HandleErrors
-    Operator --- UC_ViewReports
+    %% 4. LÀN CỔNG THANH TOÁN
+    subgraph LAN_PAYMENT["💳 4. Cổng thanh toán (Payment Gateway)"]
+        P1["Xử lý trừ tiền tài khoản"]:::payment
+        P2{"Giao dịch thành công?"}:::decision
+        P_Fail["Báo lỗi trừ tiền"]:::payment
+    end
 
-    %% Third-party System Connections
-    UC_ProcessEPayment --- PG
-    UC_SendNotification --- NS
-
-    classDef actorStyle fill:#E3F2FD,stroke:#1565C0,stroke-width:2px,color:#0D47A1,font-weight:bold;
-    classDef systemStyle fill:#ECEFF1,stroke:#37474F,stroke-width:2px,color:#263238,font-weight:bold;
-    classDef ucStyle fill:#FFFFFF,stroke:#455A64,stroke-width:1.5px,color:#212121;
-    classDef sysUcStyle fill:#FFF8E1,stroke:#FF8F00,stroke-width:1.5px,color:#E65100,font-weight:bold;
+    %% KẾT NỐI LUỒNG NGHIỆP VỤ (CORE FLOW)
+    Start --> C1
+    C1 --> S1
+    S1 --> C2
+    
+    C2 -- "Không" --> C_Cancel
+    C2 -- "Đồng ý" --> S2
+    
+    S2 --> S3
+    S3 -- "Hết tài xế" --> S_NoDriver --> S_EndNoDriver
+    S3 -- "Có tài xế" --> D1
+    
+    D1 --> D2
+    D2 -- "Từ chối / Hết giờ" --> S2
+    D2 -- "Chấp nhận" --> S4
+    
+    S4 --> C3
+    S4 --> D3
+    
+    D3 --> C4
+    C4 --> D4
+    D4 --> S5
+    S5 --> D5
+    
+    D5 --> S6
+    S6 --> C5
+    
+    %% RẼ NHÁNH THANH TOÁN
+    C5 -- "Tiền mặt" --> C_Cash
+    C_Cash --> D6
+    D6 --> S7
+    
+    C5 -- "Điện tử" --> C_Online
+    C_Online --> P1
+    P1 --> P2
+    P2 -- "Thất bại" --> P_Fail
+    P_Fail --> C5
+    P2 -- "Thành công" --> S7
+    
+    %% HOÀN TẤT
+    S7 --> C6
+    C6 --> EndSuccess
 ```
+### 10. Business Rules (Quy tắc nghiệp vụ)
 
-#### 7.2.2. Đặc tả PlantUML Use Case Diagram
-
-```plantuml
-@startuml
-left to right direction
-skinparam packageStyle rectangle
-skinparam actorStyle awesome
-skinparam shadowing false
-
-actor "Khách hàng\n(Customer)" as Customer
-actor "Tài xế\n(Driver)" as Driver
-actor "Nhân viên vận hành\n(Operator)" as Operator
-actor "Cổng thanh toán\n(PG)" as PG << System >>
-actor "Dịch vụ thông báo\n(NS)" as NS << System >>
-
-rectangle "CAB System" {
-    ' Nhóm xác thực & Hồ sơ
-    usecase "Đăng ký / Đăng nhập" as UC_Auth
-    usecase "Quản lý hồ sơ & phương tiện" as UC_Profile
-
-    ' Nhóm Đặt xe & Điều phối
-    usecase "Tạo yêu cầu đặt xe" as UC_Booking
-    usecase "Tìm & Phân công tài xế" as UC_Dispatch
-    usecase "Gửi thông báo tới tài xế" as UC_NotifyDriver
-    usecase "Nhận yêu cầu chuyến" as UC_Receive
-    usecase "Chấp nhận / Từ chối chuyến" as UC_AcceptReject
-
-    ' Nhóm Tiến trình chuyến & Theo dõi
-    usecase "Cập nhật trạng thái chuyến" as UC_UpdateStatus
-    usecase "Chia sẻ vị trí" as UC_ShareLocation
-    usecase "Theo dõi trạng thái chuyến" as UC_Track
-    usecase "Xem lịch sử chuyến" as UC_History
-
-    ' Nhóm Thanh toán & Đánh giá
-    usecase "Thanh toán" as UC_Pay
-    usecase "Xử lý thanh toán điện tử" as UC_EPay
-    usecase "Đánh giá tài xế" as UC_Rate
-
-    ' Nhóm Thông báo hệ thống
-    usecase "Gửi thông báo" as UC_Notify
-
-    ' Nhóm Quản trị vận hành
-    usecase "Quản lý khách hàng" as UC_ManageCust
-    usecase "Quản lý tài xế" as UC_ManageDriver
-    usecase "Quản lý phương tiện" as UC_ManageVeh
-    usecase "Theo dõi chuyến đang diễn ra" as UC_Monitor
-    usecase "Xử lý chuyến lỗi" as UC_HandleError
-    usecase "Xem báo cáo cơ bản" as UC_Report
-
-    ' Mối quan hệ giữa các Use Case (Include / Extend)
-    UC_Booking ..> UC_Dispatch : <<include>>
-    UC_Dispatch ..> UC_NotifyDriver : <<include>>
-    UC_Pay <.. UC_EPay : <<extend>>
-}
-
-' Liên kết Khách hàng
-Customer --> UC_Auth
-Customer --> UC_Booking
-Customer --> UC_Track
-Customer --> UC_History
-Customer --> UC_Pay
-Customer --> UC_Rate
-
-' Liên kết Tài xế
-Driver --> UC_Auth
-Driver --> UC_Profile
-Driver --> UC_Receive
-Driver --> UC_AcceptReject
-Driver --> UC_UpdateStatus
-Driver --> UC_ShareLocation
-
-' Liên kết Nhân viên vận hành
-Operator --> UC_ManageCust
-Operator --> UC_ManageDriver
-Operator --> UC_ManageVeh
-Operator --> UC_Monitor
-Operator --> UC_HandleError
-Operator --> UC_Report
-
-' Liên kết Dịch vụ bên ngoài
-UC_EPay --> PG
-UC_NotifyDriver --> NS
-UC_Notify --> NS
-@enduml
-```
-
----
-
-### 7.3. Bảng Ma trận Ánh xạ Use Case và Yêu cầu Chức năng (FR - UC Mapping Matrix)
-
-| Mã UC | Tên Use Case | Tác nhân chính (Actors) | Yêu cầu chức năng tương ứng (FR) | Quan hệ phụ thuộc |
-| :---: | :--- | :--- | :--- | :--- |
-| **UC01** | Đăng ký / Đăng nhập | Customer, Driver | FR01.1, FR01.2, FR10.1 | - |
-| **UC02** | Quản lý hồ sơ & phương tiện | Driver | FR01.4, FR01.5 | - |
-| **UC03** | Tạo yêu cầu đặt xe | Customer | FR02.1, FR02.2, FR02.3, FR02.4 | Include: UC04 |
-| **UC04** | Tìm & Phân công tài xế | Hệ thống (CAB System) | FR03.1, FR03.2, FR03.6, FR03.7 | Include: UC05 |
-| **UC05** | Gửi thông báo tới tài xế | Hệ thống, NS | FR03.3, FR07.6 | Trigger: UC06 |
-| **UC06** | Nhận yêu cầu chuyến | Driver | FR03.3, FR07.6 | - |
-| **UC07** | Chấp nhận / Từ chối chuyến | Driver | FR03.4, FR03.5 | - |
-| **UC08** | Cập nhật trạng thái chuyến | Driver | FR04.1, FR04.2, FR04.3, FR04.4, FR04.5 | Trigger: Cập nhật tới UC09 |
-| **UC09** | Theo dõi trạng thái chuyến | Customer | FR02.5, FR04.6, FR07.2, FR07.3 | - |
-| **UC10** | Chia sẻ vị trí | Driver | FR04.7 | Hỗ trợ cho UC04, UC09 |
-| **UC11** | Thanh toán | Customer | FR05.1, FR05.2, FR06.1, FR06.2 | Extend: UC12 |
-| **UC12** | Xử lý thanh toán điện tử | PG, CAB System | FR06.2, FR06.3, FR06.4, FR06.5 | Extend của UC11 |
-| **UC13** | Đánh giá tài xế | Customer | FR09.5 | Sau khi UC08 hoàn thành |
-| **UC14** | Xem lịch sử chuyến | Customer | FR06.6, FR08.4 | - |
-| **UC15** | Gửi thông báo | NS, CAB System | FR07.1, FR07.4, FR07.5, FR07.7 | - |
-| **UC16** | Quản lý khách hàng | Operator | FR08.1 | - |
-| **UC17** | Quản lý tài xế & phương tiện | Operator | FR08.2, FR08.3 | - |
-| **UC18** | Theo dõi chuyến đang diễn ra | Operator | FR08.5, FR08.6 | - |
-| **UC19** | Xử lý chuyến lỗi | Operator | FR08.7 | - |
-| **UC20** | Xem báo cáo cơ bản | Operator | FR09.1, FR09.2, FR09.3, FR09.4 | - |
-
----
-
-### 7.4. Đặc tả chi tiết các Use Case cốt lõi (Use Case Specifications)
-
-#### 7.4.1. Đặc tả Use Case UC03: Tạo yêu cầu đặt xe & Điều phối tài xế
-
-- **Tên Use Case:** Tạo yêu cầu đặt xe (Create Ride Request)
-- **Tác nhân chính:** Khách hàng (Customer)
-- **Tác nhân phụ / Hệ thống:** Tài xế (Driver), Hệ thống điều phối (CAB System), Dịch vụ thông báo (NS)
-- **Tiền điều kiện (Pre-conditions):** Khách hàng đã đăng nhập vào ứng dụng và bật dịch vụ định vị.
-- **Hậu điều kiện (Post-conditions):** Cuốc xe được tạo, tài xế nhận cuốc thành công và khách hàng nhận được thông báo tài xế đang tới đón.
-
-##### Luồng sự kiện chính (Main Success Scenario):
-1. Khách hàng nhập hoặc chọn điểm đón và điểm trả khách trên bản đồ.
-2. Khách hàng lựa chọn loại phương tiện (Xe 4 chỗ, 7 chỗ, xe máy,...).
-3. Hệ thống tính toán quãng đường và hiển thị cước phí dự kiến cùng thời gian ước tính (ETA).
-4. Khách hàng nhấn xác nhận "Đặt xe".
-5. Hệ thống khởi tạo cuốc xe ở trạng thái `REQUESTED`.
-6. Hệ thống thực hiện Use Case con `Tìm & Phân công tài xế` (UC04): Quét tìm tài xế khả dụng gần nhất dựa trên tọa độ GPS.
-7. Hệ thống thực hiện `Gửi thông báo tới tài xế` (UC05) thông qua NS.
-8. Tài xế nhận cuốc xe (UC06) và nhấn "Chấp nhận" (UC07).
-9. Hệ thống chuyển trạng thái chuyến đi sang `ACCEPTED`, cập nhật thông tin tài xế cho khách hàng và hoàn tất luồng đặt xe.
-
-##### Các luồng nhánh / ngoại lệ (Alternative & Exception Flows):
-- **3a. Địa chỉ không hợp lệ:** Hệ thống báo lỗi và yêu cầu khách hàng chọn lại điểm đón/trả.
-- **8a. Tài xế từ chối hoặc hết thời gian phản hồi (Timeout):** Hệ thống tự động chuyển tiếp và gửi yêu cầu cho tài xế phù hợp tiếp theo.
-- **8b. Không tìm được tài xế khả dụng trong bán kính quy định:** Hệ thống thông báo *"Hiện không có tài xế phù hợp quanh khu vực này"* và chuyển cuốc xe sang trạng thái `FAILED/CANCELLED`.
-
----
-
-#### 7.4.2. Đặc tả Use Case UC08: Cập nhật tiến trình & Theo dõi chuyến đi
-
-- **Tên Use Case:** Cập nhật tiến trình chuyến đi (Update Ride Progress)
-- **Tác nhân chính:** Tài xế (Driver)
-- **Tác nhân phụ:** Khách hàng (Customer)
-- **Tiền điều kiện:** Chuyến đi đang ở trạng thái `ACCEPTED`.
-- **Hậu điều kiện:** Toàn bộ tiến trình chuyến đi được ghi nhận và chuyến đi kết thúc ở trạng thái `COMPLETED`.
-
-##### Luồng sự kiện chính (Main Success Scenario):
-1. Sau khi nhận chuyến, tài xế bắt đầu di chuyển và hệ thống cập nhật trạng thái `ARRIVING`.
-2. Khi tới điểm hẹn đón khách, tài xế nhấn "Đã đến điểm đón" -> Hệ thống chuyển trạng thái `ARRIVED` và gửi thông báo nhắc khách hàng.
-3. Khi khách lên xe, tài xế nhấn "Bắt đầu chuyến đi" -> Hệ thống chuyển trạng thái `IN_TRANSIT`.
-4. Trong suốt hành trình, ứng dụng tài xế gửi tọa độ GPS định kỳ (UC10) để khách hàng theo dõi trực tiếp vị trí xe (UC09).
-5. Khi đến điểm trả khách an toàn, tài xế nhấn "Hoàn thành chuyến đi" -> Hệ thống chuyển trạng thái `COMPLETED`, tính toán cước phí chính thức và chuyển sang màn hình thanh toán.
-
----
-
-#### 7.4.3. Đặc tả Use Case UC11: Thanh toán chuyến đi
-
-- **Tên Use Case:** Thanh toán chuyến đi (Process Ride Payment)
-- **Tác nhân chính:** Khách hàng (Customer)
-- **Tác nhân phụ:** Tài xế (Driver), Cổng thanh toán (PG)
-- **Tiền điều kiện:** Chuyến đi vừa hoàn thành (`COMPLETED`) và hệ thống đã tính toán cước phí chính thức.
-- **Hậu điều kiện:** Cước phí được thanh toán thành công, hóa đơn điện tử được lưu vào lịch sử giao dịch.
-
-##### Luồng sự kiện chính (Main Success Scenario):
-1. Hệ thống hiển thị tổng tiền cước cần thanh toán và các phương thức thanh toán khả dụng (Tiền mặt / Thẻ / Ví điện tử).
-2. **Trường hợp Tiền mặt:** Khách hàng thanh toán trực tiếp cho tài xế. Tài xế nhấn xác nhận "Đã thu tiền mặt" trên ứng dụng -> Hệ thống ghi nhận trạng thái `PAID`.
-3. **Trường hợp Thanh toán điện tử (UC12):** Khách hàng chọn Cổng thanh toán trực tuyến -> Hệ thống chuyển hướng yêu cầu sang Cổng thanh toán (PG) -> PG xác thực và trừ tiền -> PG hoàn trả mã giao dịch thành công -> Hệ thống ghi nhận trạng thái `PAID`.
-4. Hệ thống xuất biên lai điện tử và hiển thị màn hình `Đánh giá tài xế` (UC13) cho khách hàng.
-
-##### Luồng ngoại lệ:
-- **3a. Giao dịch điện tử thất bại (Không đủ số dư / Lỗi kết nối):** Hệ thống thông báo lỗi, cho phép khách hàng thực hiện lại hoặc chuyển hình thức sang trả tiền mặt.
-
----
-
-#### 7.4.4. Đặc tả Use Case UC18 & UC19: Giám sát vận hành và Xử lý chuyến lỗi
-
-- **Tên Use Case:** Giám sát vận hành & Xử lý sự cố (Operations Monitoring & Incident Handling)
-- **Tác nhân chính:** Nhân viên vận hành (Operator)
-- **Tiền điều kiện:** Nhân viên vận hành đăng nhập thành công vào cổng Quản trị (Admin Portal).
-- **Hậu điều kiện:** Sự cố cuốc xe được can thiệp xử lý, đảm bảo thông suốt cho khách hàng và tài xế.
-
-##### Luồng sự kiện chính (Main Success Scenario):
-1. Nhân viên vận hành mở bản đồ điều hành trực tiếp để theo dõi danh sách cuốc xe đang diễn ra (`IN_TRANSIT`, `ACCEPTED`, `REQUESTED`).
-2. Hệ thống cảnh báo các cuốc xe có dấu hiệu bất thường (đứng yên quá lâu, tài xế không di chuyển, hoặc khách hàng gửi khiếu nại khẩn cấp).
-3. Nhân viên vận hành chọn cuốc xe gặp sự cố để xem chi tiết lịch sử và vị trí.
-4. Nhân viên vận hành liên hệ xác minh với tài xế/khách hàng và thực hiện thao tác can thiệp:
-   - Điều phối lại (Re-assign) cho tài xế khác.
-   - Hủy cuốc xe khẩn cấp và hoàn tiền (nếu đã trừ phí).
-5. Hệ thống cập nhật trạng thái mới của chuyến đi và tự động ghi nhật ký kiểm toán (Audit Log) ghi rõ nhân viên thực hiện thao tác.
+| Mã quy tắc | Tên quy tắc | Mô tả chi tiết & Điều kiện áp dụng | Phạm vi áp dụng |
+| :---: | :--- | :--- | :--- |
+| **BR-01** | **Xác thực tài khoản bắt buộc** | Khách hàng và Tài xế bắt buộc phải được xác thực danh tính (đăng nhập hợp lệ) trước khi thực hiện các thao tác cốt lõi trên ứng dụng. | Toàn hệ thống |
+| **BR-02** | **Ưu tiên phân công tài xế** | Hệ thống tự động ưu tiên gán cuốc xe cho tài xế dựa trên 3 tiêu chí: (1) Đang ở trạng thái sẵn sàng, (2) Có khoảng cách/vị trí gần khách hàng nhất, (3) Có hiệu quả hoạt động tốt. | Điều phối xe |
+| **BR-03** | **Chuyển tiếp điều phối tự động** | Khi tài xế được chỉ định từ chối nhận chuyến hoặc không phản hồi sau thời gian chờ quy định (timeout), hệ thống phải tự động chuyển yêu cầu sang tài xế tiếp theo mà không bắt khách hàng phải tạo lại cuốc. | Điều phối xe |
+| **BR-04** | **Xử lý khi không có tài xế** | Nếu sau thời gian tìm kiếm mà không có bất kỳ tài xế nào tiếp nhận, hệ thống phải dừng tìm kiếm và hiển thị thông báo rõ ràng cho khách hàng. | Điều phối xe |
+| **BR-05** | **Tính cước phí sau chuyến đi** | Số tiền khách hàng phải trả được hệ thống tự động xác định và chốt lại sau khi chuyến đi hoàn thành, căn cứ vào loại dịch vụ và thông tin hành trình di chuyển thực tế. | Thanh toán & Tính cước |
+| **BR-06** | **Bảo mật dữ liệu thanh toán** | Hệ thống CAB tuyệt đối không lưu trữ trực tiếp các thông tin nhạy cảm của thẻ thanh toán hoặc tài khoản ngân hàng của người dùng mà phải ủy quyền xử lý qua cổng thanh toán bên ngoài. | Thanh toán & Bảo mật |
+| **BR-07** | **Xử lý lỗi thanh toán điện tử** | Trường hợp giao dịch trừ tiền qua cổng thanh toán thất bại, hệ thống phải thông báo ngay cho khách hàng và cho phép thực hiện thanh toán lại hoặc chuyển sang hình thức tiền mặt theo chính sách. | Thanh toán |
+| **BR-08** | **Đồng bộ trạng thái hành trình** | Trong suốt chuyến đi, tài xế phải cập nhật tuần tự các mốc trạng thái (Đã đến điểm đón $\rightarrow$ Đã đón khách $\rightarrow$ Đang di chuyển $\rightarrow$ Hoàn thành chuyến) để hệ thống gửi thông báo và đồng bộ theo thời gian thực cho khách hàng. | Thực hiện chuyến |
+| **BR-09** | **Phân quyền thao tác quản trị** | Các chức năng quản trị hệ thống phải được phân cấp quyền hạn chặt chẽ; nhân viên thông thường không được phép thực hiện các thao tác nhạy cảm (như can thiệp doanh thu, duyệt hồ sơ đặc biệt). | Quản trị & Vận hành |
+| **BR-10** | **Ghi vết nhật ký hệ thống (Audit Log)** | Mọi thao tác quản trị quan trọng, lịch sử giao dịch và thay đổi trạng thái cuốc xe phải được lưu vết tự động để phục vụ công tác đối soát, kiểm tra khi có sự cố. | Bảo mật & Vận hành |
+| **BR-11** | **Bảo vệ dữ liệu nhạy cảm** | Dữ liệu vị trí theo thời gian thực, thông tin cá nhân của người dùng, phương tiện và lịch sử giao dịch phải được mã hóa và bảo vệ quyền riêng tư. | Bảo mật |
