@@ -355,3 +355,299 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **FR10.1** | Xác thực người dùng (Authentication) | Kiểm soát chặt chẽ danh tính trước khi cho phép thực hiện thao tác nghiệp vụ |
 | **FR10.2** | Phân quyền vai trò (Role-Based Access) | Phân chia quyền hạn rõ ràng giữa Khách hàng, Tài xế và Nhân viên vận hành |
 | **FR10.3** | Nhật ký kiểm toán (Audit Logging) | Ghi nhận thời điểm, người thực hiện và nội dung các thao tác quản trị quan trọng |
+
+## 7. MÔ HÌNH HÓA VÀ ĐẶC TẢ USE CASE (USE CASE MODELING & SPECIFICATIONS)
+
+### 7.1. Danh sách các Tác nhân (Actors)
+
+| Tác nhân (Actor) | Phân loại | Vai trò và Trách nhiệm chính |
+| :--- | :---: | :--- |
+| **Khách hàng (Customer)** | Primary Actor | Người dùng có nhu cầu di chuyển, khởi tạo yêu cầu đặt xe, theo dõi hành trình, thực hiện thanh toán và đánh giá tài xế. |
+| **Tài xế (Driver)** | Primary Actor | Đối tác vận chuyển trực tiếp, tiếp nhận cuốc xe, cập nhật trạng thái đón/trả khách, chia sẻ vị trí GPS và quản lý phương tiện. |
+| **Nhân viên vận hành (Operator)** | Secondary Actor | Quản lý dữ liệu người dùng, giám sát các cuốc xe đang diễn ra trong thời gian thực, can thiệp xử lý chuyến lỗi và theo dõi báo cáo. |
+| **Cổng thanh toán (Payment Gateway - PG)** | Supporting System | Hệ thống bên thứ ba tiếp nhận yêu cầu thanh toán không tiền mặt, xác thực bảo mật và hoàn trả kết quả giao dịch. |
+| **Dịch vụ thông báo (Notification Service - NS)** | Supporting System | Hệ thống bên thứ ba cung cấp hạ tầng gửi mã OTP qua SMS và đẩy tin nhắn thông báo (Push Notification) đến thiết bị người dùng. |
+
+---
+
+### 7.2. Sơ đồ Use Case tổng quan (Use Case Diagram)
+
+#### 7.2.1. Sơ đồ trực quan (Mermaid Use Case Diagram)
+
+```mermaid
+flowchart LR
+    %% Actors
+    Customer(["👤 Khách hàng<br>(Customer)"]):::actorStyle
+    Driver(["🚗 Tài xế<br>(Driver)"]):::actorStyle
+    Operator(["👨‍💼 Nhân viên vận hành<br>(Operator)"]):::actorStyle
+    PG["💳 Cổng thanh toán (PG)"]:::systemStyle
+    NS["🔔 Dịch vụ thông báo (NS)"]:::systemStyle
+
+    subgraph SYSTEM ["CAB SYSTEM (HỆ THỐNG ĐẶT XE TRỰC TUYẾN)"]
+        direction TB
+
+        %% Customer UseCases
+        UC_Auth(["Đăng ký / Đăng nhập"]):::ucStyle
+        UC_Booking(["Tạo yêu cầu đặt xe"]):::ucStyle
+        UC_Track(["Theo dõi trạng thái chuyến"]):::ucStyle
+        UC_History(["Xem lịch sử chuyến"]):::ucStyle
+        UC_Pay(["Thanh toán"]):::ucStyle
+        UC_Rate(["Đánh giá tài xế"]):::ucStyle
+
+        %% Driver UseCases
+        UC_Profile(["Quản lý hồ sơ & phương tiện"]):::ucStyle
+        UC_Receive(["Nhận yêu cầu chuyến"]):::ucStyle
+        UC_AcceptReject(["Chấp nhận / Từ chối chuyến"]):::ucStyle
+        UC_UpdateStatus(["Cập nhật trạng thái chuyến"]):::ucStyle
+        UC_ShareLocation(["Chia sẻ vị trí"]):::ucStyle
+
+        %% Internal / System Dispatching UseCases
+        UC_Dispatch(["Tìm & Phân công tài xế"]):::sysUcStyle
+        UC_NotifyDriver(["Gửi thông báo tới tài xế"]):::sysUcStyle
+        UC_ProcessEPayment(["Xử lý thanh toán điện tử"]):::sysUcStyle
+        UC_SendNotification(["Gửi thông báo"]):::sysUcStyle
+
+        %% Operator UseCases
+        UC_ManageCust(["Quản lý khách hàng"]):::ucStyle
+        UC_ManageDriver(["Quản lý tài xế"]):::ucStyle
+        UC_ManageVehicle(["Quản lý phương tiện"]):::ucStyle
+        UC_MonitorTrips(["Theo dõi chuyến đang diễn ra"]):::ucStyle
+        UC_HandleErrors(["Xử lý chuyến lỗi"]):::ucStyle
+        UC_ViewReports(["Xem báo cáo cơ bản"]):::ucStyle
+
+        %% Include / Extend Relationships
+        UC_Booking -.->|<<include>>| UC_Dispatch
+        UC_Dispatch -.->|<<include>>| UC_NotifyDriver
+        UC_NotifyDriver -.->|<<trigger>>| UC_Receive
+        UC_Pay -.->|<<extend>>| UC_ProcessEPayment
+        UC_NotifyDriver -.->|<<delegate>>| UC_SendNotification
+    end
+
+    %% Customer Connections
+    Customer --- UC_Auth
+    Customer --- UC_Booking
+    Customer --- UC_Track
+    Customer --- UC_History
+    Customer --- UC_Pay
+    Customer --- UC_Rate
+
+    %% Driver Connections
+    Driver --- UC_Auth
+    Driver --- UC_Profile
+    Driver --- UC_Receive
+    Driver --- UC_AcceptReject
+    Driver --- UC_UpdateStatus
+    Driver --- UC_ShareLocation
+
+    %% Operator Connections
+    Operator --- UC_ManageCust
+    Operator --- UC_ManageDriver
+    Operator --- UC_ManageVehicle
+    Operator --- UC_MonitorTrips
+    Operator --- UC_HandleErrors
+    Operator --- UC_ViewReports
+
+    %% Third-party System Connections
+    UC_ProcessEPayment --- PG
+    UC_SendNotification --- NS
+
+    classDef actorStyle fill:#E3F2FD,stroke:#1565C0,stroke-width:2px,color:#0D47A1,font-weight:bold;
+    classDef systemStyle fill:#ECEFF1,stroke:#37474F,stroke-width:2px,color:#263238,font-weight:bold;
+    classDef ucStyle fill:#FFFFFF,stroke:#455A64,stroke-width:1.5px,color:#212121;
+    classDef sysUcStyle fill:#FFF8E1,stroke:#FF8F00,stroke-width:1.5px,color:#E65100,font-weight:bold;
+```
+
+#### 7.2.2. Đặc tả PlantUML Use Case Diagram
+
+```plantuml
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam actorStyle awesome
+skinparam shadowing false
+
+actor "Khách hàng\n(Customer)" as Customer
+actor "Tài xế\n(Driver)" as Driver
+actor "Nhân viên vận hành\n(Operator)" as Operator
+actor "Cổng thanh toán\n(PG)" as PG << System >>
+actor "Dịch vụ thông báo\n(NS)" as NS << System >>
+
+rectangle "CAB System" {
+    ' Nhóm xác thực & Hồ sơ
+    usecase "Đăng ký / Đăng nhập" as UC_Auth
+    usecase "Quản lý hồ sơ & phương tiện" as UC_Profile
+
+    ' Nhóm Đặt xe & Điều phối
+    usecase "Tạo yêu cầu đặt xe" as UC_Booking
+    usecase "Tìm & Phân công tài xế" as UC_Dispatch
+    usecase "Gửi thông báo tới tài xế" as UC_NotifyDriver
+    usecase "Nhận yêu cầu chuyến" as UC_Receive
+    usecase "Chấp nhận / Từ chối chuyến" as UC_AcceptReject
+
+    ' Nhóm Tiến trình chuyến & Theo dõi
+    usecase "Cập nhật trạng thái chuyến" as UC_UpdateStatus
+    usecase "Chia sẻ vị trí" as UC_ShareLocation
+    usecase "Theo dõi trạng thái chuyến" as UC_Track
+    usecase "Xem lịch sử chuyến" as UC_History
+
+    ' Nhóm Thanh toán & Đánh giá
+    usecase "Thanh toán" as UC_Pay
+    usecase "Xử lý thanh toán điện tử" as UC_EPay
+    usecase "Đánh giá tài xế" as UC_Rate
+
+    ' Nhóm Thông báo hệ thống
+    usecase "Gửi thông báo" as UC_Notify
+
+    ' Nhóm Quản trị vận hành
+    usecase "Quản lý khách hàng" as UC_ManageCust
+    usecase "Quản lý tài xế" as UC_ManageDriver
+    usecase "Quản lý phương tiện" as UC_ManageVeh
+    usecase "Theo dõi chuyến đang diễn ra" as UC_Monitor
+    usecase "Xử lý chuyến lỗi" as UC_HandleError
+    usecase "Xem báo cáo cơ bản" as UC_Report
+
+    ' Mối quan hệ giữa các Use Case (Include / Extend)
+    UC_Booking ..> UC_Dispatch : <<include>>
+    UC_Dispatch ..> UC_NotifyDriver : <<include>>
+    UC_Pay <.. UC_EPay : <<extend>>
+}
+
+' Liên kết Khách hàng
+Customer --> UC_Auth
+Customer --> UC_Booking
+Customer --> UC_Track
+Customer --> UC_History
+Customer --> UC_Pay
+Customer --> UC_Rate
+
+' Liên kết Tài xế
+Driver --> UC_Auth
+Driver --> UC_Profile
+Driver --> UC_Receive
+Driver --> UC_AcceptReject
+Driver --> UC_UpdateStatus
+Driver --> UC_ShareLocation
+
+' Liên kết Nhân viên vận hành
+Operator --> UC_ManageCust
+Operator --> UC_ManageDriver
+Operator --> UC_ManageVeh
+Operator --> UC_Monitor
+Operator --> UC_HandleError
+Operator --> UC_Report
+
+' Liên kết Dịch vụ bên ngoài
+UC_EPay --> PG
+UC_NotifyDriver --> NS
+UC_Notify --> NS
+@enduml
+```
+
+---
+
+### 7.3. Bảng Ma trận Ánh xạ Use Case và Yêu cầu Chức năng (FR - UC Mapping Matrix)
+
+| Mã UC | Tên Use Case | Tác nhân chính (Actors) | Yêu cầu chức năng tương ứng (FR) | Quan hệ phụ thuộc |
+| :---: | :--- | :--- | :--- | :--- |
+| **UC01** | Đăng ký / Đăng nhập | Customer, Driver | FR01.1, FR01.2, FR10.1 | - |
+| **UC02** | Quản lý hồ sơ & phương tiện | Driver | FR01.4, FR01.5 | - |
+| **UC03** | Tạo yêu cầu đặt xe | Customer | FR02.1, FR02.2, FR02.3, FR02.4 | Include: UC04 |
+| **UC04** | Tìm & Phân công tài xế | Hệ thống (CAB System) | FR03.1, FR03.2, FR03.6, FR03.7 | Include: UC05 |
+| **UC05** | Gửi thông báo tới tài xế | Hệ thống, NS | FR03.3, FR07.6 | Trigger: UC06 |
+| **UC06** | Nhận yêu cầu chuyến | Driver | FR03.3, FR07.6 | - |
+| **UC07** | Chấp nhận / Từ chối chuyến | Driver | FR03.4, FR03.5 | - |
+| **UC08** | Cập nhật trạng thái chuyến | Driver | FR04.1, FR04.2, FR04.3, FR04.4, FR04.5 | Trigger: Cập nhật tới UC09 |
+| **UC09** | Theo dõi trạng thái chuyến | Customer | FR02.5, FR04.6, FR07.2, FR07.3 | - |
+| **UC10** | Chia sẻ vị trí | Driver | FR04.7 | Hỗ trợ cho UC04, UC09 |
+| **UC11** | Thanh toán | Customer | FR05.1, FR05.2, FR06.1, FR06.2 | Extend: UC12 |
+| **UC12** | Xử lý thanh toán điện tử | PG, CAB System | FR06.2, FR06.3, FR06.4, FR06.5 | Extend của UC11 |
+| **UC13** | Đánh giá tài xế | Customer | FR09.5 | Sau khi UC08 hoàn thành |
+| **UC14** | Xem lịch sử chuyến | Customer | FR06.6, FR08.4 | - |
+| **UC15** | Gửi thông báo | NS, CAB System | FR07.1, FR07.4, FR07.5, FR07.7 | - |
+| **UC16** | Quản lý khách hàng | Operator | FR08.1 | - |
+| **UC17** | Quản lý tài xế & phương tiện | Operator | FR08.2, FR08.3 | - |
+| **UC18** | Theo dõi chuyến đang diễn ra | Operator | FR08.5, FR08.6 | - |
+| **UC19** | Xử lý chuyến lỗi | Operator | FR08.7 | - |
+| **UC20** | Xem báo cáo cơ bản | Operator | FR09.1, FR09.2, FR09.3, FR09.4 | - |
+
+---
+
+### 7.4. Đặc tả chi tiết các Use Case cốt lõi (Use Case Specifications)
+
+#### 7.4.1. Đặc tả Use Case UC03: Tạo yêu cầu đặt xe & Điều phối tài xế
+
+- **Tên Use Case:** Tạo yêu cầu đặt xe (Create Ride Request)
+- **Tác nhân chính:** Khách hàng (Customer)
+- **Tác nhân phụ / Hệ thống:** Tài xế (Driver), Hệ thống điều phối (CAB System), Dịch vụ thông báo (NS)
+- **Tiền điều kiện (Pre-conditions):** Khách hàng đã đăng nhập vào ứng dụng và bật dịch vụ định vị.
+- **Hậu điều kiện (Post-conditions):** Cuốc xe được tạo, tài xế nhận cuốc thành công và khách hàng nhận được thông báo tài xế đang tới đón.
+
+##### Luồng sự kiện chính (Main Success Scenario):
+1. Khách hàng nhập hoặc chọn điểm đón và điểm trả khách trên bản đồ.
+2. Khách hàng lựa chọn loại phương tiện (Xe 4 chỗ, 7 chỗ, xe máy,...).
+3. Hệ thống tính toán quãng đường và hiển thị cước phí dự kiến cùng thời gian ước tính (ETA).
+4. Khách hàng nhấn xác nhận "Đặt xe".
+5. Hệ thống khởi tạo cuốc xe ở trạng thái `REQUESTED`.
+6. Hệ thống thực hiện Use Case con `Tìm & Phân công tài xế` (UC04): Quét tìm tài xế khả dụng gần nhất dựa trên tọa độ GPS.
+7. Hệ thống thực hiện `Gửi thông báo tới tài xế` (UC05) thông qua NS.
+8. Tài xế nhận cuốc xe (UC06) và nhấn "Chấp nhận" (UC07).
+9. Hệ thống chuyển trạng thái chuyến đi sang `ACCEPTED`, cập nhật thông tin tài xế cho khách hàng và hoàn tất luồng đặt xe.
+
+##### Các luồng nhánh / ngoại lệ (Alternative & Exception Flows):
+- **3a. Địa chỉ không hợp lệ:** Hệ thống báo lỗi và yêu cầu khách hàng chọn lại điểm đón/trả.
+- **8a. Tài xế từ chối hoặc hết thời gian phản hồi (Timeout):** Hệ thống tự động chuyển tiếp và gửi yêu cầu cho tài xế phù hợp tiếp theo.
+- **8b. Không tìm được tài xế khả dụng trong bán kính quy định:** Hệ thống thông báo *"Hiện không có tài xế phù hợp quanh khu vực này"* và chuyển cuốc xe sang trạng thái `FAILED/CANCELLED`.
+
+---
+
+#### 7.4.2. Đặc tả Use Case UC08: Cập nhật tiến trình & Theo dõi chuyến đi
+
+- **Tên Use Case:** Cập nhật tiến trình chuyến đi (Update Ride Progress)
+- **Tác nhân chính:** Tài xế (Driver)
+- **Tác nhân phụ:** Khách hàng (Customer)
+- **Tiền điều kiện:** Chuyến đi đang ở trạng thái `ACCEPTED`.
+- **Hậu điều kiện:** Toàn bộ tiến trình chuyến đi được ghi nhận và chuyến đi kết thúc ở trạng thái `COMPLETED`.
+
+##### Luồng sự kiện chính (Main Success Scenario):
+1. Sau khi nhận chuyến, tài xế bắt đầu di chuyển và hệ thống cập nhật trạng thái `ARRIVING`.
+2. Khi tới điểm hẹn đón khách, tài xế nhấn "Đã đến điểm đón" -> Hệ thống chuyển trạng thái `ARRIVED` và gửi thông báo nhắc khách hàng.
+3. Khi khách lên xe, tài xế nhấn "Bắt đầu chuyến đi" -> Hệ thống chuyển trạng thái `IN_TRANSIT`.
+4. Trong suốt hành trình, ứng dụng tài xế gửi tọa độ GPS định kỳ (UC10) để khách hàng theo dõi trực tiếp vị trí xe (UC09).
+5. Khi đến điểm trả khách an toàn, tài xế nhấn "Hoàn thành chuyến đi" -> Hệ thống chuyển trạng thái `COMPLETED`, tính toán cước phí chính thức và chuyển sang màn hình thanh toán.
+
+---
+
+#### 7.4.3. Đặc tả Use Case UC11: Thanh toán chuyến đi
+
+- **Tên Use Case:** Thanh toán chuyến đi (Process Ride Payment)
+- **Tác nhân chính:** Khách hàng (Customer)
+- **Tác nhân phụ:** Tài xế (Driver), Cổng thanh toán (PG)
+- **Tiền điều kiện:** Chuyến đi vừa hoàn thành (`COMPLETED`) và hệ thống đã tính toán cước phí chính thức.
+- **Hậu điều kiện:** Cước phí được thanh toán thành công, hóa đơn điện tử được lưu vào lịch sử giao dịch.
+
+##### Luồng sự kiện chính (Main Success Scenario):
+1. Hệ thống hiển thị tổng tiền cước cần thanh toán và các phương thức thanh toán khả dụng (Tiền mặt / Thẻ / Ví điện tử).
+2. **Trường hợp Tiền mặt:** Khách hàng thanh toán trực tiếp cho tài xế. Tài xế nhấn xác nhận "Đã thu tiền mặt" trên ứng dụng -> Hệ thống ghi nhận trạng thái `PAID`.
+3. **Trường hợp Thanh toán điện tử (UC12):** Khách hàng chọn Cổng thanh toán trực tuyến -> Hệ thống chuyển hướng yêu cầu sang Cổng thanh toán (PG) -> PG xác thực và trừ tiền -> PG hoàn trả mã giao dịch thành công -> Hệ thống ghi nhận trạng thái `PAID`.
+4. Hệ thống xuất biên lai điện tử và hiển thị màn hình `Đánh giá tài xế` (UC13) cho khách hàng.
+
+##### Luồng ngoại lệ:
+- **3a. Giao dịch điện tử thất bại (Không đủ số dư / Lỗi kết nối):** Hệ thống thông báo lỗi, cho phép khách hàng thực hiện lại hoặc chuyển hình thức sang trả tiền mặt.
+
+---
+
+#### 7.4.4. Đặc tả Use Case UC18 & UC19: Giám sát vận hành và Xử lý chuyến lỗi
+
+- **Tên Use Case:** Giám sát vận hành & Xử lý sự cố (Operations Monitoring & Incident Handling)
+- **Tác nhân chính:** Nhân viên vận hành (Operator)
+- **Tiền điều kiện:** Nhân viên vận hành đăng nhập thành công vào cổng Quản trị (Admin Portal).
+- **Hậu điều kiện:** Sự cố cuốc xe được can thiệp xử lý, đảm bảo thông suốt cho khách hàng và tài xế.
+
+##### Luồng sự kiện chính (Main Success Scenario):
+1. Nhân viên vận hành mở bản đồ điều hành trực tiếp để theo dõi danh sách cuốc xe đang diễn ra (`IN_TRANSIT`, `ACCEPTED`, `REQUESTED`).
+2. Hệ thống cảnh báo các cuốc xe có dấu hiệu bất thường (đứng yên quá lâu, tài xế không di chuyển, hoặc khách hàng gửi khiếu nại khẩn cấp).
+3. Nhân viên vận hành chọn cuốc xe gặp sự cố để xem chi tiết lịch sử và vị trí.
+4. Nhân viên vận hành liên hệ xác minh với tài xế/khách hàng và thực hiện thao tác can thiệp:
+   - Điều phối lại (Re-assign) cho tài xế khác.
+   - Hủy cuốc xe khẩn cấp và hoàn tiền (nếu đã trừ phí).
+5. Hệ thống cập nhật trạng thái mới của chuyến đi và tự động ghi nhật ký kiểm toán (Audit Log) ghi rõ nhân viên thực hiện thao tác.
