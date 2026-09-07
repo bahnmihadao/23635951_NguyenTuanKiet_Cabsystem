@@ -1,0 +1,1026 @@
+"/drivers/me/profile":
+  "get":
+    "tags":
+      - "Drivers"
+    "summary": "Xem hồ sơ tài xế"
+    "operationId": "getDriverProfile"
+    "description": "Chỉ tài xế sở hữu. Thay đổi giấy tờ đưa hồ sơ về PENDING để duyệt lại. Dữ liệu nhạy cảm không xuất hiện trong thông tin tài xế công khai."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/DriverProfile"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR01.4"
+    "x-readme-use-cases": []
+  "put":
+    "tags":
+      - "Drivers"
+    "summary": "Cập nhật hồ sơ tài xế"
+    "operationId": "putDriverProfile"
+    "description": "Chỉ tài xế sở hữu. Thay đổi giấy tờ đưa hồ sơ về PENDING để duyệt lại. Dữ liệu nhạy cảm không xuất hiện trong thông tin tài xế công khai."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/DriverProfile"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR01.4"
+    "x-readme-use-cases": []
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/DriverProfileInput"
+"/drivers/me/vehicle":
+  "get":
+    "tags":
+      - "Drivers"
+    "summary": "Xem phương tiện của tôi"
+    "operationId": "getDriverVehicle"
+    "description": "Thiết kế mỗi tài xế một xe hoạt động. PUT tạo hoặc thay thế thông tin, biển số duy nhất; đổi xe/giấy tờ cần duyệt lại. Không đổi phương tiện khi đang thực hiện chuyến."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Vehicle"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR01.5"
+    "x-readme-use-cases": []
+  "put":
+    "tags":
+      - "Drivers"
+    "summary": "Đăng ký/cập nhật phương tiện"
+    "operationId": "putDriverVehicle"
+    "description": "Thiết kế mỗi tài xế một xe hoạt động. PUT tạo hoặc thay thế thông tin, biển số duy nhất; đổi xe/giấy tờ cần duyệt lại. Không đổi phương tiện khi đang thực hiện chuyến."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Vehicle"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR01.5"
+    "x-readme-use-cases": []
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/VehicleInput"
+"/drivers/me/availability":
+  "put":
+    "tags":
+      - "Drivers"
+    "summary": "Bật/tắt nhận cuốc"
+    "operationId": "setAvailability"
+    "description": "Chỉ hồ sơ và xe APPROVED mới bật AVAILABLE. BUSY do server quản lý; đang phục vụ chuyến không được tự giải phóng trạng thái."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Availability"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR03.1"
+      - "FR08.6"
+    "x-readme-use-cases": []
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/AvailabilityInput"
+"/drivers/me/locations":
+  "post":
+    "tags":
+      - "Drivers"
+    "summary": "Cập nhật vị trí GPS"
+    "operationId": "recordLocation"
+    "description": "Lưu dấu vết theo recordedAt/sequence; mẫu cũ không ghi đè vị trí mới nhất. Server gắn vị trí vào chuyến đang được phân công. Không nhận driverId tùy ý."
+    "responses":
+      "204":
+        "description": "Xử lý thành công."
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR03.1"
+      - "FR03.2"
+      - "FR04.7"
+    "x-readme-use-cases": []
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/Location"
+"/vehicle-types":
+  "get":
+    "tags":
+      - "Booking"
+    "summary": "Danh sách loại xe"
+    "operationId": "listVehicleTypes"
+    "description": "Ba loại xe của UC003; khả dụng theo khu vực."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/VehicleServicePage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "AUTHENTICATED"
+    "x-readme-fr":
+      - "FR02.3"
+    "x-readme-use-cases":
+      - "UC003"
+    "parameters":
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+      -
+        "name": "regionId"
+        "in": "query"
+        "required": false
+        "description": "regionId"
+        "schema":
+          "type": "string"
+"/regions":
+  "get":
+    "tags":
+      - "Booking"
+    "summary": "Danh mục khu vực"
+    "operationId": "listRegions"
+    "description": "Dùng chọn khu vực phục vụ và bộ lọc báo cáo."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/RegionPage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "AUTHENTICATED"
+    "x-readme-fr": []
+    "x-readme-use-cases":
+      - "UC016"
+    "parameters":
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+"/places":
+  "get":
+    "tags":
+      - "Booking"
+    "summary": "Tìm địa chỉ/điểm đón và đến"
+    "operationId": "searchPlaces"
+    "description": "Adapter bản đồ cơ bản hoặc mô phỏng. Không tích hợp định tuyến tránh kẹt xe có bản quyền."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/PointPage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+      "503":
+        "$ref": "./openapi.yaml#/components/responses/Unavailable"
+    "x-required-roles":
+      - "AUTHENTICATED"
+    "x-readme-fr":
+      - "FR02.1"
+      - "FR02.2"
+    "x-readme-use-cases":
+      - "UC003"
+    "parameters":
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+      -
+        "name": "query"
+        "in": "query"
+        "required": true
+        "description": "query"
+        "schema":
+          "type": "string"
+          "minLength": 1
+"/routes":
+  "post":
+    "tags":
+      - "Booking"
+    "summary": "Tính lộ trình dự kiến"
+    "operationId": "calculateRoute"
+    "description": "Trả danh sách tọa độ để vẽ đường, khoảng cách và thời gian; địa chỉ không xác định trả 422 LOCATION_UNRESOLVABLE."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Route"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+      "503":
+        "$ref": "./openapi.yaml#/components/responses/Unavailable"
+    "x-required-roles":
+      - "AUTHENTICATED"
+    "x-readme-fr":
+      - "FR02.1"
+      - "FR02.2"
+    "x-readme-use-cases":
+      - "UC003"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/RouteRequest"
+"/fare-estimates":
+  "post":
+    "tags":
+      - "Booking"
+    "summary": "Ước tính cước trước khi đặt"
+    "operationId": "estimateFare"
+    "description": "Bảng giá theo loại xe và quãng đường; công thức chưa chốt. Không dùng dynamic pricing. Báo giá gắn chủ sở hữu và bộ thông tin chuyến; thời hạn trả qua expiresAt."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/FareEstimate"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+      "503":
+        "$ref": "./openapi.yaml#/components/responses/Unavailable"
+    "x-required-roles":
+      - "CUSTOMER"
+    "x-readme-fr":
+      - "FR05.2"
+    "x-readme-use-cases":
+      - "UC003"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/FareEstimateRequest"
+"/trips":
+  "post":
+    "tags":
+      - "Trips"
+    "summary": "Tạo yêu cầu đặt xe"
+    "operationId": "createTrip"
+    "description": "Kiểm tra estimateId thuộc khách, chưa hết hạn và khớp điểm đón/đến/loại xe. Tạo SEARCHING và UNPAID; tự động chọn tài xế AVAILABLE phù hợp, ưu tiên khoảng cách/hiệu quả, gửi offer. 201 chỉ xác nhận tạo yêu cầu. Không tìm được tài xế: chuyển CANCELLED với cancelCode=NO_DRIVER_AVAILABLE, cancelledBy=SYSTEM và thông báo. Thời gian và trọng số chưa chốt."
+    "responses":
+      "201":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Trip"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "CUSTOMER"
+    "x-readme-fr":
+      - "FR02.4"
+      - "FR03.1"
+      - "FR03.2"
+      - "FR03.3"
+      - "FR03.6"
+      - "FR03.7"
+      - "FR07.1"
+      - "FR07.6"
+    "x-readme-use-cases":
+      - "UC003"
+      - "UC004"
+    "parameters":
+      -
+        "$ref": "./openapi.yaml#/components/parameters/IdempotencyKey"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/TripCreate"
+  "get":
+    "tags":
+      - "Trips"
+    "summary": "Lịch sử chuyến của tôi"
+    "operationId": "listMyTrips"
+    "description": "Khách chỉ thấy chuyến của mình; tài xế chỉ thấy chuyến đã được phân công. Không cho client truyền customerId để xem người khác."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/TripPage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "CUSTOMER"
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR02.5"
+    "x-readme-use-cases":
+      - "UC009"
+      - "UC012"
+    "parameters":
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+      -
+        "name": "status"
+        "in": "query"
+        "required": false
+        "description": "status"
+        "schema":
+          "$ref": "./openapi.yaml#/components/schemas/TripStatus"
+"/trips/{tripId}":
+  "get":
+    "tags":
+      - "Trips"
+    "summary": "Chi tiết và trạng thái yêu cầu"
+    "operationId": "getTrip"
+    "description": "Chỉ khách sở hữu hoặc tài xế được phân công. Thanh toán tách paymentStatus; COMPLETED không đồng nghĩa PAID."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Trip"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "CUSTOMER"
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR02.5"
+      - "FR04.6"
+    "x-readme-use-cases":
+      - "UC009"
+    "parameters":
+      -
+        "name": "tripId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh tripId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "trip_001"
+"/trips/{tripId}/tracking":
+  "get":
+    "tags":
+      - "Trips"
+    "summary": "Theo dõi vị trí và ETA"
+    "operationId": "trackTrip"
+    "description": "Polling snapshot có thời gian server. Chỉ khách sở hữu/tài xế được phân công. Giữ vị trí cuối khi mất GPS và trả STALE/UNAVAILABLE; không dùng vị trí cũ như dữ liệu trực tiếp. Sau kết thúc ngừng lộ vị trí mới của tài xế, chỉ trả vị trí cuối thuộc chuyến. Chu kỳ polling/ngưỡng stale chưa chốt."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Tracking"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "CUSTOMER"
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR04.6"
+      - "FR04.7"
+    "x-readme-use-cases":
+      - "UC009"
+    "parameters":
+      -
+        "name": "tripId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh tripId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "trip_001"
+"/trips/{tripId}/events":
+  "get":
+    "tags":
+      - "Trips"
+    "summary": "Lịch sử trạng thái chuyến"
+    "operationId": "listTripEvents"
+    "description": "Chỉ người tham gia chuyến; sự kiện sắp xếp theo thời gian, không chứa audit nội bộ."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/TripEventPage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "CUSTOMER"
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR04.6"
+    "x-readme-use-cases":
+      - "UC009"
+    "parameters":
+      -
+        "name": "tripId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh tripId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "trip_001"
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+"/drivers/me/offers":
+  "get":
+    "tags":
+      - "Dispatch"
+    "summary": "Danh sách lời mời nhận chuyến"
+    "operationId": "listOffers"
+    "description": "Chỉ offer gửi tới tài xế hiện tại. expiresAt lấy từ server. Hết hạn được thu hồi tự động và chuyển tài xế khác; khách không tạo lại yêu cầu."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/OfferPage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR03.3"
+      - "FR03.6"
+    "x-readme-use-cases":
+      - "UC004"
+      - "UC006"
+      - "UC005"
+    "parameters":
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+      -
+        "name": "status"
+        "in": "query"
+        "required": false
+        "description": "status"
+        "schema":
+          "type": "string"
+          "enum":
+            - "PENDING"
+            - "ACCEPTED"
+            - "REJECTED"
+            - "EXPIRED"
+            - "REVOKED"
+"/drivers/me/offers/{offerId}/accept":
+  "post":
+    "tags":
+      - "Dispatch"
+    "summary": "Chấp nhận lời mời"
+    "operationId": "acceptOffer"
+    "description": "Kiểm tra đồng thời offer còn hạn/PENDING, chuyến SEARCHING, tài xế AVAILABLE. Gán và chuyển BUSY nguyên tử; chuyến DRIVER_ASSIGNED. Offer hết hạn/bị thu hồi/chuyến đã hủy trả 409 OFFER_UNAVAILABLE. Gửi thông tin tài xế cho khách."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Trip"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR03.4"
+      - "FR04.1"
+      - "FR07.2"
+    "x-readme-use-cases":
+      - "UC004"
+      - "UC006"
+      - "UC007"
+    "parameters":
+      -
+        "name": "offerId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh offerId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "offer_001"
+      -
+        "$ref": "./openapi.yaml#/components/parameters/IdempotencyKey"
+"/drivers/me/offers/{offerId}/reject":
+  "post":
+    "tags":
+      - "Dispatch"
+    "summary": "Từ chối lời mời"
+    "operationId": "rejectOffer"
+    "description": "Chỉ offer PENDING của mình. Ghi tỷ lệ từ chối, giữ AVAILABLE, tiếp tục tìm tài xế khác trên cùng tripId. Timeout tự động có kết quả tương tự; không cần API client kích hoạt timeout."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Offer"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR03.5"
+      - "FR03.6"
+    "x-readme-use-cases":
+      - "UC006"
+      - "UC007"
+    "parameters":
+      -
+        "name": "offerId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh offerId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "offer_001"
+      -
+        "$ref": "./openapi.yaml#/components/parameters/IdempotencyKey"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/Reason"
+"/trips/{tripId}/status-transitions":
+  "post":
+    "tags":
+      - "Trips"
+    "summary": "Cập nhật tiến trình/đồng bộ khi có mạng"
+    "operationId": "transitionTrip"
+    "description": "Chỉ tài xế đang được phân công. Trình tự DRIVER_ASSIGNED → ARRIVED → PICKED_UP → IN_PROGRESS → COMPLETED. Nút Bắt đầu trong UC008 có thể gửi tuần tự PICKED_UP và IN_PROGRESS để lưu đủ FR04.3/FR04.4. ARRIVED kiểm tra GPS và ngưỡng khoảng cách chưa chốt (422 PICKUP_TOO_FAR). COMPLETED tự chốt cước từ dấu vết đã xác minh và gửi thông báo. Khi offline lưu request, gửi lại cùng Idempotency-Key; sai expectedVersion trả 409 VERSION_CONFLICT, đọc lại chuyến trước khi xử lý. Không chấp nhận thời gian tương lai hoặc trình tự sự kiện đảo ngược."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Trip"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR04.2"
+      - "FR04.3"
+      - "FR04.4"
+      - "FR04.5"
+      - "FR05.1"
+      - "FR05.2"
+      - "FR07.3"
+      - "FR07.4"
+    "x-readme-use-cases":
+      - "UC008"
+    "parameters":
+      -
+        "name": "tripId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh tripId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "trip_001"
+      -
+        "$ref": "./openapi.yaml#/components/parameters/IdempotencyKey"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/StatusChange"
+"/trips/{tripId}/cancel":
+  "post":
+    "tags":
+      - "Trips"
+    "summary": "Hủy chuyến/hủy tìm kiếm/khách vắng mặt"
+    "operationId": "cancelTrip"
+    "description": "Chỉ khách sở hữu hoặc tài xế được phân công. Thiết kế cho tự hủy ở SEARCHING, DRIVER_ASSIGNED, ARRIVED; đang chở khách cần vận hành xử lý sự cố. customerNoShow=true chỉ tài xế, trạng thái ARRIVED và hết thời gian chờ cấu hình. Ghi cancelCode/cancelledBy, thu hồi offer, giải phóng tài xế, gửi thông báo. Phí/chế tài hủy chưa chốt; không mặc định miễn phí."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Trip"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "CUSTOMER"
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR07.7"
+    "x-readme-use-cases":
+      - "UC003"
+      - "UC008"
+      - "UC009"
+    "parameters":
+      -
+        "name": "tripId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh tripId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "trip_001"
+      -
+        "$ref": "./openapi.yaml#/components/parameters/IdempotencyKey"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/CancelRequest"

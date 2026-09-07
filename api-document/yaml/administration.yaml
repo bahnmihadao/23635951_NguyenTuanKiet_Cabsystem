@@ -1,0 +1,1988 @@
+"/trips/{tripId}/incidents":
+  "post":
+    "tags":
+      - "Operations"
+    "summary": "Báo sự cố hoặc tranh chấp"
+    "operationId": "reportIncident"
+    "description": "Khách/tài xế liên quan chuyến tạo yêu cầu hỗ trợ; không được tự sửa doanh thu hoặc kết quả thanh toán."
+    "responses":
+      "201":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Incident"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "CUSTOMER"
+      - "DRIVER"
+    "x-readme-fr":
+      - "FR08.7"
+    "x-readme-use-cases":
+      - "UC015"
+    "parameters":
+      -
+        "name": "tripId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh tripId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "trip_001"
+      -
+        "$ref": "./openapi.yaml#/components/parameters/IdempotencyKey"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/IncidentInput"
+"/admin/users":
+  "get":
+    "tags":
+      - "Administration"
+    "summary": "Tra cứu users"
+    "operationId": "adminListUsers"
+    "description": "Yêu cầu quyền users:read; lọc và phân trang trên toàn hệ thống. Dữ liệu cá nhân chỉ cho nhân viên có quyền nghiệp vụ tương ứng."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/UserPage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.1"
+    "x-readme-use-cases":
+      - "UC013"
+    "parameters":
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+      -
+        "name": "query"
+        "in": "query"
+        "required": false
+        "description": "Tìm theo ID, tên, SĐT; phương tiện hỗ trợ biển số."
+        "schema":
+          "type": "string"
+      -
+        "name": "regionId"
+        "in": "query"
+        "required": false
+        "description": "regionId"
+        "schema":
+          "type": "string"
+      -
+        "name": "role"
+        "in": "query"
+        "required": false
+        "description": "role"
+        "schema":
+          "type": "string"
+          "enum":
+            - "CUSTOMER"
+            - "DRIVER"
+      -
+        "name": "status"
+        "in": "query"
+        "required": false
+        "description": "status"
+        "schema":
+          "type": "string"
+          "enum":
+            - "ACTIVE"
+            - "LOCKED"
+      -
+        "name": "plateNumber"
+        "in": "query"
+        "required": false
+        "description": "plateNumber"
+        "schema":
+          "type": "string"
+  "post":
+    "tags":
+      - "Administration"
+    "summary": "Vận hành tạo tài khoản khách/tài xế"
+    "operationId": "adminCreateUser"
+    "description": "Quyền users:write. Tạo lời mời, OTP gửi người dùng; DRIVER phải có hồ sơ và xe. Ghi audit. Không cho tạo ADMIN qua API này."
+    "responses":
+      "202":
+        "description": "Đã tiếp nhận; truy vấn tài nguyên trả về để theo dõi kết quả."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/OtpChallenge"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.1"
+      - "FR08.2"
+    "x-readme-use-cases":
+      - "UC013"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/AdminUserCreate"
+"/admin/users/{userId}":
+  "get":
+    "tags":
+      - "Administration"
+    "summary": "Chi tiết user"
+    "operationId": "adminGetUsers"
+    "description": "Yêu cầu quyền users:read; truy cập thông tin nhạy cảm được kiểm soát."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/User"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.1"
+    "x-readme-use-cases":
+      - "UC013"
+    "parameters":
+      -
+        "name": "userId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh userId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "user_001"
+  "patch":
+    "tags":
+      - "Administration"
+    "summary": "Cập nhật thông tin tài khoản"
+    "operationId": "adminUpdateUser"
+    "description": "Quyền users:write; chỉ khách/tài xế, không đổi role/status qua body; kiểm tra email duy nhất và lưu audit."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/User"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.1"
+      - "FR08.2"
+    "x-readme-use-cases":
+      - "UC013"
+    "parameters":
+      -
+        "name": "userId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh userId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "user_001"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/ProfileUpdate"
+"/admin/drivers":
+  "get":
+    "tags":
+      - "Administration"
+    "summary": "Tra cứu drivers"
+    "operationId": "adminListDrivers"
+    "description": "Yêu cầu quyền drivers:read; lọc và phân trang trên toàn hệ thống. Dữ liệu cá nhân chỉ cho nhân viên có quyền nghiệp vụ tương ứng."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/DriverProfilePage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.2"
+      - "FR08.6"
+    "x-readme-use-cases":
+      - "UC013"
+    "parameters":
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+      -
+        "name": "query"
+        "in": "query"
+        "required": false
+        "description": "Tìm theo ID, tên, SĐT; phương tiện hỗ trợ biển số."
+        "schema":
+          "type": "string"
+      -
+        "name": "regionId"
+        "in": "query"
+        "required": false
+        "description": "regionId"
+        "schema":
+          "type": "string"
+      -
+        "name": "availability"
+        "in": "query"
+        "required": false
+        "description": "availability"
+        "schema":
+          "type": "string"
+          "enum":
+            - "AVAILABLE"
+            - "BUSY"
+            - "OFFLINE"
+      -
+        "name": "reviewStatus"
+        "in": "query"
+        "required": false
+        "description": "reviewStatus"
+        "schema":
+          "type": "string"
+          "enum":
+            - "PENDING"
+            - "APPROVED"
+            - "REJECTED"
+"/admin/drivers/{driverId}":
+  "get":
+    "tags":
+      - "Administration"
+    "summary": "Chi tiết driver"
+    "operationId": "adminGetDrivers"
+    "description": "Yêu cầu quyền drivers:read; truy cập thông tin nhạy cảm được kiểm soát."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/DriverProfile"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.2"
+    "x-readme-use-cases":
+      - "UC013"
+    "parameters":
+      -
+        "name": "driverId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh driverId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "driver_001"
+"/admin/vehicles":
+  "get":
+    "tags":
+      - "Administration"
+    "summary": "Tra cứu vehicles"
+    "operationId": "adminListVehicles"
+    "description": "Yêu cầu quyền vehicles:read; lọc và phân trang trên toàn hệ thống. Dữ liệu cá nhân chỉ cho nhân viên có quyền nghiệp vụ tương ứng."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/VehiclePage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.3"
+    "x-readme-use-cases":
+      - "UC013"
+    "parameters":
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+      -
+        "name": "query"
+        "in": "query"
+        "required": false
+        "description": "Tìm theo ID, tên, SĐT; phương tiện hỗ trợ biển số."
+        "schema":
+          "type": "string"
+      -
+        "name": "regionId"
+        "in": "query"
+        "required": false
+        "description": "regionId"
+        "schema":
+          "type": "string"
+      -
+        "name": "driverId"
+        "in": "query"
+        "required": false
+        "description": "driverId"
+        "schema":
+          "type": "string"
+      -
+        "name": "plateNumber"
+        "in": "query"
+        "required": false
+        "description": "plateNumber"
+        "schema":
+          "type": "string"
+      -
+        "name": "reviewStatus"
+        "in": "query"
+        "required": false
+        "description": "reviewStatus"
+        "schema":
+          "type": "string"
+          "enum":
+            - "PENDING"
+            - "APPROVED"
+            - "REJECTED"
+  "post":
+    "tags":
+      - "Administration"
+    "summary": "Tạo phương tiện cho tài xế"
+    "operationId": "adminCreateVehicle"
+    "description": "Quyền vehicles:write; biển số duy nhất, chủ là DRIVER; giấy tờ thuộc hồ sơ được quản lý; audit tự động."
+    "responses":
+      "201":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Vehicle"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.3"
+    "x-readme-use-cases":
+      - "UC013"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/AdminVehicleCreate"
+"/admin/vehicles/{vehicleId}":
+  "get":
+    "tags":
+      - "Administration"
+    "summary": "Chi tiết vehicle"
+    "operationId": "adminGetVehicles"
+    "description": "Yêu cầu quyền vehicles:read; truy cập thông tin nhạy cảm được kiểm soát."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Vehicle"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.3"
+    "x-readme-use-cases":
+      - "UC013"
+    "parameters":
+      -
+        "name": "vehicleId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh vehicleId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "vehicle_001"
+  "put":
+    "tags":
+      - "Administration"
+    "summary": "Cập nhật phương tiện"
+    "operationId": "adminUpdateVehicle"
+    "description": "Quyền vehicles:write; không thay đổi xe đang phục vụ chuyến, không đổi chủ qua body. Kiểm tra trùng biển số và duyệt lại giấy tờ."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Vehicle"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.3"
+    "x-readme-use-cases":
+      - "UC013"
+    "parameters":
+      -
+        "name": "vehicleId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh vehicleId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "vehicle_001"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/VehicleInput"
+"/admin/trips":
+  "get":
+    "tags":
+      - "Administration"
+    "summary": "Tra cứu trips"
+    "operationId": "adminListTrips"
+    "description": "Yêu cầu quyền trips:read; lọc và phân trang trên toàn hệ thống. Dữ liệu cá nhân chỉ cho nhân viên có quyền nghiệp vụ tương ứng."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/TripPage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.4"
+    "x-readme-use-cases":
+      - "UC014"
+    "parameters":
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+      -
+        "name": "query"
+        "in": "query"
+        "required": false
+        "description": "Tìm theo ID, tên, SĐT; phương tiện hỗ trợ biển số."
+        "schema":
+          "type": "string"
+      -
+        "name": "regionId"
+        "in": "query"
+        "required": false
+        "description": "regionId"
+        "schema":
+          "type": "string"
+      -
+        "name": "status"
+        "in": "query"
+        "required": false
+        "description": "status"
+        "schema":
+          "$ref": "./openapi.yaml#/components/schemas/TripStatus"
+      -
+        "name": "activeOnly"
+        "in": "query"
+        "required": false
+        "description": "activeOnly"
+        "schema":
+          "type": "boolean"
+      -
+        "name": "driverId"
+        "in": "query"
+        "required": false
+        "description": "driverId"
+        "schema":
+          "type": "string"
+      -
+        "name": "customerId"
+        "in": "query"
+        "required": false
+        "description": "customerId"
+        "schema":
+          "type": "string"
+"/admin/trips/{tripId}":
+  "get":
+    "tags":
+      - "Administration"
+    "summary": "Chi tiết trip"
+    "operationId": "adminGetTrips"
+    "description": "Yêu cầu quyền trips:read; truy cập thông tin nhạy cảm được kiểm soát."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Trip"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.4"
+    "x-readme-use-cases":
+      - "UC014"
+    "parameters":
+      -
+        "name": "tripId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh tripId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "trip_001"
+"/admin/users/{userId}/status":
+  "put":
+    "tags":
+      - "Administration"
+    "summary": "Khóa/mở khóa tài khoản"
+    "operationId": "adminSetUserStatus"
+    "description": "Quyền users:lock. Khi khóa thu hồi mọi phiên, ngăn đăng nhập và nhận chuyến, thông báo lý do, lưu audit. Nếu đang có chuyến cần tạo incident để vận hành hỗ trợ; không tự bỏ qua việc xử lý khách đang trên xe."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/User"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.1"
+      - "FR08.2"
+      - "FR10.1"
+      - "FR10.3"
+    "x-readme-use-cases":
+      - "UC013"
+    "parameters":
+      -
+        "name": "userId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh userId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "user_001"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/AccountStatusInput"
+"/admin/drivers/{driverId}/profile":
+  "put":
+    "tags":
+      - "Administration"
+    "summary": "Cập nhật hồ sơ tài xế"
+    "operationId": "adminUpdateDriverProfile"
+    "description": "Quyền drivers:write. Kiểm tra quyền tài liệu; thay đổi giấy tờ cần duyệt lại; lưu audit."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/DriverProfile"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.2"
+    "x-readme-use-cases":
+      - "UC013"
+    "parameters":
+      -
+        "name": "driverId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh driverId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "driver_001"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/DriverProfileInput"
+"/admin/drivers/{driverId}/review":
+  "post":
+    "tags":
+      - "Administration"
+    "summary": "Duyệt/từ chối hồ sơ tài xế"
+    "operationId": "reviewDriver"
+    "description": "Quyền drivers:review; kiểm tra đủ giấy tờ trước APPROVED. Từ chối cần lý do và gửi thông báo. Duyệt đặc biệt cần quyền quản lý theo BR-09."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/DriverProfile"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.2"
+    "x-readme-use-cases":
+      - "UC013"
+    "parameters":
+      -
+        "name": "driverId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh driverId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "driver_001"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/ReviewInput"
+"/admin/vehicles/{vehicleId}/review":
+  "post":
+    "tags":
+      - "Administration"
+    "summary": "Duyệt/từ chối phương tiện"
+    "operationId": "reviewVehicle"
+    "description": "Quyền vehicles:review; ghi log và gửi thông báo cho tài xế. Không bao gồm kiểm định chuyên sâu."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Vehicle"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.3"
+    "x-readme-use-cases":
+      - "UC013"
+    "parameters":
+      -
+        "name": "vehicleId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh vehicleId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "vehicle_001"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/ReviewInput"
+"/admin/trips/{tripId}/tracking":
+  "get":
+    "tags":
+      - "Operations"
+    "summary": "Giám sát vị trí chuyến trực tiếp"
+    "operationId": "adminTrackTrip"
+    "description": "Quyền trips:monitor. Polling; cảnh báo mất GPS, lệch lộ trình, đứng yên lâu khi hệ thống phát hiện. Ngưỡng cảnh báo chưa chốt. Trả vị trí và thời gian cuối; không trình bày dữ liệu cũ là trực tiếp."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Tracking"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.5"
+    "x-readme-use-cases":
+      - "UC014"
+    "parameters":
+      -
+        "name": "tripId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh tripId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "trip_001"
+"/admin/trips/{tripId}/events":
+  "get":
+    "tags":
+      - "Operations"
+    "summary": "Lịch sử tiến trình phục vụ điều tra"
+    "operationId": "adminTripEvents"
+    "description": "Quyền trips:read; các thay đổi được ghi tự động."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/TripEventPage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.7"
+    "x-readme-use-cases":
+      - "UC015"
+    "parameters":
+      -
+        "name": "tripId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh tripId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "trip_001"
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+"/admin/trips/{tripId}/locations":
+  "get":
+    "tags":
+      - "Operations"
+    "summary": "Tra cứu lộ trình đã đi"
+    "operationId": "adminTripLocations"
+    "description": "Quyền trips:monitor; chỉ mẫu GPS thuộc chuyến trong thời gian phục vụ. Thời hạn lưu trữ cần chốt."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/LocationPage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR04.7"
+      - "FR08.7"
+    "x-readme-use-cases":
+      - "UC015"
+    "parameters":
+      -
+        "name": "tripId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh tripId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "trip_001"
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+"/admin/incidents":
+  "get":
+    "tags":
+      - "Operations"
+    "summary": "Danh sách sự cố/chuyến lỗi"
+    "operationId": "listIncidents"
+    "description": "Quyền incidents:read. Hệ thống có thể tự tạo từ lỗi thanh toán, GPS hoặc cảnh báo; người dùng cũng báo sự cố."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/IncidentPage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.7"
+    "x-readme-use-cases":
+      - "UC015"
+    "parameters":
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+      -
+        "name": "status"
+        "in": "query"
+        "required": false
+        "description": "status"
+        "schema":
+          "type": "string"
+          "enum":
+            - "OPEN"
+            - "IN_PROGRESS"
+            - "AWAITING_APPROVAL"
+            - "RESOLVED"
+      -
+        "name": "tripId"
+        "in": "query"
+        "required": false
+        "description": "tripId"
+        "schema":
+          "type": "string"
+"/admin/incidents/{incidentId}":
+  "get":
+    "tags":
+      - "Operations"
+    "summary": "Chi tiết sự cố"
+    "operationId": "getIncident"
+    "description": "Quyền incidents:read. Dùng tripId để truy vấn lịch sử trạng thái, GPS, thanh toán, audit."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Incident"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.7"
+    "x-readme-use-cases":
+      - "UC015"
+    "parameters":
+      -
+        "name": "incidentId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh incidentId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "incident_001"
+"/admin/trips/{tripId}/incidents":
+  "post":
+    "tags":
+      - "Operations"
+    "summary": "Vận hành ghi nhận sự cố"
+    "operationId": "adminCreateIncident"
+    "description": "Quyền incidents:write; phải nhập loại và nội dung, ghi audit."
+    "responses":
+      "201":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Incident"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.7"
+    "x-readme-use-cases":
+      - "UC014"
+      - "UC015"
+    "parameters":
+      -
+        "name": "tripId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh tripId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "trip_001"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/IncidentInput"
+"/admin/incidents/{incidentId}/interventions":
+  "post":
+    "tags":
+      - "Operations"
+    "summary": "Yêu cầu can thiệp xử lý sự cố"
+    "operationId": "requestIntervention"
+    "description": "Quyền incidents:write và quyền riêng theo action. Lưu yêu cầu trước; vượt thẩm quyền trả PENDING_APPROVAL và chưa thực thi. Hủy khẩn cấp chốt cước phần đã đi/miễn theo chính sách chưa chốt. REASSIGN hủy chuyến lỗi, tạo chuyến thay thế liên kết từ vị trí mới nếu khách đồng ý; không giả lập chuyến đang chở khách quay về SEARCHING. ADJUST_FARE chỉ hóa đơn chưa PAID và không có thanh toán PENDING; đã thu cần REFUND. REFUND không vượt số đã thu trừ hoàn trước, số tiền > 0. RECONCILE_PAYMENT phải kiểm chứng cổng, không tin trạng thái client. Khi thành công lưu audit và thông báo hai bên."
+    "responses":
+      "202":
+        "description": "Đã tiếp nhận; truy vấn tài nguyên trả về để theo dõi kết quả."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Intervention"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR08.7"
+      - "FR10.2"
+      - "FR10.3"
+    "x-readme-use-cases":
+      - "UC015"
+    "parameters":
+      -
+        "name": "incidentId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh incidentId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "incident_001"
+      -
+        "$ref": "./openapi.yaml#/components/parameters/IdempotencyKey"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/InterventionInput"
+"/admin/interventions/{interventionId}":
+  "get":
+    "tags":
+      - "Operations"
+    "summary": "Theo dõi kết quả can thiệp"
+    "operationId": "getIntervention"
+    "description": "Quyền incidents:read; trả tiến trình thực thi/phê duyệt, lỗi và liên kết chuyến thay thế/hoàn tiền."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Intervention"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+      - "MANAGER"
+    "x-readme-fr": []
+    "x-readme-use-cases":
+      - "UC015"
+    "parameters":
+      -
+        "name": "interventionId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh interventionId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "intervention_001"
+"/admin/interventions":
+  "get":
+    "tags":
+      - "Operations"
+    "summary": "Hàng đợi phê duyệt can thiệp"
+    "operationId": "listInterventions"
+    "description": "Quyền incidents:read hoặc interventions:approve. Lọc PENDING_APPROVAL cho quản lý."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/InterventionPage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+      - "MANAGER"
+    "x-readme-fr": []
+    "x-readme-use-cases":
+      - "UC015"
+    "parameters":
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+      -
+        "name": "status"
+        "in": "query"
+        "required": false
+        "description": "status"
+        "schema":
+          "type": "string"
+          "enum":
+            - "PENDING_APPROVAL"
+            - "APPROVED"
+            - "REJECTED"
+            - "EXECUTING"
+            - "SUCCEEDED"
+            - "FAILED"
+"/admin/interventions/{interventionId}/decision":
+  "post":
+    "tags":
+      - "Operations"
+    "summary": "Quản lý duyệt/từ chối can thiệp"
+    "operationId": "decideIntervention"
+    "description": "Quyền interventions:approve và quyền tài chính phù hợp action. Chỉ PENDING_APPROVAL; người tạo không tự duyệt. Duyệt kích hoạt thực thi có kiểm tra lại phiên bản/số tiền; không tự đánh dấu thành công trước kết quả cổng. Ngưỡng hoàn tiền lớn/chính sách phê duyệt cần chốt."
+    "responses":
+      "202":
+        "description": "Đã tiếp nhận; truy vấn tài nguyên trả về để theo dõi kết quả."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Intervention"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "MANAGER"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR10.2"
+      - "FR10.3"
+    "x-readme-use-cases":
+      - "UC015"
+    "parameters":
+      -
+        "name": "interventionId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh interventionId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "intervention_001"
+      -
+        "$ref": "./openapi.yaml#/components/parameters/IdempotencyKey"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/ReviewInput"
+"/admin/reports/summary":
+  "get":
+    "tags":
+      - "Reports"
+    "summary": "Báo cáo chuyến, doanh thu, tỷ lệ và hiệu quả tài xế"
+    "operationId": "reportSummary"
+    "description": "Quyền reports:read; số liệu doanh thu cần reports:revenue. from/to bao gồm cả ngày theo Asia/Ho_Chi_Minh, from <= to. Đề xuất thống kê cohort theo createdAt chuyến, tổng hợp trạng thái tại generatedAt; doanh thu chỉ khoản đã thu của cohort trừ hoàn và chiết khấu. Hạch toán/chiết khấu chưa chốt; không tự áp tỷ lệ. Khi lọc driverId, chỉ tính chuyến đã gán tài xế đó. Không dữ liệu trả summary=0, rows=[], averageRating=null. Tỷ lệ trong [0,1], mẫu số 0 trả 0."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/Report"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+      - "MANAGER"
+    "x-readme-fr":
+      - "FR09.1"
+      - "FR09.2"
+      - "FR09.3"
+      - "FR09.4"
+      - "FR09.5"
+    "x-readme-use-cases":
+      - "UC016"
+    "parameters":
+      -
+        "name": "from"
+        "in": "query"
+        "required": true
+        "description": "from"
+        "schema":
+          "type": "string"
+          "format": "date"
+      -
+        "name": "to"
+        "in": "query"
+        "required": true
+        "description": "to"
+        "schema":
+          "type": "string"
+          "format": "date"
+      -
+        "name": "groupBy"
+        "in": "query"
+        "required": false
+        "description": "groupBy"
+        "schema":
+          "type": "string"
+          "enum":
+            - "DAY"
+            - "WEEK"
+            - "MONTH"
+            - "QUARTER"
+      -
+        "name": "regionId"
+        "in": "query"
+        "required": false
+        "description": "regionId"
+        "schema":
+          "type": "string"
+      -
+        "name": "driverId"
+        "in": "query"
+        "required": false
+        "description": "driverId"
+        "schema":
+          "type": "string"
+      -
+        "name": "vehicleType"
+        "in": "query"
+        "required": false
+        "description": "vehicleType"
+        "schema":
+          "$ref": "./openapi.yaml#/components/schemas/VehicleType"
+"/admin/reports/exports":
+  "post":
+    "tags":
+      - "Reports"
+    "summary": "Xuất báo cáo Excel/PDF"
+    "operationId": "createReportExport"
+    "description": "Cùng bộ lọc và quyền với summary; tạo job bất đồng bộ. Định dạng XLSX/PDF, không bao gồm BI nâng cao."
+    "responses":
+      "202":
+        "description": "Đã tiếp nhận; truy vấn tài nguyên trả về để theo dõi kết quả."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/ExportJob"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "422":
+        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+      - "MANAGER"
+    "x-readme-fr": []
+    "x-readme-use-cases":
+      - "UC016"
+    "requestBody":
+      "required": true
+      "content":
+        "application/json":
+          "schema":
+            "$ref": "./openapi.yaml#/components/schemas/ExportRequest"
+"/admin/reports/exports/{exportId}":
+  "get":
+    "tags":
+      - "Reports"
+    "summary": "Theo dõi tiến trình xuất báo cáo"
+    "operationId": "getReportExport"
+    "description": "Chỉ người tạo hoặc người có quyền reports:export:read; kiểm tra lại quyền doanh thu."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/ExportJob"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+      - "MANAGER"
+    "x-readme-fr": []
+    "x-readme-use-cases":
+      - "UC016"
+    "parameters":
+      -
+        "name": "exportId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh exportId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "export_001"
+"/admin/reports/exports/{exportId}/file":
+  "get":
+    "tags":
+      - "Reports"
+    "summary": "Tải báo cáo đã xuất"
+    "operationId": "downloadReportExport"
+    "description": "Quyền như job. Chỉ COMPLETED, chưa hết expiresAt; chưa sẵn sàng trả 409 EXPORT_NOT_READY, hết hạn trả 404. Content-Type phù hợp định dạng job."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/pdf":
+            "schema":
+              "type": "string"
+              "format": "binary"
+          "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+            "schema":
+              "type": "string"
+              "format": "binary"
+        "headers":
+          "Content-Disposition":
+            "schema":
+              "type": "string"
+            "description": "attachment; filename=\"cab-report.xlsx\" hoặc cab-report.pdf"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "404":
+        "$ref": "./openapi.yaml#/components/responses/NotFound"
+      "409":
+        "$ref": "./openapi.yaml#/components/responses/Conflict"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "OPERATOR"
+      - "ADMIN"
+      - "MANAGER"
+    "x-readme-fr": []
+    "x-readme-use-cases":
+      - "UC016"
+    "parameters":
+      -
+        "name": "exportId"
+        "in": "path"
+        "required": true
+        "description": "Mã định danh exportId"
+        "schema":
+          "type": "string"
+          "minLength": 1
+        "example": "export_001"
+"/users/me/permissions":
+  "get":
+    "tags":
+      - "Security"
+    "summary": "Xem quyền hiện tại"
+    "operationId": "getMyPermissions"
+    "description": "Quyền do server quyết định; UI dùng để hiển thị chức năng, backend vẫn kiểm tra mọi request."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/PermissionPage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "AUTHENTICATED"
+    "x-readme-fr":
+      - "FR10.2"
+    "x-readme-use-cases": []
+    "parameters":
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+"/admin/roles":
+  "get":
+    "tags":
+      - "Security"
+    "summary": "Danh mục vai trò và quyền"
+    "operationId": "listRoles"
+    "description": "Quyền roles:read. Vai trò và quyền được cấu hình khi triển khai; README không yêu cầu API tự cấp quyền quản trị."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/RolePage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "MANAGER"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR10.2"
+    "x-readme-use-cases": []
+    "parameters":
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+"/admin/audit-logs":
+  "get":
+    "tags":
+      - "Security"
+    "summary": "Tra cứu nhật ký kiểm toán"
+    "operationId": "listAuditLogs"
+    "description": "Quyền audit:read. Nhật ký tự sinh, bất biến qua API, không có endpoint sửa/xóa. Che thông tin nhạy cảm, không lưu OTP/password/token/dữ liệu thẻ. from <= to; thời hạn lưu trữ chưa chốt."
+    "responses":
+      "200":
+        "description": "Xử lý thành công."
+        "content":
+          "application/json":
+            "schema":
+              "$ref": "./openapi.yaml#/components/schemas/AuditLogPage"
+      "400":
+        "$ref": "./openapi.yaml#/components/responses/BadRequest"
+      "401":
+        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
+      "403":
+        "$ref": "./openapi.yaml#/components/responses/Forbidden"
+      "429":
+        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
+      "500":
+        "$ref": "./openapi.yaml#/components/responses/ServerError"
+    "x-required-roles":
+      - "MANAGER"
+      - "ADMIN"
+    "x-readme-fr":
+      - "FR10.3"
+    "x-readme-use-cases":
+      - "UC013"
+      - "UC015"
+    "parameters":
+      -
+        "name": "page"
+        "in": "query"
+        "required": false
+        "description": "page"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "default": 1
+      -
+        "name": "pageSize"
+        "in": "query"
+        "required": false
+        "description": "pageSize"
+        "schema":
+          "type": "integer"
+          "description": ""
+          "minimum": 1
+          "maximum": 100
+          "default": 20
+      -
+        "name": "actorId"
+        "in": "query"
+        "required": false
+        "description": "actorId"
+        "schema":
+          "type": "string"
+      -
+        "name": "resourceId"
+        "in": "query"
+        "required": false
+        "description": "resourceId"
+        "schema":
+          "type": "string"
+      -
+        "name": "action"
+        "in": "query"
+        "required": false
+        "description": "action"
+        "schema":
+          "type": "string"
+      -
+        "name": "from"
+        "in": "query"
+        "required": false
+        "description": "from"
+        "schema":
+          "type": "string"
+          "description": "Thời gian RFC 3339, lưu UTC."
+          "format": "date-time"
+          "example": "2026-09-07T03:00:00Z"
+      -
+        "name": "to"
+        "in": "query"
+        "required": false
+        "description": "to"
+        "schema":
+          "type": "string"
+          "description": "Thời gian RFC 3339, lưu UTC."
+          "format": "date-time"
+          "example": "2026-09-07T03:00:00Z"

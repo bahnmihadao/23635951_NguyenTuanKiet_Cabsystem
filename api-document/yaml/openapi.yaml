@@ -1,0 +1,402 @@
+"openapi": "3.0.3"
+"info":
+  "title": "CAB System API"
+  "version": "0.1.0"
+"servers":
+  -
+    "url": "http://localhost:8080/api/v1"
+    "description": "Địa chỉ backend dự kiến; thay khi triển khai."
+"security":
+  -
+    "bearerAuth": []
+"tags":
+  -
+    "name": "Auth"
+    "description": "Đăng ký, OTP, đăng nhập và phiên"
+  -
+    "name": "Accounts"
+    "description": "Tài khoản và tài liệu riêng tư"
+  -
+    "name": "Drivers"
+    "description": "Hồ sơ, xe, sẵn sàng, GPS"
+  -
+    "name": "Booking"
+    "description": "Địa chỉ, lộ trình, loại xe, báo giá"
+  -
+    "name": "Trips"
+    "description": "Đặt và theo dõi chuyến"
+  -
+    "name": "Dispatch"
+    "description": "Nhận/từ chối lời mời"
+  -
+    "name": "Payments"
+    "description": "Cước, thanh toán, lịch sử và hoàn tiền"
+  -
+    "name": "Integrations"
+    "description": "Callback của adapter mô phỏng"
+  -
+    "name": "Ratings"
+    "description": "Đánh giá chất lượng"
+  -
+    "name": "Notifications"
+    "description": "Thông báo và thiết bị"
+  -
+    "name": "Administration"
+    "description": "Quản lý tài khoản và phương tiện"
+  -
+    "name": "Operations"
+    "description": "Giám sát, sự cố và phê duyệt"
+  -
+    "name": "Reports"
+    "description": "Báo cáo, xuất Excel/PDF"
+  -
+    "name": "Security"
+    "description": "Quyền và audit"
+"x-readme-business-rules":
+  "BR-01": "Bearer và kiểm tra quyền mọi thao tác nghiệp vụ"
+  "BR-02": "createTrip tự ưu tiên GPS/AVAILABLE/hiệu quả"
+  "BR-03": "rejectOffer/timeout chuyển tiếp trên cùng tripId"
+  "BR-04": "CANCELLED + NO_DRIVER_AVAILABLE và thông báo"
+  "BR-05": "COMPLETED tự chốt cước server"
+  "BR-06": "Không nhận/lưu PAN, CVV, tài khoản ngân hàng"
+  "BR-07": "FAILED cho thử lại; PENDING phải đối soát"
+  "BR-08": "status-transitions kiểm soát thứ tự và phiên bản"
+  "BR-09": "Quyền riêng từng action, hàng đợi phê duyệt"
+  "BR-10": "Audit tự động, API chỉ đọc"
+  "BR-11": "Giới hạn đối tượng, HTTPS, che dữ liệu nhạy cảm"
+"paths":
+  "/auth/registrations":
+    "$ref": "./identity.yaml#/~1auth~1registrations"
+  "/auth/registrations/verify":
+    "$ref": "./identity.yaml#/~1auth~1registrations~1verify"
+  "/auth/registrations/resend-otp":
+    "$ref": "./identity.yaml#/~1auth~1registrations~1resend-otp"
+  "/auth/invitations/activate":
+    "$ref": "./identity.yaml#/~1auth~1invitations~1activate"
+  "/auth/login":
+    "$ref": "./identity.yaml#/~1auth~1login"
+  "/auth/logout":
+    "$ref": "./identity.yaml#/~1auth~1logout"
+  "/users/me":
+    "$ref": "./identity.yaml#/~1users~1me"
+  "/drivers/me/profile":
+    "$ref": "./rides.yaml#/~1drivers~1me~1profile"
+  "/drivers/me/vehicle":
+    "$ref": "./rides.yaml#/~1drivers~1me~1vehicle"
+  "/drivers/me/availability":
+    "$ref": "./rides.yaml#/~1drivers~1me~1availability"
+  "/drivers/me/locations":
+    "$ref": "./rides.yaml#/~1drivers~1me~1locations"
+  "/documents":
+    "$ref": "./identity.yaml#/~1documents"
+  "/documents/{documentId}":
+    "$ref": "./identity.yaml#/~1documents~1{documentId}"
+  "/vehicle-types":
+    "$ref": "./rides.yaml#/~1vehicle-types"
+  "/regions":
+    "$ref": "./rides.yaml#/~1regions"
+  "/places":
+    "$ref": "./rides.yaml#/~1places"
+  "/routes":
+    "$ref": "./rides.yaml#/~1routes"
+  "/fare-estimates":
+    "$ref": "./rides.yaml#/~1fare-estimates"
+  "/trips":
+    "$ref": "./rides.yaml#/~1trips"
+  "/trips/{tripId}":
+    "$ref": "./rides.yaml#/~1trips~1{tripId}"
+  "/trips/{tripId}/tracking":
+    "$ref": "./rides.yaml#/~1trips~1{tripId}~1tracking"
+  "/trips/{tripId}/events":
+    "$ref": "./rides.yaml#/~1trips~1{tripId}~1events"
+  "/drivers/me/offers":
+    "$ref": "./rides.yaml#/~1drivers~1me~1offers"
+  "/drivers/me/offers/{offerId}/accept":
+    "$ref": "./rides.yaml#/~1drivers~1me~1offers~1{offerId}~1accept"
+  "/drivers/me/offers/{offerId}/reject":
+    "$ref": "./rides.yaml#/~1drivers~1me~1offers~1{offerId}~1reject"
+  "/trips/{tripId}/status-transitions":
+    "$ref": "./rides.yaml#/~1trips~1{tripId}~1status-transitions"
+  "/trips/{tripId}/cancel":
+    "$ref": "./rides.yaml#/~1trips~1{tripId}~1cancel"
+  "/trips/{tripId}/fare":
+    "$ref": "./payments.yaml#/~1trips~1{tripId}~1fare"
+  "/trips/{tripId}/payments":
+    "$ref": "./payments.yaml#/~1trips~1{tripId}~1payments"
+  "/payments/{paymentId}":
+    "$ref": "./payments.yaml#/~1payments~1{paymentId}"
+  "/payments/{paymentId}/confirm-cash":
+    "$ref": "./payments.yaml#/~1payments~1{paymentId}~1confirm-cash"
+  "/integrations/payments/callback":
+    "$ref": "./payments.yaml#/~1integrations~1payments~1callback"
+  "/rating-options":
+    "$ref": "./payments.yaml#/~1rating-options"
+  "/trips/{tripId}/rating":
+    "$ref": "./payments.yaml#/~1trips~1{tripId}~1rating"
+  "/notifications":
+    "$ref": "./notifications.yaml#/~1notifications"
+  "/notifications/{notificationId}/read":
+    "$ref": "./notifications.yaml#/~1notifications~1{notificationId}~1read"
+  "/devices":
+    "$ref": "./notifications.yaml#/~1devices"
+  "/devices/{deviceId}":
+    "$ref": "./notifications.yaml#/~1devices~1{deviceId}"
+  "/trips/{tripId}/incidents":
+    "$ref": "./administration.yaml#/~1trips~1{tripId}~1incidents"
+  "/admin/users":
+    "$ref": "./administration.yaml#/~1admin~1users"
+  "/admin/users/{userId}":
+    "$ref": "./administration.yaml#/~1admin~1users~1{userId}"
+  "/admin/drivers":
+    "$ref": "./administration.yaml#/~1admin~1drivers"
+  "/admin/drivers/{driverId}":
+    "$ref": "./administration.yaml#/~1admin~1drivers~1{driverId}"
+  "/admin/vehicles":
+    "$ref": "./administration.yaml#/~1admin~1vehicles"
+  "/admin/vehicles/{vehicleId}":
+    "$ref": "./administration.yaml#/~1admin~1vehicles~1{vehicleId}"
+  "/admin/trips":
+    "$ref": "./administration.yaml#/~1admin~1trips"
+  "/admin/trips/{tripId}":
+    "$ref": "./administration.yaml#/~1admin~1trips~1{tripId}"
+  "/admin/users/{userId}/status":
+    "$ref": "./administration.yaml#/~1admin~1users~1{userId}~1status"
+  "/admin/drivers/{driverId}/profile":
+    "$ref": "./administration.yaml#/~1admin~1drivers~1{driverId}~1profile"
+  "/admin/drivers/{driverId}/review":
+    "$ref": "./administration.yaml#/~1admin~1drivers~1{driverId}~1review"
+  "/admin/vehicles/{vehicleId}/review":
+    "$ref": "./administration.yaml#/~1admin~1vehicles~1{vehicleId}~1review"
+  "/admin/trips/{tripId}/tracking":
+    "$ref": "./administration.yaml#/~1admin~1trips~1{tripId}~1tracking"
+  "/admin/trips/{tripId}/events":
+    "$ref": "./administration.yaml#/~1admin~1trips~1{tripId}~1events"
+  "/admin/trips/{tripId}/locations":
+    "$ref": "./administration.yaml#/~1admin~1trips~1{tripId}~1locations"
+  "/admin/payments":
+    "$ref": "./payments.yaml#/~1admin~1payments"
+  "/admin/payments/{paymentId}/refunds":
+    "$ref": "./payments.yaml#/~1admin~1payments~1{paymentId}~1refunds"
+  "/admin/incidents":
+    "$ref": "./administration.yaml#/~1admin~1incidents"
+  "/admin/incidents/{incidentId}":
+    "$ref": "./administration.yaml#/~1admin~1incidents~1{incidentId}"
+  "/admin/trips/{tripId}/incidents":
+    "$ref": "./administration.yaml#/~1admin~1trips~1{tripId}~1incidents"
+  "/admin/incidents/{incidentId}/interventions":
+    "$ref": "./administration.yaml#/~1admin~1incidents~1{incidentId}~1interventions"
+  "/admin/interventions/{interventionId}":
+    "$ref": "./administration.yaml#/~1admin~1interventions~1{interventionId}"
+  "/admin/interventions":
+    "$ref": "./administration.yaml#/~1admin~1interventions"
+  "/admin/interventions/{interventionId}/decision":
+    "$ref": "./administration.yaml#/~1admin~1interventions~1{interventionId}~1decision"
+  "/admin/reports/summary":
+    "$ref": "./administration.yaml#/~1admin~1reports~1summary"
+  "/admin/reports/exports":
+    "$ref": "./administration.yaml#/~1admin~1reports~1exports"
+  "/admin/reports/exports/{exportId}":
+    "$ref": "./administration.yaml#/~1admin~1reports~1exports~1{exportId}"
+  "/admin/reports/exports/{exportId}/file":
+    "$ref": "./administration.yaml#/~1admin~1reports~1exports~1{exportId}~1file"
+  "/users/me/permissions":
+    "$ref": "./administration.yaml#/~1users~1me~1permissions"
+  "/admin/roles":
+    "$ref": "./administration.yaml#/~1admin~1roles"
+  "/admin/audit-logs":
+    "$ref": "./administration.yaml#/~1admin~1audit-logs"
+  "/notifications/{notificationId}/received":
+    "$ref": "./notifications.yaml#/~1notifications~1{notificationId}~1received"
+"components":
+  "securitySchemes":
+    "bearerAuth":
+      "$ref": "./components.yaml#/securitySchemes/bearerAuth"
+    "paymentSignature":
+      "$ref": "./components.yaml#/securitySchemes/paymentSignature"
+  "parameters":
+    "IdempotencyKey":
+      "$ref": "./components.yaml#/parameters/IdempotencyKey"
+  "schemas":
+    "VehicleType":
+      "$ref": "./components.yaml#/schemas/VehicleType"
+    "PaymentMethod":
+      "$ref": "./components.yaml#/schemas/PaymentMethod"
+    "TripStatus":
+      "$ref": "./components.yaml#/schemas/TripStatus"
+    "PaymentStatus":
+      "$ref": "./components.yaml#/schemas/PaymentStatus"
+    "Error":
+      "$ref": "./components.yaml#/schemas/Error"
+    "Point":
+      "$ref": "./components.yaml#/schemas/Point"
+    "Location":
+      "$ref": "./components.yaml#/schemas/Location"
+    "User":
+      "$ref": "./components.yaml#/schemas/User"
+    "ProfileUpdate":
+      "$ref": "./components.yaml#/schemas/ProfileUpdate"
+    "VehicleInput":
+      "$ref": "./components.yaml#/schemas/VehicleInput"
+    "Vehicle":
+      "$ref": "./components.yaml#/schemas/Vehicle"
+    "DriverProfileInput":
+      "$ref": "./components.yaml#/schemas/DriverProfileInput"
+    "DriverProfile":
+      "$ref": "./components.yaml#/schemas/DriverProfile"
+    "Registration":
+      "$ref": "./components.yaml#/schemas/Registration"
+    "OtpChallenge":
+      "$ref": "./components.yaml#/schemas/OtpChallenge"
+    "OtpVerify":
+      "$ref": "./components.yaml#/schemas/OtpVerify"
+    "Login":
+      "$ref": "./components.yaml#/schemas/Login"
+    "Session":
+      "$ref": "./components.yaml#/schemas/Session"
+    "Document":
+      "$ref": "./components.yaml#/schemas/Document"
+    "RouteRequest":
+      "$ref": "./components.yaml#/schemas/RouteRequest"
+    "Route":
+      "$ref": "./components.yaml#/schemas/Route"
+    "FareEstimateRequest":
+      "$ref": "./components.yaml#/schemas/FareEstimateRequest"
+    "FareEstimate":
+      "$ref": "./components.yaml#/schemas/FareEstimate"
+    "TripCreate":
+      "$ref": "./components.yaml#/schemas/TripCreate"
+    "DriverPublic":
+      "$ref": "./components.yaml#/schemas/DriverPublic"
+    "Trip":
+      "$ref": "./components.yaml#/schemas/Trip"
+    "Tracking":
+      "$ref": "./components.yaml#/schemas/Tracking"
+    "TripEvent":
+      "$ref": "./components.yaml#/schemas/TripEvent"
+    "Offer":
+      "$ref": "./components.yaml#/schemas/Offer"
+    "StatusChange":
+      "$ref": "./components.yaml#/schemas/StatusChange"
+    "CancelRequest":
+      "$ref": "./components.yaml#/schemas/CancelRequest"
+    "Fare":
+      "$ref": "./components.yaml#/schemas/Fare"
+    "PaymentCreate":
+      "$ref": "./components.yaml#/schemas/PaymentCreate"
+    "Payment":
+      "$ref": "./components.yaml#/schemas/Payment"
+    "PaymentCallback":
+      "$ref": "./components.yaml#/schemas/PaymentCallback"
+    "RatingInput":
+      "$ref": "./components.yaml#/schemas/RatingInput"
+    "Rating":
+      "$ref": "./components.yaml#/schemas/Rating"
+    "Notification":
+      "$ref": "./components.yaml#/schemas/Notification"
+    "IncidentInput":
+      "$ref": "./components.yaml#/schemas/IncidentInput"
+    "Incident":
+      "$ref": "./components.yaml#/schemas/Incident"
+    "InterventionInput":
+      "$ref": "./components.yaml#/schemas/InterventionInput"
+    "Intervention":
+      "$ref": "./components.yaml#/schemas/Intervention"
+    "Refund":
+      "$ref": "./components.yaml#/schemas/Refund"
+    "ReviewInput":
+      "$ref": "./components.yaml#/schemas/ReviewInput"
+    "AuditLog":
+      "$ref": "./components.yaml#/schemas/AuditLog"
+    "ReportRow":
+      "$ref": "./components.yaml#/schemas/ReportRow"
+    "Report":
+      "$ref": "./components.yaml#/schemas/Report"
+    "ExportRequest":
+      "$ref": "./components.yaml#/schemas/ExportRequest"
+    "ExportJob":
+      "$ref": "./components.yaml#/schemas/ExportJob"
+    "Permission":
+      "$ref": "./components.yaml#/schemas/Permission"
+    "Role":
+      "$ref": "./components.yaml#/schemas/Role"
+    "Region":
+      "$ref": "./components.yaml#/schemas/Region"
+    "VehicleService":
+      "$ref": "./components.yaml#/schemas/VehicleService"
+    "RatingOptions":
+      "$ref": "./components.yaml#/schemas/RatingOptions"
+    "AvailabilityInput":
+      "$ref": "./components.yaml#/schemas/AvailabilityInput"
+    "Availability":
+      "$ref": "./components.yaml#/schemas/Availability"
+    "AccountStatusInput":
+      "$ref": "./components.yaml#/schemas/AccountStatusInput"
+    "AdminUserCreate":
+      "$ref": "./components.yaml#/schemas/AdminUserCreate"
+    "InvitationActivate":
+      "$ref": "./components.yaml#/schemas/InvitationActivate"
+    "ResendOtp":
+      "$ref": "./components.yaml#/schemas/ResendOtp"
+    "VehicleServicePage":
+      "$ref": "./components.yaml#/schemas/VehicleServicePage"
+    "RegionPage":
+      "$ref": "./components.yaml#/schemas/RegionPage"
+    "PointPage":
+      "$ref": "./components.yaml#/schemas/PointPage"
+    "TripPage":
+      "$ref": "./components.yaml#/schemas/TripPage"
+    "TripEventPage":
+      "$ref": "./components.yaml#/schemas/TripEventPage"
+    "OfferPage":
+      "$ref": "./components.yaml#/schemas/OfferPage"
+    "Reason":
+      "$ref": "./components.yaml#/schemas/Reason"
+    "PaymentPage":
+      "$ref": "./components.yaml#/schemas/PaymentPage"
+    "NotificationPage":
+      "$ref": "./components.yaml#/schemas/NotificationPage"
+    "DeviceInput":
+      "$ref": "./components.yaml#/schemas/DeviceInput"
+    "Device":
+      "$ref": "./components.yaml#/schemas/Device"
+    "UserPage":
+      "$ref": "./components.yaml#/schemas/UserPage"
+    "DriverProfilePage":
+      "$ref": "./components.yaml#/schemas/DriverProfilePage"
+    "VehiclePage":
+      "$ref": "./components.yaml#/schemas/VehiclePage"
+    "AdminVehicleCreate":
+      "$ref": "./components.yaml#/schemas/AdminVehicleCreate"
+    "LocationPage":
+      "$ref": "./components.yaml#/schemas/LocationPage"
+    "RefundPage":
+      "$ref": "./components.yaml#/schemas/RefundPage"
+    "IncidentPage":
+      "$ref": "./components.yaml#/schemas/IncidentPage"
+    "InterventionPage":
+      "$ref": "./components.yaml#/schemas/InterventionPage"
+    "PermissionPage":
+      "$ref": "./components.yaml#/schemas/PermissionPage"
+    "RolePage":
+      "$ref": "./components.yaml#/schemas/RolePage"
+    "AuditLogPage":
+      "$ref": "./components.yaml#/schemas/AuditLogPage"
+  "responses":
+    "BadRequest":
+      "$ref": "./components.yaml#/responses/BadRequest"
+    "Unauthorized":
+      "$ref": "./components.yaml#/responses/Unauthorized"
+    "Forbidden":
+      "$ref": "./components.yaml#/responses/Forbidden"
+    "NotFound":
+      "$ref": "./components.yaml#/responses/NotFound"
+    "Conflict":
+      "$ref": "./components.yaml#/responses/Conflict"
+    "Unprocessable":
+      "$ref": "./components.yaml#/responses/Unprocessable"
+    "TooManyRequests":
+      "$ref": "./components.yaml#/responses/TooManyRequests"
+    "ServerError":
+      "$ref": "./components.yaml#/responses/ServerError"
+    "Unavailable":
+      "$ref": "./components.yaml#/responses/Unavailable"

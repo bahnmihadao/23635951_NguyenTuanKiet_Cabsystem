@@ -7,6 +7,6 @@ services:
       SWAGGER_JSON: /docs/openapi.yaml
     volumes:
       - type: bind
-        source: ./openapi.yaml
-        target: /docs/openapi.yaml
+        source: ./yaml
+        target: /docs
         read_only: true
