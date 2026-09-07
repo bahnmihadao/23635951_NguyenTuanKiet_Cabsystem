@@ -1,575 +1,777 @@
-"/trips/{tripId}/fare":
-  "get":
-    "tags":
-      - "Payments"
-    "summary": "Xem cước cuối và hóa đơn"
-    "operationId": "getFinalFare"
-    "description": "Chỉ người tham gia chuyến. Cước được server tính khi kết thúc hoặc xử lý sự cố, chưa có trả 409 FARE_NOT_READY. Công thức chi tiết chưa chốt; client không gửi số tiền phải thu."
-    "responses":
-      "200":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/Fare"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "404":
-        "$ref": "./openapi.yaml#/components/responses/NotFound"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "CUSTOMER"
-      - "DRIVER"
-    "x-readme-fr":
-      - "FR05.1"
-      - "FR05.2"
-    "x-readme-use-cases":
-      - "UC010"
-    "parameters":
-      -
-        "name": "tripId"
-        "in": "path"
-        "required": true
-        "description": "Mã định danh tripId"
-        "schema":
-          "type": "string"
-          "minLength": 1
-        "example": "trip_001"
-"/trips/{tripId}/payments":
-  "post":
-    "tags":
-      - "Payments"
-    "summary": "Khởi tạo thanh toán hoặc thanh toán lại"
-    "operationId": "createPayment"
-    "description": "Chỉ khách sở hữu; chuyến đã có cước cuối. Lấy số tiền từ hóa đơn server. CASH tạo bản ghi PENDING chờ tài xế xác nhận; BANK_CARD/E_WALLET trả checkoutUrl mô phỏng. Chỉ tạo lần thử mới khi lần trước FAILED/CANCELLED; PENDING phải đối soát trước, PAID từ chối thu lại. Sau thất bại được đổi sang CASH theo chính sách. Timeout cổng giữ PENDING, tự truy vấn đối soát; không coi timeout là thất bại chắc chắn."
-    "responses":
-      "201":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/Payment"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "404":
-        "$ref": "./openapi.yaml#/components/responses/NotFound"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-      "503":
-        "$ref": "./openapi.yaml#/components/responses/Unavailable"
-    "x-required-roles":
-      - "CUSTOMER"
-    "x-readme-fr":
-      - "FR06.1"
-      - "FR06.2"
-      - "FR06.5"
-      - "FR06.6"
-    "x-readme-use-cases":
-      - "UC010"
-      - "UC011"
-    "parameters":
-      -
-        "name": "tripId"
-        "in": "path"
-        "required": true
-        "description": "Mã định danh tripId"
-        "schema":
-          "type": "string"
-          "minLength": 1
-        "example": "trip_001"
-      -
-        "$ref": "./openapi.yaml#/components/parameters/IdempotencyKey"
-    "requestBody":
-      "required": true
-      "content":
-        "application/json":
-          "schema":
-            "$ref": "./openapi.yaml#/components/schemas/PaymentCreate"
-  "get":
-    "tags":
-      - "Payments"
-    "summary": "Lịch sử giao dịch của chuyến"
-    "operationId": "listTripPayments"
-    "description": "Chỉ khách sở hữu/tài xế được phân công; không chứa token hoặc dữ liệu thẻ."
-    "responses":
-      "200":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/PaymentPage"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "404":
-        "$ref": "./openapi.yaml#/components/responses/NotFound"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "CUSTOMER"
-      - "DRIVER"
-    "x-readme-fr":
-      - "FR06.6"
-    "x-readme-use-cases":
-      - "UC010"
-      - "UC011"
-    "parameters":
-      -
-        "name": "tripId"
-        "in": "path"
-        "required": true
-        "description": "Mã định danh tripId"
-        "schema":
-          "type": "string"
-          "minLength": 1
-        "example": "trip_001"
-      -
-        "name": "page"
-        "in": "query"
-        "required": false
-        "description": "page"
-        "schema":
-          "type": "integer"
-          "description": ""
-          "minimum": 1
-          "default": 1
-      -
-        "name": "pageSize"
-        "in": "query"
-        "required": false
-        "description": "pageSize"
-        "schema":
-          "type": "integer"
-          "description": ""
-          "minimum": 1
-          "maximum": 100
-          "default": 20
-"/payments/{paymentId}":
-  "get":
-    "tags":
-      - "Payments"
-    "summary": "Tra cứu kết quả giao dịch"
-    "operationId": "getPayment"
-    "description": "Chỉ người tham gia chuyến liên quan; dùng khi thanh toán PENDING hoặc vừa quay về từ checkout."
-    "responses":
-      "200":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/Payment"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "404":
-        "$ref": "./openapi.yaml#/components/responses/NotFound"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "CUSTOMER"
-      - "DRIVER"
-    "x-readme-fr":
-      - "FR06.3"
-      - "FR06.6"
-    "x-readme-use-cases":
-      - "UC011"
-    "parameters":
-      -
-        "name": "paymentId"
-        "in": "path"
-        "required": true
-        "description": "Mã định danh paymentId"
-        "schema":
-          "type": "string"
-          "minLength": 1
-        "example": "payment_001"
-"/payments/{paymentId}/confirm-cash":
-  "post":
-    "tags":
-      - "Payments"
-    "summary": "Tài xế xác nhận đã nhận tiền mặt"
-    "operationId": "confirmCash"
-    "description": "Chỉ tài xế được phân công, giao dịch CASH/PENDING và cước đã chốt. Server cập nhật SUCCEEDED và paymentStatus=PAID nguyên tử, gửi biên lai hai bên. Chưa xác nhận giữ PENDING, hệ thống gửi CASH_REMINDER; tranh chấp tạo incident. Không nhận số tiền tự khai báo."
-    "responses":
-      "200":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/Payment"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "404":
-        "$ref": "./openapi.yaml#/components/responses/NotFound"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "DRIVER"
-    "x-readme-fr":
-      - "FR06.1"
-      - "FR07.5"
-    "x-readme-use-cases":
-      - "UC010"
-    "parameters":
-      -
-        "name": "paymentId"
-        "in": "path"
-        "required": true
-        "description": "Mã định danh paymentId"
-        "schema":
-          "type": "string"
-          "minLength": 1
-        "example": "payment_001"
-      -
-        "$ref": "./openapi.yaml#/components/parameters/IdempotencyKey"
-"/integrations/payments/callback":
-  "post":
-    "tags":
-      - "Integrations"
-    "summary": "Nhận kết quả từ cổng thanh toán mô phỏng"
-    "operationId": "paymentCallback"
-    "description": "Endpoint server-to-server. Xác minh chữ ký trên raw body và timestamp, chống phát lại bằng eventId. Đối chiếu paymentId, providerReference, amount, currency; sai trả 422 PAYMENT_MISMATCH. Callback trùng hợp lệ trả 204, không thu/ghi doanh thu lần hai; kết quả mâu thuẫn giữ để đối soát, không hạ SUCCEEDED xuống FAILED. Signature algorithm, key rotation và cửa sổ timestamp cần chốt với adapter mô phỏng. Không tin kết quả redirect của trình duyệt."
-    "responses":
-      "204":
-        "description": "Xử lý thành công."
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "PAYMENT_PROVIDER"
-    "x-readme-fr":
-      - "FR06.3"
-      - "FR06.4"
-      - "FR06.6"
-      - "FR07.5"
-    "x-readme-use-cases":
-      - "UC011"
-    "security":
-      -
-        "paymentSignature": []
-    "requestBody":
-      "required": true
-      "content":
-        "application/json":
-          "schema":
-            "$ref": "./openapi.yaml#/components/schemas/PaymentCallback"
-    "parameters":
-      -
-        "name": "X-Payment-Timestamp"
-        "in": "header"
-        "required": true
-        "schema":
-          "type": "string"
-          "description": "Thời gian RFC 3339, lưu UTC."
-          "format": "date-time"
-          "example": "2026-09-07T03:00:00Z"
-        "description": "Thời điểm được bảo vệ bởi chữ ký."
-"/rating-options":
-  "get":
-    "tags":
-      - "Ratings"
-    "summary": "Nhãn đánh giá và lý do phản ánh"
-    "operationId": "getRatingOptions"
-    "description": "Danh sách nhãn do server cấu hình."
-    "responses":
-      "200":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/RatingOptions"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "CUSTOMER"
-    "x-readme-fr": []
-    "x-readme-use-cases":
-      - "UC012"
-"/trips/{tripId}/rating":
-  "post":
-    "tags":
-      - "Ratings"
-    "summary": "Đánh giá tài xế sau thanh toán"
-    "operationId": "createRating"
-    "description": "Chỉ khách sở hữu; COMPLETED và PAID; mỗi chuyến một đánh giá, trong ratingDeadline (thời hạn chưa chốt). Điểm 1–2 yêu cầu negativeReasons và gắn cờ kiểm tra chất lượng. Cập nhật điểm trung bình tài xế."
-    "responses":
-      "201":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/Rating"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "404":
-        "$ref": "./openapi.yaml#/components/responses/NotFound"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "CUSTOMER"
-    "x-readme-fr": []
-    "x-readme-use-cases":
-      - "UC012"
-    "parameters":
-      -
-        "name": "tripId"
-        "in": "path"
-        "required": true
-        "description": "Mã định danh tripId"
-        "schema":
-          "type": "string"
-          "minLength": 1
-        "example": "trip_001"
-      -
-        "$ref": "./openapi.yaml#/components/parameters/IdempotencyKey"
-    "requestBody":
-      "required": true
-      "content":
-        "application/json":
-          "schema":
-            "$ref": "./openapi.yaml#/components/schemas/RatingInput"
-  "get":
-    "tags":
-      - "Ratings"
-    "summary": "Xem đánh giá đã gửi"
-    "operationId": "getRating"
-    "description": "Khách sở hữu hoặc tài xế của chuyến. Chưa đánh giá trả 404."
-    "responses":
-      "200":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/Rating"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "404":
-        "$ref": "./openapi.yaml#/components/responses/NotFound"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "CUSTOMER"
-      - "DRIVER"
-    "x-readme-fr": []
-    "x-readme-use-cases":
-      - "UC012"
-    "parameters":
-      -
-        "name": "tripId"
-        "in": "path"
-        "required": true
-        "description": "Mã định danh tripId"
-        "schema":
-          "type": "string"
-          "minLength": 1
-        "example": "trip_001"
-"/admin/payments":
-  "get":
-    "tags":
-      - "Payments"
-    "summary": "Tra cứu giao dịch và đối soát"
-    "operationId": "adminListPayments"
-    "description": "Quyền payments:read; lọc theo chuyến hoặc trạng thái để xử lý treo thanh toán."
-    "responses":
-      "200":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/PaymentPage"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "OPERATOR"
-      - "ADMIN"
-    "x-readme-fr":
-      - "FR06.6"
-      - "FR08.7"
-    "x-readme-use-cases":
-      - "UC015"
-    "parameters":
-      -
-        "name": "page"
-        "in": "query"
-        "required": false
-        "description": "page"
-        "schema":
-          "type": "integer"
-          "description": ""
-          "minimum": 1
-          "default": 1
-      -
-        "name": "pageSize"
-        "in": "query"
-        "required": false
-        "description": "pageSize"
-        "schema":
-          "type": "integer"
-          "description": ""
-          "minimum": 1
-          "maximum": 100
-          "default": 20
-      -
-        "name": "tripId"
-        "in": "query"
-        "required": false
-        "description": "tripId"
-        "schema":
-          "type": "string"
-      -
-        "name": "status"
-        "in": "query"
-        "required": false
-        "description": "status"
-        "schema":
-          "type": "string"
-          "enum":
-            - "PENDING"
-            - "SUCCEEDED"
-            - "FAILED"
-            - "CANCELLED"
-"/admin/payments/{paymentId}/refunds":
-  "get":
-    "tags":
-      - "Payments"
-    "summary": "Tra cứu kết quả hoàn tiền"
-    "operationId": "adminListRefunds"
-    "description": "Quyền payments:read; hoàn tiền được tạo qua can thiệp và phê duyệt, không cho gọi API hoàn tiền tùy ý."
-    "responses":
-      "200":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/RefundPage"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "404":
-        "$ref": "./openapi.yaml#/components/responses/NotFound"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "OPERATOR"
-      - "ADMIN"
-    "x-readme-fr": []
-    "x-readme-use-cases":
-      - "UC015"
-    "parameters":
-      -
-        "name": "paymentId"
-        "in": "path"
-        "required": true
-        "description": "Mã định danh paymentId"
-        "schema":
-          "type": "string"
-          "minLength": 1
-        "example": "payment_001"
-      -
-        "name": "page"
-        "in": "query"
-        "required": false
-        "description": "page"
-        "schema":
-          "type": "integer"
-          "description": ""
-          "minimum": 1
-          "default": 1
-      -
-        "name": "pageSize"
-        "in": "query"
-        "required": false
-        "description": "pageSize"
-        "schema":
-          "type": "integer"
-          "description": ""
-          "minimum": 1
-          "maximum": 100
-          "default": 20
+openapi: 3.0.3
+info:
+  title: CAB System API - Payments & Ratings
+  version: 0.1.0
+servers:
+- url: http://localhost:8080/api/v1
+  description: Địa chỉ backend dự kiến; thay khi triển khai.
+security:
+- bearerAuth: []
+tags:
+- name: Payments
+  description: Cước, thanh toán, lịch sử và hoàn tiền
+- name: Integrations
+  description: Callback của adapter mô phỏng
+- name: Ratings
+  description: Đánh giá chất lượng
+paths:
+  /trips/{tripId}/fare:
+    get:
+      tags:
+      - Payments
+      summary: Xem cước cuối và hóa đơn
+      operationId: getFinalFare
+      description: Chỉ người tham gia chuyến. Cước được server tính khi kết thúc hoặc xử lý sự cố, chưa có trả 409
+        FARE_NOT_READY. Công thức chi tiết chưa chốt; client không gửi số tiền phải thu.
+      responses:
+        '200':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/Fare
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '404':
+          $ref: ./components.yaml#/responses/NotFound
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - CUSTOMER
+      - DRIVER
+      x-readme-fr:
+      - FR05.1
+      - FR05.2
+      x-readme-use-cases:
+      - UC010
+      parameters:
+      - name: tripId
+        in: path
+        required: true
+        description: Mã định danh tripId
+        schema:
+          type: string
+          minLength: 1
+        example: trip_001
+  /trips/{tripId}/payments:
+    post:
+      tags:
+      - Payments
+      summary: Khởi tạo thanh toán hoặc thanh toán lại
+      operationId: createPayment
+      description: Chỉ khách sở hữu; chuyến đã có cước cuối. Lấy số tiền từ hóa đơn server. CASH tạo bản ghi PENDING
+        chờ tài xế xác nhận; BANK_CARD/E_WALLET trả checkoutUrl mô phỏng. Chỉ tạo lần thử mới khi lần trước FAILED/CANCELLED;
+        PENDING phải đối soát trước, PAID từ chối thu lại. Sau thất bại được đổi sang CASH theo chính sách. Timeout
+        cổng giữ PENDING, tự truy vấn đối soát; không coi timeout là thất bại chắc chắn.
+      responses:
+        '201':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/Payment
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '404':
+          $ref: ./components.yaml#/responses/NotFound
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+        '503':
+          $ref: ./components.yaml#/responses/Unavailable
+      x-required-roles:
+      - CUSTOMER
+      x-readme-fr:
+      - FR06.1
+      - FR06.2
+      - FR06.5
+      - FR06.6
+      x-readme-use-cases:
+      - UC010
+      - UC011
+      parameters:
+      - name: tripId
+        in: path
+        required: true
+        description: Mã định danh tripId
+        schema:
+          type: string
+          minLength: 1
+        example: trip_001
+      - $ref: ./components.yaml#/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./components.yaml#/schemas/PaymentCreate
+    get:
+      tags:
+      - Payments
+      summary: Lịch sử giao dịch của chuyến
+      operationId: listTripPayments
+      description: Chỉ khách sở hữu/tài xế được phân công; không chứa token hoặc dữ liệu thẻ.
+      responses:
+        '200':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/PaymentPage
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '404':
+          $ref: ./components.yaml#/responses/NotFound
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - CUSTOMER
+      - DRIVER
+      x-readme-fr:
+      - FR06.6
+      x-readme-use-cases:
+      - UC010
+      - UC011
+      parameters:
+      - name: tripId
+        in: path
+        required: true
+        description: Mã định danh tripId
+        schema:
+          type: string
+          minLength: 1
+        example: trip_001
+      - name: page
+        in: query
+        required: false
+        description: page
+        schema:
+          type: integer
+          description: ''
+          minimum: 1
+          default: 1
+      - name: pageSize
+        in: query
+        required: false
+        description: pageSize
+        schema:
+          type: integer
+          description: ''
+          minimum: 1
+          maximum: 100
+          default: 20
+  /payments/{paymentId}:
+    get:
+      tags:
+      - Payments
+      summary: Tra cứu kết quả giao dịch
+      operationId: getPayment
+      description: Chỉ người tham gia chuyến liên quan; dùng khi thanh toán PENDING hoặc vừa quay về từ checkout.
+      responses:
+        '200':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/Payment
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '404':
+          $ref: ./components.yaml#/responses/NotFound
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - CUSTOMER
+      - DRIVER
+      x-readme-fr:
+      - FR06.3
+      - FR06.6
+      x-readme-use-cases:
+      - UC011
+      parameters:
+      - name: paymentId
+        in: path
+        required: true
+        description: Mã định danh paymentId
+        schema:
+          type: string
+          minLength: 1
+        example: payment_001
+  /payments/{paymentId}/confirm-cash:
+    post:
+      tags:
+      - Payments
+      summary: Tài xế xác nhận đã nhận tiền mặt
+      operationId: confirmCash
+      description: Chỉ tài xế được phân công, giao dịch CASH/PENDING và cước đã chốt. Server cập nhật SUCCEEDED
+        và paymentStatus=PAID nguyên tử, gửi biên lai hai bên. Chưa xác nhận giữ PENDING, hệ thống gửi CASH_REMINDER;
+        tranh chấp tạo incident. Không nhận số tiền tự khai báo.
+      responses:
+        '200':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/Payment
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '404':
+          $ref: ./components.yaml#/responses/NotFound
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - DRIVER
+      x-readme-fr:
+      - FR06.1
+      - FR07.5
+      x-readme-use-cases:
+      - UC010
+      parameters:
+      - name: paymentId
+        in: path
+        required: true
+        description: Mã định danh paymentId
+        schema:
+          type: string
+          minLength: 1
+        example: payment_001
+      - $ref: ./components.yaml#/parameters/IdempotencyKey
+  /integrations/payments/callback:
+    post:
+      tags:
+      - Integrations
+      summary: Nhận kết quả từ cổng thanh toán mô phỏng
+      operationId: paymentCallback
+      description: Endpoint server-to-server. Xác minh chữ ký trên raw body và timestamp, chống phát lại bằng eventId.
+        Đối chiếu paymentId, providerReference, amount, currency; sai trả 422 PAYMENT_MISMATCH. Callback trùng hợp
+        lệ trả 204, không thu/ghi doanh thu lần hai; kết quả mâu thuẫn giữ để đối soát, không hạ SUCCEEDED xuống
+        FAILED. Signature algorithm, key rotation và cửa sổ timestamp cần chốt với adapter mô phỏng. Không tin kết
+        quả redirect của trình duyệt.
+      responses:
+        '204':
+          description: Xử lý thành công.
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - PAYMENT_PROVIDER
+      x-readme-fr:
+      - FR06.3
+      - FR06.4
+      - FR06.6
+      - FR07.5
+      x-readme-use-cases:
+      - UC011
+      security:
+      - paymentSignature: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./components.yaml#/schemas/PaymentCallback
+      parameters:
+      - name: X-Payment-Timestamp
+        in: header
+        required: true
+        schema:
+          type: string
+          description: Thời gian RFC 3339, lưu UTC.
+          format: date-time
+          example: '2026-09-07T03:00:00Z'
+        description: Thời điểm được bảo vệ bởi chữ ký.
+  /rating-options:
+    get:
+      tags:
+      - Ratings
+      summary: Nhãn đánh giá và lý do phản ánh
+      operationId: getRatingOptions
+      description: Danh sách nhãn do server cấu hình.
+      responses:
+        '200':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/RatingOptions
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - CUSTOMER
+      x-readme-fr: []
+      x-readme-use-cases:
+      - UC012
+  /trips/{tripId}/rating:
+    post:
+      tags:
+      - Ratings
+      summary: Đánh giá tài xế sau thanh toán
+      operationId: createRating
+      description: Chỉ khách sở hữu; COMPLETED và PAID; mỗi chuyến một đánh giá, trong ratingDeadline (thời hạn
+        chưa chốt). Điểm 1–2 yêu cầu negativeReasons và gắn cờ kiểm tra chất lượng. Cập nhật điểm trung bình tài
+        xế.
+      responses:
+        '201':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/Rating
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '404':
+          $ref: ./components.yaml#/responses/NotFound
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - CUSTOMER
+      x-readme-fr: []
+      x-readme-use-cases:
+      - UC012
+      parameters:
+      - name: tripId
+        in: path
+        required: true
+        description: Mã định danh tripId
+        schema:
+          type: string
+          minLength: 1
+        example: trip_001
+      - $ref: ./components.yaml#/parameters/IdempotencyKey
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./components.yaml#/schemas/RatingInput
+    get:
+      tags:
+      - Ratings
+      summary: Xem đánh giá đã gửi
+      operationId: getRating
+      description: Khách sở hữu hoặc tài xế của chuyến. Chưa đánh giá trả 404.
+      responses:
+        '200':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/Rating
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '404':
+          $ref: ./components.yaml#/responses/NotFound
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - CUSTOMER
+      - DRIVER
+      x-readme-fr: []
+      x-readme-use-cases:
+      - UC012
+      parameters:
+      - name: tripId
+        in: path
+        required: true
+        description: Mã định danh tripId
+        schema:
+          type: string
+          minLength: 1
+        example: trip_001
+  /admin/payments:
+    get:
+      tags:
+      - Payments
+      summary: Tra cứu giao dịch và đối soát
+      operationId: adminListPayments
+      description: Quyền payments:read; lọc theo chuyến hoặc trạng thái để xử lý treo thanh toán.
+      responses:
+        '200':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/PaymentPage
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - OPERATOR
+      - ADMIN
+      x-readme-fr:
+      - FR06.6
+      - FR08.7
+      x-readme-use-cases:
+      - UC015
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: page
+        schema:
+          type: integer
+          description: ''
+          minimum: 1
+          default: 1
+      - name: pageSize
+        in: query
+        required: false
+        description: pageSize
+        schema:
+          type: integer
+          description: ''
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: tripId
+        in: query
+        required: false
+        description: tripId
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        description: status
+        schema:
+          type: string
+          enum:
+          - PENDING
+          - SUCCEEDED
+          - FAILED
+          - CANCELLED
+  /admin/payments/{paymentId}/refunds:
+    get:
+      tags:
+      - Payments
+      summary: Tra cứu kết quả hoàn tiền
+      operationId: adminListRefunds
+      description: Quyền payments:read; hoàn tiền được tạo qua can thiệp và phê duyệt, không cho gọi API hoàn tiền
+        tùy ý.
+      responses:
+        '200':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/RefundPage
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '404':
+          $ref: ./components.yaml#/responses/NotFound
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - OPERATOR
+      - ADMIN
+      x-readme-fr: []
+      x-readme-use-cases:
+      - UC015
+      parameters:
+      - name: paymentId
+        in: path
+        required: true
+        description: Mã định danh paymentId
+        schema:
+          type: string
+          minLength: 1
+        example: payment_001
+      - name: page
+        in: query
+        required: false
+        description: page
+        schema:
+          type: integer
+          description: ''
+          minimum: 1
+          default: 1
+      - name: pageSize
+        in: query
+        required: false
+        description: pageSize
+        schema:
+          type: integer
+          description: ''
+          minimum: 1
+          maximum: 100
+          default: 20
+components:
+  securitySchemes:
+    bearerAuth:
+      $ref: ./components.yaml#/securitySchemes/bearerAuth
+    paymentSignature:
+      $ref: ./components.yaml#/securitySchemes/paymentSignature
+  parameters:
+    IdempotencyKey:
+      $ref: ./components.yaml#/parameters/IdempotencyKey
+  schemas:
+    VehicleType:
+      $ref: ./components.yaml#/schemas/VehicleType
+    PaymentMethod:
+      $ref: ./components.yaml#/schemas/PaymentMethod
+    TripStatus:
+      $ref: ./components.yaml#/schemas/TripStatus
+    PaymentStatus:
+      $ref: ./components.yaml#/schemas/PaymentStatus
+    Error:
+      $ref: ./components.yaml#/schemas/Error
+    Point:
+      $ref: ./components.yaml#/schemas/Point
+    Location:
+      $ref: ./components.yaml#/schemas/Location
+    User:
+      $ref: ./components.yaml#/schemas/User
+    ProfileUpdate:
+      $ref: ./components.yaml#/schemas/ProfileUpdate
+    VehicleInput:
+      $ref: ./components.yaml#/schemas/VehicleInput
+    Vehicle:
+      $ref: ./components.yaml#/schemas/Vehicle
+    DriverProfileInput:
+      $ref: ./components.yaml#/schemas/DriverProfileInput
+    DriverProfile:
+      $ref: ./components.yaml#/schemas/DriverProfile
+    Registration:
+      $ref: ./components.yaml#/schemas/Registration
+    OtpChallenge:
+      $ref: ./components.yaml#/schemas/OtpChallenge
+    OtpVerify:
+      $ref: ./components.yaml#/schemas/OtpVerify
+    Login:
+      $ref: ./components.yaml#/schemas/Login
+    Session:
+      $ref: ./components.yaml#/schemas/Session
+    Document:
+      $ref: ./components.yaml#/schemas/Document
+    RouteRequest:
+      $ref: ./components.yaml#/schemas/RouteRequest
+    Route:
+      $ref: ./components.yaml#/schemas/Route
+    FareEstimateRequest:
+      $ref: ./components.yaml#/schemas/FareEstimateRequest
+    FareEstimate:
+      $ref: ./components.yaml#/schemas/FareEstimate
+    TripCreate:
+      $ref: ./components.yaml#/schemas/TripCreate
+    DriverPublic:
+      $ref: ./components.yaml#/schemas/DriverPublic
+    Trip:
+      $ref: ./components.yaml#/schemas/Trip
+    Tracking:
+      $ref: ./components.yaml#/schemas/Tracking
+    TripEvent:
+      $ref: ./components.yaml#/schemas/TripEvent
+    Offer:
+      $ref: ./components.yaml#/schemas/Offer
+    StatusChange:
+      $ref: ./components.yaml#/schemas/StatusChange
+    CancelRequest:
+      $ref: ./components.yaml#/schemas/CancelRequest
+    Fare:
+      $ref: ./components.yaml#/schemas/Fare
+    PaymentCreate:
+      $ref: ./components.yaml#/schemas/PaymentCreate
+    Payment:
+      $ref: ./components.yaml#/schemas/Payment
+    PaymentCallback:
+      $ref: ./components.yaml#/schemas/PaymentCallback
+    RatingInput:
+      $ref: ./components.yaml#/schemas/RatingInput
+    Rating:
+      $ref: ./components.yaml#/schemas/Rating
+    Notification:
+      $ref: ./components.yaml#/schemas/Notification
+    IncidentInput:
+      $ref: ./components.yaml#/schemas/IncidentInput
+    Incident:
+      $ref: ./components.yaml#/schemas/Incident
+    InterventionInput:
+      $ref: ./components.yaml#/schemas/InterventionInput
+    Intervention:
+      $ref: ./components.yaml#/schemas/Intervention
+    Refund:
+      $ref: ./components.yaml#/schemas/Refund
+    ReviewInput:
+      $ref: ./components.yaml#/schemas/ReviewInput
+    AuditLog:
+      $ref: ./components.yaml#/schemas/AuditLog
+    ReportRow:
+      $ref: ./components.yaml#/schemas/ReportRow
+    Report:
+      $ref: ./components.yaml#/schemas/Report
+    ExportRequest:
+      $ref: ./components.yaml#/schemas/ExportRequest
+    ExportJob:
+      $ref: ./components.yaml#/schemas/ExportJob
+    Permission:
+      $ref: ./components.yaml#/schemas/Permission
+    Role:
+      $ref: ./components.yaml#/schemas/Role
+    Region:
+      $ref: ./components.yaml#/schemas/Region
+    VehicleService:
+      $ref: ./components.yaml#/schemas/VehicleService
+    RatingOptions:
+      $ref: ./components.yaml#/schemas/RatingOptions
+    AvailabilityInput:
+      $ref: ./components.yaml#/schemas/AvailabilityInput
+    Availability:
+      $ref: ./components.yaml#/schemas/Availability
+    AccountStatusInput:
+      $ref: ./components.yaml#/schemas/AccountStatusInput
+    AdminUserCreate:
+      $ref: ./components.yaml#/schemas/AdminUserCreate
+    InvitationActivate:
+      $ref: ./components.yaml#/schemas/InvitationActivate
+    ResendOtp:
+      $ref: ./components.yaml#/schemas/ResendOtp
+    VehicleServicePage:
+      $ref: ./components.yaml#/schemas/VehicleServicePage
+    RegionPage:
+      $ref: ./components.yaml#/schemas/RegionPage
+    PointPage:
+      $ref: ./components.yaml#/schemas/PointPage
+    TripPage:
+      $ref: ./components.yaml#/schemas/TripPage
+    TripEventPage:
+      $ref: ./components.yaml#/schemas/TripEventPage
+    OfferPage:
+      $ref: ./components.yaml#/schemas/OfferPage
+    Reason:
+      $ref: ./components.yaml#/schemas/Reason
+    PaymentPage:
+      $ref: ./components.yaml#/schemas/PaymentPage
+    NotificationPage:
+      $ref: ./components.yaml#/schemas/NotificationPage
+    DeviceInput:
+      $ref: ./components.yaml#/schemas/DeviceInput
+    Device:
+      $ref: ./components.yaml#/schemas/Device
+    UserPage:
+      $ref: ./components.yaml#/schemas/UserPage
+    DriverProfilePage:
+      $ref: ./components.yaml#/schemas/DriverProfilePage
+    VehiclePage:
+      $ref: ./components.yaml#/schemas/VehiclePage
+    AdminVehicleCreate:
+      $ref: ./components.yaml#/schemas/AdminVehicleCreate
+    LocationPage:
+      $ref: ./components.yaml#/schemas/LocationPage
+    RefundPage:
+      $ref: ./components.yaml#/schemas/RefundPage
+    IncidentPage:
+      $ref: ./components.yaml#/schemas/IncidentPage
+    InterventionPage:
+      $ref: ./components.yaml#/schemas/InterventionPage
+    PermissionPage:
+      $ref: ./components.yaml#/schemas/PermissionPage
+    RolePage:
+      $ref: ./components.yaml#/schemas/RolePage
+    AuditLogPage:
+      $ref: ./components.yaml#/schemas/AuditLogPage
+  responses:
+    BadRequest:
+      $ref: ./components.yaml#/responses/BadRequest
+    Unauthorized:
+      $ref: ./components.yaml#/responses/Unauthorized
+    Forbidden:
+      $ref: ./components.yaml#/responses/Forbidden
+    NotFound:
+      $ref: ./components.yaml#/responses/NotFound
+    Conflict:
+      $ref: ./components.yaml#/responses/Conflict
+    Unprocessable:
+      $ref: ./components.yaml#/responses/Unprocessable
+    TooManyRequests:
+      $ref: ./components.yaml#/responses/TooManyRequests
+    ServerError:
+      $ref: ./components.yaml#/responses/ServerError
+    Unavailable:
+      $ref: ./components.yaml#/responses/Unavailable

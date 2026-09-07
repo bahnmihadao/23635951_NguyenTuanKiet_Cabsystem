@@ -1,230 +1,435 @@
-"/notifications":
-  "get":
-    "tags":
-      - "Notifications"
-    "summary": "Hộp thông báo của tôi"
-    "operationId": "listNotifications"
-    "description": "Thông báo tự sinh theo nghiệp vụ, không có API công khai gửi thông báo tùy ý cho người khác. Polling hỗ trợ nhận thay đổi và khi kết nối lại. UC005: lưu hàng đợi để gửi lại khi thiết bị có mạng; offer hết hạn không gửi lại lời mời đang hoạt động, tự chuyển tài xế tiếp theo. Gửi kênh chính lỗi thì ghi log và dùng kênh dự phòng mô phỏng cho tin quan trọng. Thiết bị xác nhận received/read qua API tương ứng; khi mở offer phải đọc lại trạng thái server."
-    "responses":
-      "200":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/NotificationPage"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "AUTHENTICATED"
-    "x-readme-fr":
-      - "FR07.1"
-      - "FR07.2"
-      - "FR07.3"
-      - "FR07.4"
-      - "FR07.5"
-      - "FR07.6"
-      - "FR07.7"
-    "x-readme-use-cases":
-      - "UC005"
-    "parameters":
-      -
-        "name": "page"
-        "in": "query"
-        "required": false
-        "description": "page"
-        "schema":
-          "type": "integer"
-          "description": ""
-          "minimum": 1
-          "default": 1
-      -
-        "name": "pageSize"
-        "in": "query"
-        "required": false
-        "description": "pageSize"
-        "schema":
-          "type": "integer"
-          "description": ""
-          "minimum": 1
-          "maximum": 100
-          "default": 20
-      -
-        "name": "unreadOnly"
-        "in": "query"
-        "required": false
-        "description": "unreadOnly"
-        "schema":
-          "type": "boolean"
-          "default": false
-"/notifications/{notificationId}/read":
-  "post":
-    "tags":
-      - "Notifications"
-    "summary": "Đánh dấu đã đọc"
-    "operationId": "markNotificationRead"
-    "description": "Chỉ thông báo của người gọi; gọi lại vẫn thành công."
-    "responses":
-      "204":
-        "description": "Xử lý thành công."
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "404":
-        "$ref": "./openapi.yaml#/components/responses/NotFound"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "AUTHENTICATED"
-    "x-readme-fr":
-      - "FR07.7"
-    "x-readme-use-cases":
-      - "UC005"
-    "parameters":
-      -
-        "name": "notificationId"
-        "in": "path"
-        "required": true
-        "description": "Mã định danh notificationId"
-        "schema":
-          "type": "string"
-          "minLength": 1
-        "example": "notification_001"
-"/devices":
-  "post":
-    "tags":
-      - "Notifications"
-    "summary": "Đăng ký thiết bị nhận push"
-    "operationId": "registerDevice"
-    "description": "Token gắn người gọi, không công khai. Adapter thông báo mô phỏng cho đồ án."
-    "responses":
-      "201":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/Device"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "AUTHENTICATED"
-    "x-readme-fr":
-      - "FR07.1"
-      - "FR07.6"
-    "x-readme-use-cases":
-      - "UC005"
-    "requestBody":
-      "required": true
-      "content":
-        "application/json":
-          "schema":
-            "$ref": "./openapi.yaml#/components/schemas/DeviceInput"
-"/devices/{deviceId}":
-  "delete":
-    "tags":
-      - "Notifications"
-    "summary": "Hủy thiết bị nhận push"
-    "operationId": "removeDevice"
-    "description": "Chỉ thiết bị của người gọi."
-    "responses":
-      "204":
-        "description": "Xử lý thành công."
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "404":
-        "$ref": "./openapi.yaml#/components/responses/NotFound"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "AUTHENTICATED"
-    "x-readme-fr": []
-    "x-readme-use-cases": []
-    "parameters":
-      -
-        "name": "deviceId"
-        "in": "path"
-        "required": true
-        "description": "Mã định danh deviceId"
-        "schema":
-          "type": "string"
-          "minLength": 1
-        "example": "device_001"
-"/notifications/{notificationId}/received":
-  "post":
-    "tags":
-      - "Notifications"
-    "summary": "Xác nhận thiết bị đã nhận thông báo"
-    "operationId": "acknowledgeNotification"
-    "description": "Chỉ thông báo của người gọi. Gọi lại không tạo bản ghi trùng; đánh dấu đã nhận độc lập với đã đọc."
-    "responses":
-      "204":
-        "description": "Xử lý thành công."
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "404":
-        "$ref": "./openapi.yaml#/components/responses/NotFound"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "AUTHENTICATED"
-    "x-readme-fr": []
-    "x-readme-use-cases":
-      - "UC005"
-    "parameters":
-      -
-        "name": "notificationId"
-        "in": "path"
-        "required": true
-        "description": "Mã định danh notificationId"
-        "schema":
-          "type": "string"
-          "minLength": 1
-        "example": "notification_001"
+openapi: 3.0.3
+info:
+  title: CAB System API - Notifications
+  version: 0.1.0
+servers:
+- url: http://localhost:8080/api/v1
+  description: Địa chỉ backend dự kiến; thay khi triển khai.
+security:
+- bearerAuth: []
+tags:
+- name: Notifications
+  description: Thông báo và thiết bị
+paths:
+  /notifications:
+    get:
+      tags:
+      - Notifications
+      summary: Hộp thông báo của tôi
+      operationId: listNotifications
+      description: 'Thông báo tự sinh theo nghiệp vụ, không có API công khai gửi thông báo tùy ý cho người khác.
+        Polling hỗ trợ nhận thay đổi và khi kết nối lại. UC005: lưu hàng đợi để gửi lại khi thiết bị có mạng; offer
+        hết hạn không gửi lại lời mời đang hoạt động, tự chuyển tài xế tiếp theo. Gửi kênh chính lỗi thì ghi log
+        và dùng kênh dự phòng mô phỏng cho tin quan trọng. Thiết bị xác nhận received/read qua API tương ứng; khi
+        mở offer phải đọc lại trạng thái server.'
+      responses:
+        '200':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/NotificationPage
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - AUTHENTICATED
+      x-readme-fr:
+      - FR07.1
+      - FR07.2
+      - FR07.3
+      - FR07.4
+      - FR07.5
+      - FR07.6
+      - FR07.7
+      x-readme-use-cases:
+      - UC005
+      parameters:
+      - name: page
+        in: query
+        required: false
+        description: page
+        schema:
+          type: integer
+          description: ''
+          minimum: 1
+          default: 1
+      - name: pageSize
+        in: query
+        required: false
+        description: pageSize
+        schema:
+          type: integer
+          description: ''
+          minimum: 1
+          maximum: 100
+          default: 20
+      - name: unreadOnly
+        in: query
+        required: false
+        description: unreadOnly
+        schema:
+          type: boolean
+          default: false
+  /notifications/{notificationId}/read:
+    post:
+      tags:
+      - Notifications
+      summary: Đánh dấu đã đọc
+      operationId: markNotificationRead
+      description: Chỉ thông báo của người gọi; gọi lại vẫn thành công.
+      responses:
+        '204':
+          description: Xử lý thành công.
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '404':
+          $ref: ./components.yaml#/responses/NotFound
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - AUTHENTICATED
+      x-readme-fr:
+      - FR07.7
+      x-readme-use-cases:
+      - UC005
+      parameters:
+      - name: notificationId
+        in: path
+        required: true
+        description: Mã định danh notificationId
+        schema:
+          type: string
+          minLength: 1
+        example: notification_001
+  /devices:
+    post:
+      tags:
+      - Notifications
+      summary: Đăng ký thiết bị nhận push
+      operationId: registerDevice
+      description: Token gắn người gọi, không công khai. Adapter thông báo mô phỏng cho đồ án.
+      responses:
+        '201':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/Device
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - AUTHENTICATED
+      x-readme-fr:
+      - FR07.1
+      - FR07.6
+      x-readme-use-cases:
+      - UC005
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./components.yaml#/schemas/DeviceInput
+  /devices/{deviceId}:
+    delete:
+      tags:
+      - Notifications
+      summary: Hủy thiết bị nhận push
+      operationId: removeDevice
+      description: Chỉ thiết bị của người gọi.
+      responses:
+        '204':
+          description: Xử lý thành công.
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '404':
+          $ref: ./components.yaml#/responses/NotFound
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - AUTHENTICATED
+      x-readme-fr: []
+      x-readme-use-cases: []
+      parameters:
+      - name: deviceId
+        in: path
+        required: true
+        description: Mã định danh deviceId
+        schema:
+          type: string
+          minLength: 1
+        example: device_001
+  /notifications/{notificationId}/received:
+    post:
+      tags:
+      - Notifications
+      summary: Xác nhận thiết bị đã nhận thông báo
+      operationId: acknowledgeNotification
+      description: Chỉ thông báo của người gọi. Gọi lại không tạo bản ghi trùng; đánh dấu đã nhận độc lập với đã
+        đọc.
+      responses:
+        '204':
+          description: Xử lý thành công.
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '404':
+          $ref: ./components.yaml#/responses/NotFound
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - AUTHENTICATED
+      x-readme-fr: []
+      x-readme-use-cases:
+      - UC005
+      parameters:
+      - name: notificationId
+        in: path
+        required: true
+        description: Mã định danh notificationId
+        schema:
+          type: string
+          minLength: 1
+        example: notification_001
+components:
+  securitySchemes:
+    bearerAuth:
+      $ref: ./components.yaml#/securitySchemes/bearerAuth
+    paymentSignature:
+      $ref: ./components.yaml#/securitySchemes/paymentSignature
+  parameters:
+    IdempotencyKey:
+      $ref: ./components.yaml#/parameters/IdempotencyKey
+  schemas:
+    VehicleType:
+      $ref: ./components.yaml#/schemas/VehicleType
+    PaymentMethod:
+      $ref: ./components.yaml#/schemas/PaymentMethod
+    TripStatus:
+      $ref: ./components.yaml#/schemas/TripStatus
+    PaymentStatus:
+      $ref: ./components.yaml#/schemas/PaymentStatus
+    Error:
+      $ref: ./components.yaml#/schemas/Error
+    Point:
+      $ref: ./components.yaml#/schemas/Point
+    Location:
+      $ref: ./components.yaml#/schemas/Location
+    User:
+      $ref: ./components.yaml#/schemas/User
+    ProfileUpdate:
+      $ref: ./components.yaml#/schemas/ProfileUpdate
+    VehicleInput:
+      $ref: ./components.yaml#/schemas/VehicleInput
+    Vehicle:
+      $ref: ./components.yaml#/schemas/Vehicle
+    DriverProfileInput:
+      $ref: ./components.yaml#/schemas/DriverProfileInput
+    DriverProfile:
+      $ref: ./components.yaml#/schemas/DriverProfile
+    Registration:
+      $ref: ./components.yaml#/schemas/Registration
+    OtpChallenge:
+      $ref: ./components.yaml#/schemas/OtpChallenge
+    OtpVerify:
+      $ref: ./components.yaml#/schemas/OtpVerify
+    Login:
+      $ref: ./components.yaml#/schemas/Login
+    Session:
+      $ref: ./components.yaml#/schemas/Session
+    Document:
+      $ref: ./components.yaml#/schemas/Document
+    RouteRequest:
+      $ref: ./components.yaml#/schemas/RouteRequest
+    Route:
+      $ref: ./components.yaml#/schemas/Route
+    FareEstimateRequest:
+      $ref: ./components.yaml#/schemas/FareEstimateRequest
+    FareEstimate:
+      $ref: ./components.yaml#/schemas/FareEstimate
+    TripCreate:
+      $ref: ./components.yaml#/schemas/TripCreate
+    DriverPublic:
+      $ref: ./components.yaml#/schemas/DriverPublic
+    Trip:
+      $ref: ./components.yaml#/schemas/Trip
+    Tracking:
+      $ref: ./components.yaml#/schemas/Tracking
+    TripEvent:
+      $ref: ./components.yaml#/schemas/TripEvent
+    Offer:
+      $ref: ./components.yaml#/schemas/Offer
+    StatusChange:
+      $ref: ./components.yaml#/schemas/StatusChange
+    CancelRequest:
+      $ref: ./components.yaml#/schemas/CancelRequest
+    Fare:
+      $ref: ./components.yaml#/schemas/Fare
+    PaymentCreate:
+      $ref: ./components.yaml#/schemas/PaymentCreate
+    Payment:
+      $ref: ./components.yaml#/schemas/Payment
+    PaymentCallback:
+      $ref: ./components.yaml#/schemas/PaymentCallback
+    RatingInput:
+      $ref: ./components.yaml#/schemas/RatingInput
+    Rating:
+      $ref: ./components.yaml#/schemas/Rating
+    Notification:
+      $ref: ./components.yaml#/schemas/Notification
+    IncidentInput:
+      $ref: ./components.yaml#/schemas/IncidentInput
+    Incident:
+      $ref: ./components.yaml#/schemas/Incident
+    InterventionInput:
+      $ref: ./components.yaml#/schemas/InterventionInput
+    Intervention:
+      $ref: ./components.yaml#/schemas/Intervention
+    Refund:
+      $ref: ./components.yaml#/schemas/Refund
+    ReviewInput:
+      $ref: ./components.yaml#/schemas/ReviewInput
+    AuditLog:
+      $ref: ./components.yaml#/schemas/AuditLog
+    ReportRow:
+      $ref: ./components.yaml#/schemas/ReportRow
+    Report:
+      $ref: ./components.yaml#/schemas/Report
+    ExportRequest:
+      $ref: ./components.yaml#/schemas/ExportRequest
+    ExportJob:
+      $ref: ./components.yaml#/schemas/ExportJob
+    Permission:
+      $ref: ./components.yaml#/schemas/Permission
+    Role:
+      $ref: ./components.yaml#/schemas/Role
+    Region:
+      $ref: ./components.yaml#/schemas/Region
+    VehicleService:
+      $ref: ./components.yaml#/schemas/VehicleService
+    RatingOptions:
+      $ref: ./components.yaml#/schemas/RatingOptions
+    AvailabilityInput:
+      $ref: ./components.yaml#/schemas/AvailabilityInput
+    Availability:
+      $ref: ./components.yaml#/schemas/Availability
+    AccountStatusInput:
+      $ref: ./components.yaml#/schemas/AccountStatusInput
+    AdminUserCreate:
+      $ref: ./components.yaml#/schemas/AdminUserCreate
+    InvitationActivate:
+      $ref: ./components.yaml#/schemas/InvitationActivate
+    ResendOtp:
+      $ref: ./components.yaml#/schemas/ResendOtp
+    VehicleServicePage:
+      $ref: ./components.yaml#/schemas/VehicleServicePage
+    RegionPage:
+      $ref: ./components.yaml#/schemas/RegionPage
+    PointPage:
+      $ref: ./components.yaml#/schemas/PointPage
+    TripPage:
+      $ref: ./components.yaml#/schemas/TripPage
+    TripEventPage:
+      $ref: ./components.yaml#/schemas/TripEventPage
+    OfferPage:
+      $ref: ./components.yaml#/schemas/OfferPage
+    Reason:
+      $ref: ./components.yaml#/schemas/Reason
+    PaymentPage:
+      $ref: ./components.yaml#/schemas/PaymentPage
+    NotificationPage:
+      $ref: ./components.yaml#/schemas/NotificationPage
+    DeviceInput:
+      $ref: ./components.yaml#/schemas/DeviceInput
+    Device:
+      $ref: ./components.yaml#/schemas/Device
+    UserPage:
+      $ref: ./components.yaml#/schemas/UserPage
+    DriverProfilePage:
+      $ref: ./components.yaml#/schemas/DriverProfilePage
+    VehiclePage:
+      $ref: ./components.yaml#/schemas/VehiclePage
+    AdminVehicleCreate:
+      $ref: ./components.yaml#/schemas/AdminVehicleCreate
+    LocationPage:
+      $ref: ./components.yaml#/schemas/LocationPage
+    RefundPage:
+      $ref: ./components.yaml#/schemas/RefundPage
+    IncidentPage:
+      $ref: ./components.yaml#/schemas/IncidentPage
+    InterventionPage:
+      $ref: ./components.yaml#/schemas/InterventionPage
+    PermissionPage:
+      $ref: ./components.yaml#/schemas/PermissionPage
+    RolePage:
+      $ref: ./components.yaml#/schemas/RolePage
+    AuditLogPage:
+      $ref: ./components.yaml#/schemas/AuditLogPage
+  responses:
+    BadRequest:
+      $ref: ./components.yaml#/responses/BadRequest
+    Unauthorized:
+      $ref: ./components.yaml#/responses/Unauthorized
+    Forbidden:
+      $ref: ./components.yaml#/responses/Forbidden
+    NotFound:
+      $ref: ./components.yaml#/responses/NotFound
+    Conflict:
+      $ref: ./components.yaml#/responses/Conflict
+    Unprocessable:
+      $ref: ./components.yaml#/responses/Unprocessable
+    TooManyRequests:
+      $ref: ./components.yaml#/responses/TooManyRequests
+    ServerError:
+      $ref: ./components.yaml#/responses/ServerError
+    Unavailable:
+      $ref: ./components.yaml#/responses/Unavailable

@@ -1,396 +1,611 @@
-"/auth/registrations":
-  "post":
-    "tags":
-      - "Auth"
-    "summary": "Đăng ký và gửi OTP"
-    "operationId": "register"
-    "description": "Tạo hồ sơ đăng ký tạm, kiểm tra trùng SĐT/email. Tài khoản chỉ được kích hoạt sau OTP. DRIVER gửi thông tin CCCD, bằng lái, xe; documentIds có thể rỗng lúc đăng ký, bổ sung giấy tờ sau xác minh. Hồ sơ chưa duyệt không được nhận chuyến. SMS/email dùng bộ mô phỏng trong đồ án, không SMS Brandname."
-    "responses":
-      "202":
-        "description": "Đã tiếp nhận; truy vấn tài nguyên trả về để theo dõi kết quả."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/OtpChallenge"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-      "503":
-        "$ref": "./openapi.yaml#/components/responses/Unavailable"
-    "x-required-roles": []
-    "x-readme-fr":
-      - "FR01.1"
-      - "FR01.4"
-      - "FR10.1"
-    "x-readme-use-cases":
-      - "UC002"
-    "security": []
-    "requestBody":
-      "required": true
-      "content":
-        "application/json":
-          "schema":
-            "$ref": "./openapi.yaml#/components/schemas/Registration"
-"/auth/registrations/verify":
-  "post":
-    "tags":
-      - "Auth"
-    "summary": "Xác minh OTP và tạo tài khoản"
-    "operationId": "verifyRegistration"
-    "description": "OTP sai/hết hạn trả 422 OTP_INVALID_OR_EXPIRED. OTP chỉ dùng một lần. Xác minh duy nhất SĐT/email một lần nữa trước khi tạo."
-    "responses":
-      "201":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/User"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles": []
-    "x-readme-fr":
-      - "FR01.1"
-      - "FR10.1"
-    "x-readme-use-cases":
-      - "UC002"
-    "security": []
-    "requestBody":
-      "required": true
-      "content":
-        "application/json":
-          "schema":
-            "$ref": "./openapi.yaml#/components/schemas/OtpVerify"
-"/auth/registrations/resend-otp":
-  "post":
-    "tags":
-      - "Auth"
-    "summary": "Gửi lại OTP"
-    "operationId": "resendOtp"
-    "description": "Vô hiệu mã cũ; giới hạn gửi và lần thử theo cấu hình chưa chốt. Không trả OTP trong response."
-    "responses":
-      "202":
-        "description": "Đã tiếp nhận; truy vấn tài nguyên trả về để theo dõi kết quả."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/OtpChallenge"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-      "503":
-        "$ref": "./openapi.yaml#/components/responses/Unavailable"
-    "x-required-roles": []
-    "x-readme-fr": []
-    "x-readme-use-cases":
-      - "UC002"
-    "security": []
-    "requestBody":
-      "required": true
-      "content":
-        "application/json":
-          "schema":
-            "$ref": "./openapi.yaml#/components/schemas/ResendOtp"
-"/auth/invitations/activate":
-  "post":
-    "tags":
-      - "Auth"
-    "summary": "Kích hoạt tài khoản do vận hành tạo"
-    "operationId": "activateInvitation"
-    "description": "Xác minh OTP và đặt mật khẩu của chính người dùng; áp dụng quy tắc hồ sơ tài xế như đăng ký công khai. Thiết kế hỗ trợ UC013."
-    "responses":
-      "201":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/User"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles": []
-    "x-readme-fr": []
-    "x-readme-use-cases":
-      - "UC013"
-    "security": []
-    "requestBody":
-      "required": true
-      "content":
-        "application/json":
-          "schema":
-            "$ref": "./openapi.yaml#/components/schemas/InvitationActivate"
-"/auth/login":
-  "post":
-    "tags":
-      - "Auth"
-    "summary": "Đăng nhập bằng SĐT/email và mật khẩu"
-    "operationId": "login"
-    "description": "Sai tài khoản/mật khẩu trả 401 INVALID_CREDENTIALS; tài khoản khóa trả 403 ACCOUNT_LOCKED. Token không chứa quyền do client tự khai báo."
-    "responses":
-      "200":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/Session"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles": []
-    "x-readme-fr":
-      - "FR01.2"
-      - "FR10.1"
-    "x-readme-use-cases":
-      - "UC001"
-    "security": []
-    "requestBody":
-      "required": true
-      "content":
-        "application/json":
-          "schema":
-            "$ref": "./openapi.yaml#/components/schemas/Login"
-"/auth/logout":
-  "post":
-    "tags":
-      - "Auth"
-    "summary": "Đăng xuất"
-    "operationId": "logout"
-    "description": "Thu hồi phiên hiện tại trên server."
-    "responses":
-      "204":
-        "description": "Xử lý thành công."
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "AUTHENTICATED"
-    "x-readme-fr":
-      - "FR10.1"
-    "x-readme-use-cases": []
-"/users/me":
-  "get":
-    "tags":
-      - "Accounts"
-    "summary": "Xem hồ sơ cá nhân"
-    "operationId": "getMe"
-    "description": "Chỉ dữ liệu của người gọi."
-    "responses":
-      "200":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/User"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "AUTHENTICATED"
-    "x-readme-fr":
-      - "FR01.3"
-    "x-readme-use-cases": []
-  "patch":
-    "tags":
-      - "Accounts"
-    "summary": "Cập nhật thông tin cá nhân"
-    "operationId": "updateMe"
-    "description": "Không được sửa role/status. Email phải duy nhất. Việc đổi thông tin xác thực cần quy trình xác minh riêng trước triển khai; endpoint này chỉ đổi email liên hệ, không đổi định danh đăng nhập."
-    "responses":
-      "200":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/User"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "AUTHENTICATED"
-    "x-readme-fr":
-      - "FR01.3"
-    "x-readme-use-cases": []
-    "requestBody":
-      "required": true
-      "content":
-        "application/json":
-          "schema":
-            "$ref": "./openapi.yaml#/components/schemas/ProfileUpdate"
-"/documents":
-  "post":
-    "tags":
-      - "Accounts"
-    "summary": "Tải giấy tờ hồ sơ/xe"
-    "operationId": "uploadDocument"
-    "description": "Chủ hồ sơ tải giấy tờ; chỉ nhận JPEG/PNG/PDF, kiểm tra nội dung tệp. Giới hạn dung lượng cần cấu hình. ID tài liệu phải thuộc người dùng khi gắn vào hồ sơ. Không trả URL công khai."
-    "responses":
-      "201":
-        "description": "Xử lý thành công."
-        "content":
-          "application/json":
-            "schema":
-              "$ref": "./openapi.yaml#/components/schemas/Document"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "409":
-        "$ref": "./openapi.yaml#/components/responses/Conflict"
-      "422":
-        "$ref": "./openapi.yaml#/components/responses/Unprocessable"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "CUSTOMER"
-      - "DRIVER"
-      - "OPERATOR"
-    "x-readme-fr":
-      - "FR01.4"
-      - "FR01.5"
-      - "FR08.3"
-    "x-readme-use-cases": []
-    "requestBody":
-      "required": true
-      "content":
-        "multipart/form-data":
-          "schema":
-            "type": "object"
-            "properties":
-              "file":
-                "type": "string"
-                "format": "binary"
-              "kind":
-                "type": "string"
-                "enum":
-                  - "IDENTITY"
-                  - "DRIVING_LICENSE"
-                  - "VEHICLE_REGISTRATION"
-            "required":
-              - "file"
-              - "kind"
-"/documents/{documentId}":
-  "get":
-    "tags":
-      - "Accounts"
-    "summary": "Đọc giấy tờ được cấp quyền"
-    "operationId": "downloadDocument"
-    "description": "Chỉ chủ tài liệu hoặc nhân viên có quyền documents:read. Kiểm tra quyền từng tài liệu; không cung cấp đường dẫn lưu trữ nội bộ."
-    "responses":
-      "200":
-        "description": "Xử lý thành công."
-        "content":
-          "application/pdf":
-            "schema":
-              "type": "string"
-              "format": "binary"
-          "image/jpeg":
-            "schema":
-              "type": "string"
-              "format": "binary"
-          "image/png":
-            "schema":
-              "type": "string"
-              "format": "binary"
-      "400":
-        "$ref": "./openapi.yaml#/components/responses/BadRequest"
-      "401":
-        "$ref": "./openapi.yaml#/components/responses/Unauthorized"
-      "403":
-        "$ref": "./openapi.yaml#/components/responses/Forbidden"
-      "404":
-        "$ref": "./openapi.yaml#/components/responses/NotFound"
-      "429":
-        "$ref": "./openapi.yaml#/components/responses/TooManyRequests"
-      "500":
-        "$ref": "./openapi.yaml#/components/responses/ServerError"
-    "x-required-roles":
-      - "DRIVER"
-      - "OPERATOR"
-      - "ADMIN"
-    "x-readme-fr":
-      - "FR01.4"
-      - "FR08.2"
-      - "FR08.3"
-    "x-readme-use-cases": []
-    "parameters":
-      -
-        "name": "documentId"
-        "in": "path"
-        "required": true
-        "description": "Mã định danh documentId"
-        "schema":
-          "type": "string"
-          "minLength": 1
-        "example": "document_001"
+openapi: 3.0.3
+info:
+  title: CAB System API - Identity & Accounts
+  version: 0.1.0
+servers:
+- url: http://localhost:8080/api/v1
+  description: Địa chỉ backend dự kiến; thay khi triển khai.
+security:
+- bearerAuth: []
+tags:
+- name: Auth
+  description: Đăng ký, OTP, đăng nhập và phiên
+- name: Accounts
+  description: Tài khoản và tài liệu riêng tư
+paths:
+  /auth/registrations:
+    post:
+      tags:
+      - Auth
+      summary: Đăng ký và gửi OTP
+      operationId: register
+      description: Tạo hồ sơ đăng ký tạm, kiểm tra trùng SĐT/email. Tài khoản chỉ được kích hoạt sau OTP. DRIVER
+        gửi thông tin CCCD, bằng lái, xe; documentIds có thể rỗng lúc đăng ký, bổ sung giấy tờ sau xác minh. Hồ
+        sơ chưa duyệt không được nhận chuyến. SMS/email dùng bộ mô phỏng trong đồ án, không SMS Brandname.
+      responses:
+        '202':
+          description: Đã tiếp nhận; truy vấn tài nguyên trả về để theo dõi kết quả.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/OtpChallenge
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+        '503':
+          $ref: ./components.yaml#/responses/Unavailable
+      x-required-roles: []
+      x-readme-fr:
+      - FR01.1
+      - FR01.4
+      - FR10.1
+      x-readme-use-cases:
+      - UC002
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./components.yaml#/schemas/Registration
+  /auth/registrations/verify:
+    post:
+      tags:
+      - Auth
+      summary: Xác minh OTP và tạo tài khoản
+      operationId: verifyRegistration
+      description: OTP sai/hết hạn trả 422 OTP_INVALID_OR_EXPIRED. OTP chỉ dùng một lần. Xác minh duy nhất SĐT/email
+        một lần nữa trước khi tạo.
+      responses:
+        '201':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/User
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles: []
+      x-readme-fr:
+      - FR01.1
+      - FR10.1
+      x-readme-use-cases:
+      - UC002
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./components.yaml#/schemas/OtpVerify
+  /auth/registrations/resend-otp:
+    post:
+      tags:
+      - Auth
+      summary: Gửi lại OTP
+      operationId: resendOtp
+      description: Vô hiệu mã cũ; giới hạn gửi và lần thử theo cấu hình chưa chốt. Không trả OTP trong response.
+      responses:
+        '202':
+          description: Đã tiếp nhận; truy vấn tài nguyên trả về để theo dõi kết quả.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/OtpChallenge
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+        '503':
+          $ref: ./components.yaml#/responses/Unavailable
+      x-required-roles: []
+      x-readme-fr: []
+      x-readme-use-cases:
+      - UC002
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./components.yaml#/schemas/ResendOtp
+  /auth/invitations/activate:
+    post:
+      tags:
+      - Auth
+      summary: Kích hoạt tài khoản do vận hành tạo
+      operationId: activateInvitation
+      description: Xác minh OTP và đặt mật khẩu của chính người dùng; áp dụng quy tắc hồ sơ tài xế như đăng ký công
+        khai. Thiết kế hỗ trợ UC013.
+      responses:
+        '201':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/User
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles: []
+      x-readme-fr: []
+      x-readme-use-cases:
+      - UC013
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./components.yaml#/schemas/InvitationActivate
+  /auth/login:
+    post:
+      tags:
+      - Auth
+      summary: Đăng nhập bằng SĐT/email và mật khẩu
+      operationId: login
+      description: Sai tài khoản/mật khẩu trả 401 INVALID_CREDENTIALS; tài khoản khóa trả 403 ACCOUNT_LOCKED. Token
+        không chứa quyền do client tự khai báo.
+      responses:
+        '200':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/Session
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles: []
+      x-readme-fr:
+      - FR01.2
+      - FR10.1
+      x-readme-use-cases:
+      - UC001
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./components.yaml#/schemas/Login
+  /auth/logout:
+    post:
+      tags:
+      - Auth
+      summary: Đăng xuất
+      operationId: logout
+      description: Thu hồi phiên hiện tại trên server.
+      responses:
+        '204':
+          description: Xử lý thành công.
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - AUTHENTICATED
+      x-readme-fr:
+      - FR10.1
+      x-readme-use-cases: []
+  /users/me:
+    get:
+      tags:
+      - Accounts
+      summary: Xem hồ sơ cá nhân
+      operationId: getMe
+      description: Chỉ dữ liệu của người gọi.
+      responses:
+        '200':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/User
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - AUTHENTICATED
+      x-readme-fr:
+      - FR01.3
+      x-readme-use-cases: []
+    patch:
+      tags:
+      - Accounts
+      summary: Cập nhật thông tin cá nhân
+      operationId: updateMe
+      description: Không được sửa role/status. Email phải duy nhất. Việc đổi thông tin xác thực cần quy trình xác
+        minh riêng trước triển khai; endpoint này chỉ đổi email liên hệ, không đổi định danh đăng nhập.
+      responses:
+        '200':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/User
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - AUTHENTICATED
+      x-readme-fr:
+      - FR01.3
+      x-readme-use-cases: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: ./components.yaml#/schemas/ProfileUpdate
+  /documents:
+    post:
+      tags:
+      - Accounts
+      summary: Tải giấy tờ hồ sơ/xe
+      operationId: uploadDocument
+      description: Chủ hồ sơ tải giấy tờ; chỉ nhận JPEG/PNG/PDF, kiểm tra nội dung tệp. Giới hạn dung lượng cần
+        cấu hình. ID tài liệu phải thuộc người dùng khi gắn vào hồ sơ. Không trả URL công khai.
+      responses:
+        '201':
+          description: Xử lý thành công.
+          content:
+            application/json:
+              schema:
+                $ref: ./components.yaml#/schemas/Document
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '409':
+          $ref: ./components.yaml#/responses/Conflict
+        '422':
+          $ref: ./components.yaml#/responses/Unprocessable
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - CUSTOMER
+      - DRIVER
+      - OPERATOR
+      x-readme-fr:
+      - FR01.4
+      - FR01.5
+      - FR08.3
+      x-readme-use-cases: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                kind:
+                  type: string
+                  enum:
+                  - IDENTITY
+                  - DRIVING_LICENSE
+                  - VEHICLE_REGISTRATION
+              required:
+              - file
+              - kind
+  /documents/{documentId}:
+    get:
+      tags:
+      - Accounts
+      summary: Đọc giấy tờ được cấp quyền
+      operationId: downloadDocument
+      description: Chỉ chủ tài liệu hoặc nhân viên có quyền documents:read. Kiểm tra quyền từng tài liệu; không
+        cung cấp đường dẫn lưu trữ nội bộ.
+      responses:
+        '200':
+          description: Xử lý thành công.
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+        '400':
+          $ref: ./components.yaml#/responses/BadRequest
+        '401':
+          $ref: ./components.yaml#/responses/Unauthorized
+        '403':
+          $ref: ./components.yaml#/responses/Forbidden
+        '404':
+          $ref: ./components.yaml#/responses/NotFound
+        '429':
+          $ref: ./components.yaml#/responses/TooManyRequests
+        '500':
+          $ref: ./components.yaml#/responses/ServerError
+      x-required-roles:
+      - DRIVER
+      - OPERATOR
+      - ADMIN
+      x-readme-fr:
+      - FR01.4
+      - FR08.2
+      - FR08.3
+      x-readme-use-cases: []
+      parameters:
+      - name: documentId
+        in: path
+        required: true
+        description: Mã định danh documentId
+        schema:
+          type: string
+          minLength: 1
+        example: document_001
+components:
+  securitySchemes:
+    bearerAuth:
+      $ref: ./components.yaml#/securitySchemes/bearerAuth
+    paymentSignature:
+      $ref: ./components.yaml#/securitySchemes/paymentSignature
+  parameters:
+    IdempotencyKey:
+      $ref: ./components.yaml#/parameters/IdempotencyKey
+  schemas:
+    VehicleType:
+      $ref: ./components.yaml#/schemas/VehicleType
+    PaymentMethod:
+      $ref: ./components.yaml#/schemas/PaymentMethod
+    TripStatus:
+      $ref: ./components.yaml#/schemas/TripStatus
+    PaymentStatus:
+      $ref: ./components.yaml#/schemas/PaymentStatus
+    Error:
+      $ref: ./components.yaml#/schemas/Error
+    Point:
+      $ref: ./components.yaml#/schemas/Point
+    Location:
+      $ref: ./components.yaml#/schemas/Location
+    User:
+      $ref: ./components.yaml#/schemas/User
+    ProfileUpdate:
+      $ref: ./components.yaml#/schemas/ProfileUpdate
+    VehicleInput:
+      $ref: ./components.yaml#/schemas/VehicleInput
+    Vehicle:
+      $ref: ./components.yaml#/schemas/Vehicle
+    DriverProfileInput:
+      $ref: ./components.yaml#/schemas/DriverProfileInput
+    DriverProfile:
+      $ref: ./components.yaml#/schemas/DriverProfile
+    Registration:
+      $ref: ./components.yaml#/schemas/Registration
+    OtpChallenge:
+      $ref: ./components.yaml#/schemas/OtpChallenge
+    OtpVerify:
+      $ref: ./components.yaml#/schemas/OtpVerify
+    Login:
+      $ref: ./components.yaml#/schemas/Login
+    Session:
+      $ref: ./components.yaml#/schemas/Session
+    Document:
+      $ref: ./components.yaml#/schemas/Document
+    RouteRequest:
+      $ref: ./components.yaml#/schemas/RouteRequest
+    Route:
+      $ref: ./components.yaml#/schemas/Route
+    FareEstimateRequest:
+      $ref: ./components.yaml#/schemas/FareEstimateRequest
+    FareEstimate:
+      $ref: ./components.yaml#/schemas/FareEstimate
+    TripCreate:
+      $ref: ./components.yaml#/schemas/TripCreate
+    DriverPublic:
+      $ref: ./components.yaml#/schemas/DriverPublic
+    Trip:
+      $ref: ./components.yaml#/schemas/Trip
+    Tracking:
+      $ref: ./components.yaml#/schemas/Tracking
+    TripEvent:
+      $ref: ./components.yaml#/schemas/TripEvent
+    Offer:
+      $ref: ./components.yaml#/schemas/Offer
+    StatusChange:
+      $ref: ./components.yaml#/schemas/StatusChange
+    CancelRequest:
+      $ref: ./components.yaml#/schemas/CancelRequest
+    Fare:
+      $ref: ./components.yaml#/schemas/Fare
+    PaymentCreate:
+      $ref: ./components.yaml#/schemas/PaymentCreate
+    Payment:
+      $ref: ./components.yaml#/schemas/Payment
+    PaymentCallback:
+      $ref: ./components.yaml#/schemas/PaymentCallback
+    RatingInput:
+      $ref: ./components.yaml#/schemas/RatingInput
+    Rating:
+      $ref: ./components.yaml#/schemas/Rating
+    Notification:
+      $ref: ./components.yaml#/schemas/Notification
+    IncidentInput:
+      $ref: ./components.yaml#/schemas/IncidentInput
+    Incident:
+      $ref: ./components.yaml#/schemas/Incident
+    InterventionInput:
+      $ref: ./components.yaml#/schemas/InterventionInput
+    Intervention:
+      $ref: ./components.yaml#/schemas/Intervention
+    Refund:
+      $ref: ./components.yaml#/schemas/Refund
+    ReviewInput:
+      $ref: ./components.yaml#/schemas/ReviewInput
+    AuditLog:
+      $ref: ./components.yaml#/schemas/AuditLog
+    ReportRow:
+      $ref: ./components.yaml#/schemas/ReportRow
+    Report:
+      $ref: ./components.yaml#/schemas/Report
+    ExportRequest:
+      $ref: ./components.yaml#/schemas/ExportRequest
+    ExportJob:
+      $ref: ./components.yaml#/schemas/ExportJob
+    Permission:
+      $ref: ./components.yaml#/schemas/Permission
+    Role:
+      $ref: ./components.yaml#/schemas/Role
+    Region:
+      $ref: ./components.yaml#/schemas/Region
+    VehicleService:
+      $ref: ./components.yaml#/schemas/VehicleService
+    RatingOptions:
+      $ref: ./components.yaml#/schemas/RatingOptions
+    AvailabilityInput:
+      $ref: ./components.yaml#/schemas/AvailabilityInput
+    Availability:
+      $ref: ./components.yaml#/schemas/Availability
+    AccountStatusInput:
+      $ref: ./components.yaml#/schemas/AccountStatusInput
+    AdminUserCreate:
+      $ref: ./components.yaml#/schemas/AdminUserCreate
+    InvitationActivate:
+      $ref: ./components.yaml#/schemas/InvitationActivate
+    ResendOtp:
+      $ref: ./components.yaml#/schemas/ResendOtp
+    VehicleServicePage:
+      $ref: ./components.yaml#/schemas/VehicleServicePage
+    RegionPage:
+      $ref: ./components.yaml#/schemas/RegionPage
+    PointPage:
+      $ref: ./components.yaml#/schemas/PointPage
+    TripPage:
+      $ref: ./components.yaml#/schemas/TripPage
+    TripEventPage:
+      $ref: ./components.yaml#/schemas/TripEventPage
+    OfferPage:
+      $ref: ./components.yaml#/schemas/OfferPage
+    Reason:
+      $ref: ./components.yaml#/schemas/Reason
+    PaymentPage:
+      $ref: ./components.yaml#/schemas/PaymentPage
+    NotificationPage:
+      $ref: ./components.yaml#/schemas/NotificationPage
+    DeviceInput:
+      $ref: ./components.yaml#/schemas/DeviceInput
+    Device:
+      $ref: ./components.yaml#/schemas/Device
+    UserPage:
+      $ref: ./components.yaml#/schemas/UserPage
+    DriverProfilePage:
+      $ref: ./components.yaml#/schemas/DriverProfilePage
+    VehiclePage:
+      $ref: ./components.yaml#/schemas/VehiclePage
+    AdminVehicleCreate:
+      $ref: ./components.yaml#/schemas/AdminVehicleCreate
+    LocationPage:
+      $ref: ./components.yaml#/schemas/LocationPage
+    RefundPage:
+      $ref: ./components.yaml#/schemas/RefundPage
+    IncidentPage:
+      $ref: ./components.yaml#/schemas/IncidentPage
+    InterventionPage:
+      $ref: ./components.yaml#/schemas/InterventionPage
+    PermissionPage:
+      $ref: ./components.yaml#/schemas/PermissionPage
+    RolePage:
+      $ref: ./components.yaml#/schemas/RolePage
+    AuditLogPage:
+      $ref: ./components.yaml#/schemas/AuditLogPage
+  responses:
+    BadRequest:
+      $ref: ./components.yaml#/responses/BadRequest
+    Unauthorized:
+      $ref: ./components.yaml#/responses/Unauthorized
+    Forbidden:
+      $ref: ./components.yaml#/responses/Forbidden
+    NotFound:
+      $ref: ./components.yaml#/responses/NotFound
+    Conflict:
+      $ref: ./components.yaml#/responses/Conflict
+    Unprocessable:
+      $ref: ./components.yaml#/responses/Unprocessable
+    TooManyRequests:
+      $ref: ./components.yaml#/responses/TooManyRequests
+    ServerError:
+      $ref: ./components.yaml#/responses/ServerError
+    Unavailable:
+      $ref: ./components.yaml#/responses/Unavailable

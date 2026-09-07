@@ -1,2417 +1,2424 @@
-"securitySchemes":
-  "bearerAuth":
-    "type": "http"
-    "scheme": "bearer"
-    "description": "Access token do /auth/login cấp; không giả định JWT."
-  "paymentSignature":
-    "type": "apiKey"
-    "in": "header"
-    "name": "X-Payment-Signature"
-    "description": "Chữ ký của adapter thanh toán trên raw body và X-Payment-Timestamp; chỉ khai báo header không thay thế kiểm tra mật mã."
-"parameters":
-  "IdempotencyKey":
-    "name": "Idempotency-Key"
-    "in": "header"
-    "required": true
-    "description": "Khóa duy nhất cho một thao tác logic, phạm vi người gọi + method + path. Retry cùng key và body trả lại kết quả gốc kể cả phiên bản đã tăng; cùng key khác body trả 409 IDEMPOTENCY_CONFLICT. Server phải lưu kết quả nguyên tử với thay đổi nghiệp vụ. Thời hạn lưu khóa cần chốt trước triển khai."
-    "schema":
-      "type": "string"
-      "minLength": 1
-      "maxLength": 128
-    "example": "cab-request-0001"
-"schemas":
-  "VehicleType":
-    "type": "string"
-    "enum":
-      - "MOTORBIKE"
-      - "CAR_4"
-      - "CAR_7"
-  "PaymentMethod":
-    "type": "string"
-    "enum":
-      - "CASH"
-      - "BANK_CARD"
-      - "E_WALLET"
-  "TripStatus":
-    "type": "string"
-    "enum":
-      - "SEARCHING"
-      - "DRIVER_ASSIGNED"
-      - "ARRIVED"
-      - "PICKED_UP"
-      - "IN_PROGRESS"
-      - "COMPLETED"
-      - "CANCELLED"
-  "PaymentStatus":
-    "type": "string"
-    "enum":
-      - "UNPAID"
-      - "PENDING"
-      - "PAID"
-      - "FAILED"
-      - "PARTIALLY_REFUNDED"
-      - "REFUNDED"
-  "Error":
-    "type": "object"
-    "properties":
-      "code":
-        "type": "string"
-        "description": "Mã lỗi máy đọc được."
-        "example": "INVALID_TRIP_STATE"
-      "message":
-        "type": "string"
-        "example": "Trạng thái chuyến không cho phép thao tác."
-      "requestId":
-        "type": "string"
-      "details":
-        "type": "array"
-        "items":
-          "type": "object"
-          "properties":
-            "field":
-              "type": "string"
-            "message":
-              "type": "string"
-          "required":
-            - "field"
-            - "message"
-    "required":
-      - "code"
-      - "message"
-      - "requestId"
-  "Point":
-    "type": "object"
-    "properties":
-      "latitude":
-        "type": "number"
-        "description": "Vĩ độ."
-        "minimum": -90
-        "maximum": 90
-        "example": 10.822
-      "longitude":
-        "type": "number"
-        "description": "Kinh độ."
-        "minimum": -180
-        "maximum": 180
-        "example": 106.688
-      "address":
-        "type": "string"
-        "description": "Địa chỉ hiển thị."
-        "example": "12 Nguyễn Văn Bảo, TP. Hồ Chí Minh"
-    "required":
-      - "latitude"
-      - "longitude"
-  "Location":
-    "type": "object"
-    "properties":
-      "point":
-        "$ref": "./openapi.yaml#/components/schemas/Point"
-      "recordedAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "accuracyMeters":
-        "type": "number"
-        "description": "Sai số GPS, mét."
-        "minimum": 0
-      "sequence":
-        "type": "integer"
-        "description": "Số thứ tự tăng trên thiết bị."
-        "minimum": 0
-    "required":
-      - "point"
-      - "recordedAt"
-      - "sequence"
-  "User":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "fullName":
-        "type": "string"
-        "example": "Nguyễn Văn An"
-      "phone":
-        "type": "string"
-        "example": "+84901234567"
-      "email":
-        "type": "string"
-        "format": "email"
-        "example": "an@example.com"
-      "role":
-        "type": "string"
-        "enum":
-          - "CUSTOMER"
-          - "DRIVER"
-          - "OPERATOR"
-          - "MANAGER"
-          - "ADMIN"
-      "status":
-        "type": "string"
-        "enum":
-          - "ACTIVE"
-          - "LOCKED"
-      "createdAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-    "required":
-      - "id"
-      - "fullName"
-      - "phone"
-      - "email"
-      - "role"
-      - "status"
-      - "createdAt"
-  "ProfileUpdate":
-    "type": "object"
-    "properties":
-      "fullName":
-        "type": "string"
-        "minLength": 1
-      "email":
-        "type": "string"
-        "format": "email"
-  "VehicleInput":
-    "type": "object"
-    "properties":
-      "vehicleType":
-        "$ref": "./openapi.yaml#/components/schemas/VehicleType"
-      "plateNumber":
-        "type": "string"
-        "minLength": 1
-        "example": "59A-12345"
-      "brand":
-        "type": "string"
-        "minLength": 1
-      "model":
-        "type": "string"
-        "minLength": 1
-      "color":
-        "type": "string"
-        "minLength": 1
-      "documentIds":
-        "type": "array"
-        "items":
-          "type": "string"
-          "description": "Mã định danh do server cấp."
-          "example": "trip_001"
-    "required":
-      - "vehicleType"
-      - "plateNumber"
-      - "brand"
-      - "model"
-      - "color"
-      - "documentIds"
-  "Vehicle":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "driverId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "vehicleType":
-        "$ref": "./openapi.yaml#/components/schemas/VehicleType"
-      "plateNumber":
-        "type": "string"
-        "minLength": 1
-        "example": "59A-12345"
-      "brand":
-        "type": "string"
-        "minLength": 1
-      "model":
-        "type": "string"
-        "minLength": 1
-      "color":
-        "type": "string"
-        "minLength": 1
-      "documentIds":
-        "type": "array"
-        "items":
-          "type": "string"
-          "description": "Mã định danh do server cấp."
-          "example": "trip_001"
-      "reviewStatus":
-        "type": "string"
-        "enum":
-          - "PENDING"
-          - "APPROVED"
-          - "REJECTED"
-      "reviewReason":
-        "type": "string"
-      "active":
-        "type": "boolean"
-    "required":
-      - "id"
-      - "driverId"
-      - "vehicleType"
-      - "plateNumber"
-      - "reviewStatus"
-      - "active"
-  "DriverProfileInput":
-    "type": "object"
-    "properties":
-      "identityNumber":
-        "type": "string"
-        "description": "CCCD; dữ liệu riêng tư, chỉ chủ hồ sơ và nhân viên có quyền được đọc."
-        "minLength": 1
-      "licenseNumber":
-        "type": "string"
-        "minLength": 1
-      "documentIds":
-        "type": "array"
-        "items":
-          "type": "string"
-          "description": "Mã định danh do server cấp."
-          "example": "trip_001"
-    "required":
-      - "identityNumber"
-      - "licenseNumber"
-      - "documentIds"
-  "DriverProfile":
-    "type": "object"
-    "properties":
-      "user":
-        "$ref": "./openapi.yaml#/components/schemas/User"
-      "identityNumber":
-        "type": "string"
-        "description": "CCCD; dữ liệu riêng tư, chỉ chủ hồ sơ và nhân viên có quyền được đọc."
-        "minLength": 1
-      "licenseNumber":
-        "type": "string"
-        "minLength": 1
-      "documentIds":
-        "type": "array"
-        "items":
-          "type": "string"
-          "description": "Mã định danh do server cấp."
-          "example": "trip_001"
-      "reviewStatus":
-        "type": "string"
-        "enum":
-          - "PENDING"
-          - "APPROVED"
-          - "REJECTED"
-      "reviewReason":
-        "type": "string"
-      "availability":
-        "type": "string"
-        "enum":
-          - "OFFLINE"
-          - "AVAILABLE"
-          - "BUSY"
-      "averageRating":
-        "type": "number"
-        "description": ""
-        "minimum": 1
-        "maximum": 5
-        "nullable": true
-      "vehicle":
-        "$ref": "./openapi.yaml#/components/schemas/Vehicle"
-    "required":
-      - "user"
-      - "reviewStatus"
-      - "availability"
-  "Registration":
-    "type": "object"
-    "properties":
-      "role":
-        "type": "string"
-        "enum":
-          - "CUSTOMER"
-          - "DRIVER"
-      "fullName":
-        "type": "string"
-        "minLength": 1
-      "phone":
-        "type": "string"
-        "minLength": 1
-      "email":
-        "type": "string"
-        "format": "email"
-      "password":
-        "type": "string"
-        "description": "Chính sách độ dài/độ mạnh cần chốt trước triển khai."
-        "minLength": 1
-        "writeOnly": true
-      "otpChannel":
-        "type": "string"
-        "enum":
-          - "SMS"
-          - "EMAIL"
-      "driverProfile":
-        "$ref": "./openapi.yaml#/components/schemas/DriverProfileInput"
-      "vehicle":
-        "$ref": "./openapi.yaml#/components/schemas/VehicleInput"
-    "required":
-      - "role"
-      - "fullName"
-      - "phone"
-      - "email"
-      - "password"
-      - "otpChannel"
-    "description": "DRIVER bắt buộc có driverProfile và vehicle; CUSTOMER không gửi hai trường này. Không cho tự đăng ký vai trò nội bộ."
-  "OtpChallenge":
-    "type": "object"
-    "properties":
-      "registrationId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "expiresAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "resendAvailableAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "maskedDestination":
-        "type": "string"
-        "example": "a***@example.com"
-    "required":
-      - "registrationId"
-      - "expiresAt"
-      - "resendAvailableAt"
-      - "maskedDestination"
-  "OtpVerify":
-    "type": "object"
-    "properties":
-      "registrationId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "otp":
-        "type": "string"
-        "description": "Mã OTP từ kênh đã chọn; không trả lại mã trong response."
-        "minLength": 1
-        "writeOnly": true
-    "required":
-      - "registrationId"
-      - "otp"
-  "Login":
-    "type": "object"
-    "properties":
-      "identifier":
-        "type": "string"
-        "description": "Số điện thoại hoặc email."
-        "example": "an@example.com"
-      "password":
-        "type": "string"
-        "writeOnly": true
-        "minLength": 1
-    "required":
-      - "identifier"
-      - "password"
-  "Session":
-    "type": "object"
-    "properties":
-      "accessToken":
-        "type": "string"
-      "tokenType":
-        "type": "string"
-        "enum":
-          - "Bearer"
-      "expiresAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "user":
-        "$ref": "./openapi.yaml#/components/schemas/User"
-    "required":
-      - "accessToken"
-      - "tokenType"
-      - "expiresAt"
-      - "user"
-  "Document":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "fileName":
-        "type": "string"
-      "mediaType":
-        "type": "string"
-      "createdAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-    "required":
-      - "id"
-      - "fileName"
-      - "mediaType"
-      - "createdAt"
-  "RouteRequest":
-    "type": "object"
-    "properties":
-      "pickup":
-        "$ref": "./openapi.yaml#/components/schemas/Point"
-      "destination":
-        "$ref": "./openapi.yaml#/components/schemas/Point"
-      "vehicleType":
-        "$ref": "./openapi.yaml#/components/schemas/VehicleType"
-    "required":
-      - "pickup"
-      - "destination"
-      - "vehicleType"
-  "Route":
-    "type": "object"
-    "properties":
-      "points":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Point"
-      "distanceMeters":
-        "type": "number"
-        "description": ""
-        "minimum": 0
-      "durationSeconds":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "points"
-      - "distanceMeters"
-      - "durationSeconds"
-  "FareEstimateRequest":
-    "type": "object"
-    "properties":
-      "pickup":
-        "$ref": "./openapi.yaml#/components/schemas/Point"
-      "destination":
-        "$ref": "./openapi.yaml#/components/schemas/Point"
-      "vehicleType":
-        "$ref": "./openapi.yaml#/components/schemas/VehicleType"
-    "required":
-      - "pickup"
-      - "destination"
-      - "vehicleType"
-  "FareEstimate":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "route":
-        "$ref": "./openapi.yaml#/components/schemas/Route"
-      "amount":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "currency":
-        "type": "string"
-        "enum":
-          - "VND"
-      "expiresAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "pricingNote":
-        "type": "string"
-        "description": "Giá dự kiến; giá cuối tính theo hành trình thực tế."
-    "required":
-      - "id"
-      - "route"
-      - "amount"
-      - "currency"
-      - "expiresAt"
-  "TripCreate":
-    "type": "object"
-    "properties":
-      "pickup":
-        "$ref": "./openapi.yaml#/components/schemas/Point"
-      "destination":
-        "$ref": "./openapi.yaml#/components/schemas/Point"
-      "vehicleType":
-        "$ref": "./openapi.yaml#/components/schemas/VehicleType"
-      "paymentMethod":
-        "$ref": "./openapi.yaml#/components/schemas/PaymentMethod"
-      "estimateId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "note":
-        "type": "string"
-        "description": "Ghi chú đón khách."
-    "required":
-      - "pickup"
-      - "destination"
-      - "vehicleType"
-      - "paymentMethod"
-      - "estimateId"
-  "DriverPublic":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "fullName":
-        "type": "string"
-      "phone":
-        "type": "string"
-        "description": "Chỉ cung cấp cho khách của chuyến đang được phục vụ."
-      "averageRating":
-        "type": "number"
-        "description": ""
-        "minimum": 1
-        "maximum": 5
-        "nullable": true
-      "vehicleType":
-        "$ref": "./openapi.yaml#/components/schemas/VehicleType"
-      "plateNumber":
-        "type": "string"
-      "brand":
-        "type": "string"
-      "color":
-        "type": "string"
-    "required":
-      - "id"
-      - "fullName"
-      - "vehicleType"
-      - "plateNumber"
-  "Trip":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "customerId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "driver":
-        "$ref": "./openapi.yaml#/components/schemas/DriverPublic"
-      "pickup":
-        "$ref": "./openapi.yaml#/components/schemas/Point"
-      "destination":
-        "$ref": "./openapi.yaml#/components/schemas/Point"
-      "vehicleType":
-        "$ref": "./openapi.yaml#/components/schemas/VehicleType"
-      "status":
-        "$ref": "./openapi.yaml#/components/schemas/TripStatus"
-      "paymentStatus":
-        "$ref": "./openapi.yaml#/components/schemas/PaymentStatus"
-      "paymentMethod":
-        "$ref": "./openapi.yaml#/components/schemas/PaymentMethod"
-      "estimatedFare":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "finalFare":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "currency":
-        "type": "string"
-        "enum":
-          - "VND"
-      "version":
-        "type": "integer"
-        "description": "Phiên bản tăng sau mỗi thay đổi; dùng chống ghi đè khi đồng bộ."
-        "minimum": 1
-        "example": 1
-      "createdAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "assignedAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "arrivedAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "pickedUpAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "startedAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "completedAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "cancelledAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "cancelReason":
-        "type": "string"
-      "cancelCode":
-        "type": "string"
-        "enum":
-          - "CUSTOMER_CANCELLED"
-          - "DRIVER_CANCELLED"
-          - "NO_DRIVER_AVAILABLE"
-          - "CUSTOMER_NO_SHOW"
-          - "OPERATIONS_CANCELLED"
-      "cancelledBy":
-        "type": "string"
-        "enum":
-          - "CUSTOMER"
-          - "DRIVER"
-          - "SYSTEM"
-          - "OPERATOR"
-      "ratingDeadline":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "replacementTripId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-    "required":
-      - "id"
-      - "customerId"
-      - "pickup"
-      - "destination"
-      - "vehicleType"
-      - "status"
-      - "paymentStatus"
-      - "paymentMethod"
-      - "estimatedFare"
-      - "currency"
-      - "version"
-      - "createdAt"
-  "Tracking":
-    "type": "object"
-    "properties":
-      "trip":
-        "$ref": "./openapi.yaml#/components/schemas/Trip"
-      "driverLocation":
-        "$ref": "./openapi.yaml#/components/schemas/Location"
-      "locationStatus":
-        "type": "string"
-        "enum":
-          - "LIVE"
-          - "STALE"
-          - "UNAVAILABLE"
-      "etaSeconds":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-        "nullable": true
-      "route":
-        "$ref": "./openapi.yaml#/components/schemas/Route"
-      "serverTime":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "warnings":
-        "type": "array"
-        "items":
-          "type": "string"
-    "required":
-      - "trip"
-      - "locationStatus"
-      - "serverTime"
-      - "warnings"
-  "TripEvent":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "tripId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "type":
-        "type": "string"
-        "enum":
-          - "CREATED"
-          - "OFFERED"
-          - "ASSIGNED"
-          - "ARRIVED"
-          - "PICKED_UP"
-          - "STARTED"
-          - "COMPLETED"
-          - "CANCELLED"
-          - "PAYMENT_UPDATED"
-          - "INCIDENT_UPDATED"
-      "occurredAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "status":
-        "$ref": "./openapi.yaml#/components/schemas/TripStatus"
-      "description":
-        "type": "string"
-    "required":
-      - "id"
-      - "tripId"
-      - "type"
-      - "occurredAt"
-      - "description"
-  "Offer":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "tripId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "pickup":
-        "$ref": "./openapi.yaml#/components/schemas/Point"
-      "destination":
-        "$ref": "./openapi.yaml#/components/schemas/Point"
-      "vehicleType":
-        "$ref": "./openapi.yaml#/components/schemas/VehicleType"
-      "estimatedFare":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "pickupDistanceMeters":
-        "type": "number"
-        "description": ""
-        "minimum": 0
-      "expiresAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "status":
-        "type": "string"
-        "enum":
-          - "PENDING"
-          - "ACCEPTED"
-          - "REJECTED"
-          - "EXPIRED"
-          - "REVOKED"
-    "required":
-      - "id"
-      - "tripId"
-      - "pickup"
-      - "destination"
-      - "vehicleType"
-      - "expiresAt"
-      - "status"
-  "StatusChange":
-    "type": "object"
-    "properties":
-      "status":
-        "type": "string"
-        "enum":
-          - "ARRIVED"
-          - "PICKED_UP"
-          - "IN_PROGRESS"
-          - "COMPLETED"
-      "expectedVersion":
-        "type": "integer"
-        "description": "Phiên bản tăng sau mỗi thay đổi; dùng chống ghi đè khi đồng bộ."
-        "minimum": 1
-        "example": 1
-      "location":
-        "$ref": "./openapi.yaml#/components/schemas/Location"
-      "occurredAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-    "required":
-      - "status"
-      - "expectedVersion"
-      - "location"
-      - "occurredAt"
-  "CancelRequest":
-    "type": "object"
-    "properties":
-      "reason":
-        "type": "string"
-        "minLength": 1
-      "expectedVersion":
-        "type": "integer"
-        "description": "Phiên bản tăng sau mỗi thay đổi; dùng chống ghi đè khi đồng bộ."
-        "minimum": 1
-        "example": 1
-      "customerNoShow":
-        "type": "boolean"
-        "default": false
-    "required":
-      - "reason"
-      - "expectedVersion"
-  "Fare":
-    "type": "object"
-    "properties":
-      "tripId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "distanceMeters":
-        "type": "number"
-        "description": ""
-        "minimum": 0
-      "durationSeconds":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-      "baseAmount":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "distanceAmount":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "otherAmount":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "discountAmount":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "totalAmount":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "currency":
-        "type": "string"
-        "enum":
-          - "VND"
-      "calculatedAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "pricingRuleVersion":
-        "type": "string"
-      "paymentStatus":
-        "$ref": "./openapi.yaml#/components/schemas/PaymentStatus"
-    "required":
-      - "tripId"
-      - "distanceMeters"
-      - "totalAmount"
-      - "currency"
-      - "calculatedAt"
-      - "paymentStatus"
-  "PaymentCreate":
-    "type": "object"
-    "properties":
-      "method":
-        "$ref": "./openapi.yaml#/components/schemas/PaymentMethod"
-    "required":
-      - "method"
-  "Payment":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "tripId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "method":
-        "$ref": "./openapi.yaml#/components/schemas/PaymentMethod"
-      "status":
-        "type": "string"
-        "enum":
-          - "PENDING"
-          - "SUCCEEDED"
-          - "FAILED"
-          - "CANCELLED"
-      "amount":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "currency":
-        "type": "string"
-        "enum":
-          - "VND"
-      "providerReference":
-        "type": "string"
-      "checkoutUrl":
-        "type": "string"
-        "description": "URL mô phỏng do server tạo; không chứa thông tin thẻ."
-        "format": "uri"
-      "failureCode":
-        "type": "string"
-      "createdAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "updatedAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-    "required":
-      - "id"
-      - "tripId"
-      - "method"
-      - "status"
-      - "amount"
-      - "currency"
-      - "createdAt"
-      - "updatedAt"
-  "PaymentCallback":
-    "type": "object"
-    "properties":
-      "eventId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "paymentId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "providerReference":
-        "type": "string"
-      "status":
-        "type": "string"
-        "enum":
-          - "SUCCEEDED"
-          - "FAILED"
-      "amount":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "currency":
-        "type": "string"
-        "enum":
-          - "VND"
-      "occurredAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "failureCode":
-        "type": "string"
-    "required":
-      - "eventId"
-      - "paymentId"
-      - "providerReference"
-      - "status"
-      - "amount"
-      - "currency"
-      - "occurredAt"
-  "RatingInput":
-    "type": "object"
-    "properties":
-      "stars":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 5
-        "example": 5
-      "labels":
-        "type": "array"
-        "items":
-          "type": "string"
-      "comment":
-        "type": "string"
-      "negativeReasons":
-        "type": "array"
-        "items":
-          "type": "string"
-    "required":
-      - "stars"
-    "description": "Điểm 1–2 phải có negativeReasons không rỗng; nhãn tham khảo từ /rating-options."
-  "Rating":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "tripId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "stars":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 5
-        "example": 5
-      "labels":
-        "type": "array"
-        "items":
-          "type": "string"
-      "comment":
-        "type": "string"
-      "negativeReasons":
-        "type": "array"
-        "items":
-          "type": "string"
-      "flagged":
-        "type": "boolean"
-      "createdAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-    "required":
-      - "id"
-      - "tripId"
-      - "stars"
-      - "flagged"
-      - "createdAt"
-  "Notification":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "type":
-        "type": "string"
-        "enum":
-          - "BOOKING_RECEIVED"
-          - "DRIVER_ASSIGNED"
-          - "DRIVER_ARRIVED"
-          - "TRIP_COMPLETED"
-          - "PAYMENT_SUCCEEDED"
-          - "PAYMENT_FAILED"
-          - "TRIP_OFFER"
-          - "TRIP_CHANGED"
-          - "NO_DRIVER_AVAILABLE"
-          - "CASH_REMINDER"
-          - "ACCOUNT_UPDATED"
-          - "INCIDENT_RESOLVED"
-      "title":
-        "type": "string"
-      "body":
-        "type": "string"
-      "tripId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "read":
-        "type": "boolean"
-      "createdAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "receivedAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "readAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "offerId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-    "required":
-      - "id"
-      - "type"
-      - "title"
-      - "body"
-      - "read"
-      - "createdAt"
-  "IncidentInput":
-    "type": "object"
-    "properties":
-      "category":
-        "type": "string"
-        "enum":
-          - "VEHICLE_BREAKDOWN"
-          - "ACCIDENT"
-          - "PAYMENT_DISPUTE"
-          - "PAYMENT_PENDING"
-          - "GPS_LOST"
-          - "ROUTE_DEVIATION"
-          - "TECHNICAL"
-          - "OTHER"
-      "description":
-        "type": "string"
-        "minLength": 1
-    "required":
-      - "category"
-      - "description"
-  "Incident":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "tripId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "category":
-        "type": "string"
-        "enum":
-          - "VEHICLE_BREAKDOWN"
-          - "ACCIDENT"
-          - "PAYMENT_DISPUTE"
-          - "PAYMENT_PENDING"
-          - "GPS_LOST"
-          - "ROUTE_DEVIATION"
-          - "TECHNICAL"
-          - "OTHER"
-      "description":
-        "type": "string"
-        "minLength": 1
-      "status":
-        "type": "string"
-        "enum":
-          - "OPEN"
-          - "IN_PROGRESS"
-          - "AWAITING_APPROVAL"
-          - "RESOLVED"
-      "createdAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "resolution":
-        "type": "string"
-    "required":
-      - "id"
-      - "tripId"
-      - "category"
-      - "description"
-      - "status"
-      - "createdAt"
-  "InterventionInput":
-    "type": "object"
-    "properties":
-      "action":
-        "type": "string"
-        "enum":
-          - "CANCEL_TRIP"
-          - "REASSIGN"
-          - "ADJUST_FARE"
-          - "RECONCILE_PAYMENT"
-          - "REFUND"
-          - "RESOLVE"
-      "reason":
-        "type": "string"
-        "minLength": 1
-      "expectedTripVersion":
-        "type": "integer"
-        "description": "Phiên bản tăng sau mỗi thay đổi; dùng chống ghi đè khi đồng bộ."
-        "minimum": 1
-        "example": 1
-      "newFare":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "refundAmount":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "paymentId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "evidenceReference":
-        "type": "string"
-        "description": "Mã bằng chứng đối soát; không chứa dữ liệu thẻ."
-      "customerWantsReplacement":
-        "type": "boolean"
-      "replacementPickup":
-        "$ref": "./openapi.yaml#/components/schemas/Point"
-    "required":
-      - "action"
-      - "reason"
-      - "expectedTripVersion"
-    "description": "ADJUST_FARE cần newFare; REFUND cần paymentId và refundAmount > 0; RECONCILE_PAYMENT cần paymentId và evidenceReference; REASSIGN cần customerWantsReplacement=true và replacementPickup. Server kiểm tra quyền theo action. Không sửa trực tiếp trạng thái thanh toán bằng dữ liệu client."
-  "Intervention":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "incidentId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "action":
-        "type": "string"
-        "enum":
-          - "CANCEL_TRIP"
-          - "REASSIGN"
-          - "ADJUST_FARE"
-          - "RECONCILE_PAYMENT"
-          - "REFUND"
-          - "RESOLVE"
-      "status":
-        "type": "string"
-        "enum":
-          - "PENDING_APPROVAL"
-          - "APPROVED"
-          - "REJECTED"
-          - "EXECUTING"
-          - "SUCCEEDED"
-          - "FAILED"
-      "reason":
-        "type": "string"
-      "requestedBy":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "approvedBy":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "createdAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "replacementTripId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "refundId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "failureCode":
-        "type": "string"
-    "required":
-      - "id"
-      - "incidentId"
-      - "action"
-      - "status"
-      - "reason"
-      - "requestedBy"
-      - "createdAt"
-  "Refund":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "paymentId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "amount":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "currency":
-        "type": "string"
-        "enum":
-          - "VND"
-      "status":
-        "type": "string"
-        "enum":
-          - "PENDING"
-          - "SUCCEEDED"
-          - "FAILED"
-      "createdAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-    "required":
-      - "id"
-      - "paymentId"
-      - "amount"
-      - "currency"
-      - "status"
-      - "createdAt"
-  "ReviewInput":
-    "type": "object"
-    "properties":
-      "decision":
-        "type": "string"
-        "enum":
-          - "APPROVED"
-          - "REJECTED"
-      "reason":
-        "type": "string"
-        "minLength": 1
-    "required":
-      - "decision"
-      - "reason"
-  "AuditLog":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "actorId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "action":
-        "type": "string"
-      "resourceType":
-        "type": "string"
-      "resourceId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "reason":
-        "type": "string"
-      "changes":
-        "type": "array"
-        "items":
-          "type": "object"
-          "properties":
-            "field":
-              "type": "string"
-            "before":
-              "type": "string"
-              "description": "Giá trị đã che dữ liệu nhạy cảm."
-            "after":
-              "type": "string"
-              "description": "Giá trị đã che dữ liệu nhạy cảm."
-          "required":
-            - "field"
-      "createdAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-    "required":
-      - "id"
-      - "actorId"
-      - "action"
-      - "resourceType"
-      - "resourceId"
-      - "createdAt"
-  "ReportRow":
-    "type": "object"
-    "properties":
-      "period":
-        "type": "string"
-      "regionId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "driverId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "totalTrips":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-      "completedTrips":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-      "cancelledTrips":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-      "customerCancellations":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-      "driverCancellations":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-      "systemCancellations":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-      "completionRate":
-        "type": "number"
-        "description": "completedTrips / totalTrips; 0 khi mẫu số bằng 0."
-        "minimum": 0
-        "maximum": 1
-      "cancellationRate":
-        "type": "number"
-        "description": "cancelledTrips / totalTrips; 0 khi mẫu số bằng 0."
-        "minimum": 0
-        "maximum": 1
-      "grossRevenue":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "refunds":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "commission":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "netRevenue":
-        "type": "integer"
-        "description": "Số tiền nguyên, đơn vị VND."
-        "minimum": 0
-        "example": 65000
-      "averageRating":
-        "type": "number"
-        "description": ""
-        "minimum": 1
-        "maximum": 5
-        "nullable": true
-      "acceptedOffers":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-      "rejectedOffers":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-      "expiredOffers":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "totalTrips"
-      - "completedTrips"
-      - "cancelledTrips"
-      - "completionRate"
-      - "cancellationRate"
-      - "grossRevenue"
-      - "refunds"
-      - "commission"
-      - "netRevenue"
-  "Report":
-    "type": "object"
-    "properties":
-      "from":
-        "type": "string"
-        "format": "date"
-      "to":
-        "type": "string"
-        "format": "date"
-      "timezone":
-        "type": "string"
-        "example": "Asia/Ho_Chi_Minh"
-      "currency":
-        "type": "string"
-        "enum":
-          - "VND"
-      "summary":
-        "$ref": "./openapi.yaml#/components/schemas/ReportRow"
-      "rows":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/ReportRow"
-      "generatedAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-    "required":
-      - "from"
-      - "to"
-      - "timezone"
-      - "currency"
-      - "summary"
-      - "rows"
-      - "generatedAt"
-  "ExportRequest":
-    "type": "object"
-    "properties":
-      "from":
-        "type": "string"
-        "format": "date"
-      "to":
-        "type": "string"
-        "format": "date"
-      "groupBy":
-        "type": "string"
-        "enum":
-          - "DAY"
-          - "WEEK"
-          - "MONTH"
-          - "QUARTER"
-      "regionId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "driverId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "vehicleType":
-        "$ref": "./openapi.yaml#/components/schemas/VehicleType"
-      "format":
-        "type": "string"
-        "enum":
-          - "XLSX"
-          - "PDF"
-    "required":
-      - "from"
-      - "to"
-      - "groupBy"
-      - "format"
-  "ExportJob":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "status":
-        "type": "string"
-        "enum":
-          - "PENDING"
-          - "PROCESSING"
-          - "COMPLETED"
-          - "FAILED"
-      "format":
-        "type": "string"
-        "enum":
-          - "XLSX"
-          - "PDF"
-      "createdAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "expiresAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-      "failureCode":
-        "type": "string"
-    "required":
-      - "id"
-      - "status"
-      - "format"
-      - "createdAt"
-  "Permission":
-    "type": "object"
-    "properties":
-      "code":
-        "type": "string"
-      "description":
-        "type": "string"
-    "required":
-      - "code"
-      - "description"
-  "Role":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "name":
-        "type": "string"
-      "permissions":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Permission"
-    "required":
-      - "id"
-      - "name"
-      - "permissions"
-  "Region":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "name":
-        "type": "string"
-    "required":
-      - "id"
-      - "name"
-  "VehicleService":
-    "type": "object"
-    "properties":
-      "code":
-        "$ref": "./openapi.yaml#/components/schemas/VehicleType"
-      "name":
-        "type": "string"
-      "available":
-        "type": "boolean"
-    "required":
-      - "code"
-      - "name"
-      - "available"
-  "RatingOptions":
-    "type": "object"
-    "properties":
-      "positiveLabels":
-        "type": "array"
-        "items":
-          "type": "string"
-      "negativeReasons":
-        "type": "array"
-        "items":
-          "type": "string"
-    "required":
-      - "positiveLabels"
-      - "negativeReasons"
-  "AvailabilityInput":
-    "type": "object"
-    "properties":
-      "status":
-        "type": "string"
-        "enum":
-          - "OFFLINE"
-          - "AVAILABLE"
-    "required":
-      - "status"
-  "Availability":
-    "type": "object"
-    "properties":
-      "status":
-        "type": "string"
-        "enum":
-          - "OFFLINE"
-          - "AVAILABLE"
-          - "BUSY"
-      "updatedAt":
-        "type": "string"
-        "description": "Thời gian RFC 3339, lưu UTC."
-        "format": "date-time"
-        "example": "2026-09-07T03:00:00Z"
-    "required":
-      - "status"
-      - "updatedAt"
-  "AccountStatusInput":
-    "type": "object"
-    "properties":
-      "status":
-        "type": "string"
-        "enum":
-          - "ACTIVE"
-          - "LOCKED"
-      "reason":
-        "type": "string"
-        "minLength": 1
-    "required":
-      - "status"
-      - "reason"
-  "AdminUserCreate":
-    "type": "object"
-    "properties":
-      "role":
-        "type": "string"
-        "enum":
-          - "CUSTOMER"
-          - "DRIVER"
-      "fullName":
-        "type": "string"
-        "minLength": 1
-      "phone":
-        "type": "string"
-        "minLength": 1
-      "email":
-        "type": "string"
-        "format": "email"
-      "driverProfile":
-        "$ref": "./openapi.yaml#/components/schemas/DriverProfileInput"
-      "vehicle":
-        "$ref": "./openapi.yaml#/components/schemas/VehicleInput"
-    "required":
-      - "role"
-      - "fullName"
-      - "phone"
-      - "email"
-    "description": "DRIVER cần driverProfile và vehicle. Tạo đăng ký chờ xác minh và gửi OTP; người dùng tự xác minh và đặt mật khẩu qua /auth/invitations/activate. Không trả mật khẩu tạm."
-  "InvitationActivate":
-    "type": "object"
-    "properties":
-      "registrationId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "otp":
-        "type": "string"
-        "writeOnly": true
-        "minLength": 1
-      "password":
-        "type": "string"
-        "writeOnly": true
-        "minLength": 1
-    "required":
-      - "registrationId"
-      - "otp"
-      - "password"
-  "ResendOtp":
-    "type": "object"
-    "properties":
-      "registrationId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-    "required":
-      - "registrationId"
-  "VehicleServicePage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/VehicleService"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "RegionPage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Region"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "PointPage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Point"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "TripPage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Trip"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "TripEventPage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/TripEvent"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "OfferPage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Offer"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "Reason":
-    "type": "object"
-    "properties":
-      "reason":
-        "type": "string"
-        "minLength": 1
-    "required":
-      - "reason"
-  "PaymentPage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Payment"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "NotificationPage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Notification"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "DeviceInput":
-    "type": "object"
-    "properties":
-      "pushToken":
-        "type": "string"
-        "writeOnly": true
-        "minLength": 1
-      "platform":
-        "type": "string"
-        "enum":
-          - "ANDROID"
-          - "IOS"
-          - "WEB"
-    "required":
-      - "pushToken"
-      - "platform"
-  "Device":
-    "type": "object"
-    "properties":
-      "id":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "platform":
-        "type": "string"
-        "enum":
-          - "ANDROID"
-          - "IOS"
-          - "WEB"
-    "required":
-      - "id"
-      - "platform"
-  "UserPage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/User"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "DriverProfilePage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/DriverProfile"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "VehiclePage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Vehicle"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "AdminVehicleCreate":
-    "type": "object"
-    "properties":
-      "driverId":
-        "type": "string"
-        "description": "Mã định danh do server cấp."
-        "example": "trip_001"
-      "vehicleType":
-        "$ref": "./openapi.yaml#/components/schemas/VehicleType"
-      "plateNumber":
-        "type": "string"
-        "minLength": 1
-        "example": "59A-12345"
-      "brand":
-        "type": "string"
-        "minLength": 1
-      "model":
-        "type": "string"
-        "minLength": 1
-      "color":
-        "type": "string"
-        "minLength": 1
-      "documentIds":
-        "type": "array"
-        "items":
-          "type": "string"
-          "description": "Mã định danh do server cấp."
-          "example": "trip_001"
-    "required":
-      - "driverId"
-      - "vehicleType"
-      - "plateNumber"
-      - "brand"
-      - "model"
-      - "color"
-      - "documentIds"
-  "LocationPage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Location"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "RefundPage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Refund"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "IncidentPage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Incident"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "InterventionPage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Intervention"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "PermissionPage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Permission"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "RolePage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/Role"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-  "AuditLogPage":
-    "type": "object"
-    "properties":
-      "items":
-        "type": "array"
-        "items":
-          "$ref": "./openapi.yaml#/components/schemas/AuditLog"
-      "page":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-      "pageSize":
-        "type": "integer"
-        "description": ""
-        "minimum": 1
-        "maximum": 100
-      "total":
-        "type": "integer"
-        "description": ""
-        "minimum": 0
-    "required":
-      - "items"
-      - "page"
-      - "pageSize"
-      - "total"
-"responses":
-  "BadRequest":
-    "description": "Dữ liệu sai định dạng hoặc thiếu trường."
-    "content":
-      "application/json":
-        "schema":
-          "$ref": "./openapi.yaml#/components/schemas/Error"
-        "example":
-          "code": "VALIDATION_ERROR"
-          "message": "Dữ liệu sai định dạng hoặc thiếu trường."
-          "requestId": "req_001"
-  "Unauthorized":
-    "description": "Chưa xác thực hoặc thông tin xác thực hết hạn."
-    "content":
-      "application/json":
-        "schema":
-          "$ref": "./openapi.yaml#/components/schemas/Error"
-        "example":
-          "code": "UNAUTHORIZED"
-          "message": "Chưa xác thực hoặc thông tin xác thực hết hạn."
-          "requestId": "req_001"
-  "Forbidden":
-    "description": "Không đủ quyền, sai chủ sở hữu hoặc tài khoản bị khóa."
-    "content":
-      "application/json":
-        "schema":
-          "$ref": "./openapi.yaml#/components/schemas/Error"
-        "example":
-          "code": "FORBIDDEN"
-          "message": "Không đủ quyền, sai chủ sở hữu hoặc tài khoản bị khóa."
-          "requestId": "req_001"
-  "NotFound":
-    "description": "Không tìm thấy tài nguyên."
-    "content":
-      "application/json":
-        "schema":
-          "$ref": "./openapi.yaml#/components/schemas/Error"
-        "example":
-          "code": "NOT_FOUND"
-          "message": "Không tìm thấy tài nguyên."
-          "requestId": "req_001"
-  "Conflict":
-    "description": "Xung đột trạng thái, phiên bản, dữ liệu trùng hoặc thao tác đã xử lý."
-    "content":
-      "application/json":
-        "schema":
-          "$ref": "./openapi.yaml#/components/schemas/Error"
-        "example":
-          "code": "CONFLICT"
-          "message": "Xung đột trạng thái, phiên bản, dữ liệu trùng hoặc thao tác đã xử lý."
-          "requestId": "req_001"
-  "Unprocessable":
-    "description": "Dữ liệu đúng định dạng nhưng vi phạm điều kiện nghiệp vụ."
-    "content":
-      "application/json":
-        "schema":
-          "$ref": "./openapi.yaml#/components/schemas/Error"
-        "example":
-          "code": "BUSINESS_RULE_VIOLATION"
-          "message": "Dữ liệu đúng định dạng nhưng vi phạm điều kiện nghiệp vụ."
-          "requestId": "req_001"
-  "TooManyRequests":
-    "description": "Vượt giới hạn yêu cầu/OTP. Thử lại theo Retry-After."
-    "content":
-      "application/json":
-        "schema":
-          "$ref": "./openapi.yaml#/components/schemas/Error"
-        "example":
-          "code": "RATE_LIMITED"
-          "message": "Vượt giới hạn yêu cầu/OTP. Thử lại theo Retry-After."
-          "requestId": "req_001"
-    "headers":
-      "Retry-After":
-        "description": "Thời gian chờ tính bằng giây."
-        "schema":
-          "type": "integer"
-          "description": ""
-          "minimum": 1
-  "ServerError":
-    "description": "Lỗi nội bộ; sử dụng requestId khi liên hệ hỗ trợ."
-    "content":
-      "application/json":
-        "schema":
-          "$ref": "./openapi.yaml#/components/schemas/Error"
-        "example":
-          "code": "INTERNAL_ERROR"
-          "message": "Lỗi nội bộ; sử dụng requestId khi liên hệ hỗ trợ."
-          "requestId": "req_001"
-  "Unavailable":
-    "description": "Dịch vụ phụ thuộc tạm không khả dụng."
-    "content":
-      "application/json":
-        "schema":
-          "$ref": "./openapi.yaml#/components/schemas/Error"
-        "example":
-          "code": "SERVICE_UNAVAILABLE"
-          "message": "Dịch vụ phụ thuộc tạm không khả dụng."
-          "requestId": "req_001"
+securitySchemes:
+  bearerAuth:
+    type: http
+    scheme: bearer
+    description: Access token do /auth/login cấp; không giả định JWT.
+  paymentSignature:
+    type: apiKey
+    in: header
+    name: X-Payment-Signature
+    description: Chữ ký của adapter thanh toán trên raw body và X-Payment-Timestamp; chỉ khai báo header không thay
+      thế kiểm tra mật mã.
+parameters:
+  IdempotencyKey:
+    name: Idempotency-Key
+    in: header
+    required: true
+    description: Khóa duy nhất cho một thao tác logic, phạm vi người gọi + method + path. Retry cùng key và body
+      trả lại kết quả gốc kể cả phiên bản đã tăng; cùng key khác body trả 409 IDEMPOTENCY_CONFLICT. Server phải
+      lưu kết quả nguyên tử với thay đổi nghiệp vụ. Thời hạn lưu khóa cần chốt trước triển khai.
+    schema:
+      type: string
+      minLength: 1
+      maxLength: 128
+    example: cab-request-0001
+schemas:
+  VehicleType:
+    type: string
+    enum:
+    - MOTORBIKE
+    - CAR_4
+    - CAR_7
+  PaymentMethod:
+    type: string
+    enum:
+    - CASH
+    - BANK_CARD
+    - E_WALLET
+  TripStatus:
+    type: string
+    enum:
+    - SEARCHING
+    - DRIVER_ASSIGNED
+    - ARRIVED
+    - PICKED_UP
+    - IN_PROGRESS
+    - COMPLETED
+    - CANCELLED
+  PaymentStatus:
+    type: string
+    enum:
+    - UNPAID
+    - PENDING
+    - PAID
+    - FAILED
+    - PARTIALLY_REFUNDED
+    - REFUNDED
+  Error:
+    type: object
+    properties:
+      code:
+        type: string
+        description: Mã lỗi máy đọc được.
+        example: INVALID_TRIP_STATE
+      message:
+        type: string
+        example: Trạng thái chuyến không cho phép thao tác.
+      requestId:
+        type: string
+      details:
+        type: array
+        items:
+          type: object
+          properties:
+            field:
+              type: string
+            message:
+              type: string
+          required:
+          - field
+          - message
+    required:
+    - code
+    - message
+    - requestId
+  Point:
+    type: object
+    properties:
+      latitude:
+        type: number
+        description: Vĩ độ.
+        minimum: -90
+        maximum: 90
+        example: 10.822
+      longitude:
+        type: number
+        description: Kinh độ.
+        minimum: -180
+        maximum: 180
+        example: 106.688
+      address:
+        type: string
+        description: Địa chỉ hiển thị.
+        example: 12 Nguyễn Văn Bảo, TP. Hồ Chí Minh
+    required:
+    - latitude
+    - longitude
+  Location:
+    type: object
+    properties:
+      point:
+        $ref: '#/schemas/Point'
+      recordedAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      accuracyMeters:
+        type: number
+        description: Sai số GPS, mét.
+        minimum: 0
+      sequence:
+        type: integer
+        description: Số thứ tự tăng trên thiết bị.
+        minimum: 0
+    required:
+    - point
+    - recordedAt
+    - sequence
+  User:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      fullName:
+        type: string
+        example: Nguyễn Văn An
+      phone:
+        type: string
+        example: '+84901234567'
+      email:
+        type: string
+        format: email
+        example: an@example.com
+      role:
+        type: string
+        enum:
+        - CUSTOMER
+        - DRIVER
+        - OPERATOR
+        - MANAGER
+        - ADMIN
+      status:
+        type: string
+        enum:
+        - ACTIVE
+        - LOCKED
+      createdAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+    required:
+    - id
+    - fullName
+    - phone
+    - email
+    - role
+    - status
+    - createdAt
+  ProfileUpdate:
+    type: object
+    properties:
+      fullName:
+        type: string
+        minLength: 1
+      email:
+        type: string
+        format: email
+  VehicleInput:
+    type: object
+    properties:
+      vehicleType:
+        $ref: '#/schemas/VehicleType'
+      plateNumber:
+        type: string
+        minLength: 1
+        example: 59A-12345
+      brand:
+        type: string
+        minLength: 1
+      model:
+        type: string
+        minLength: 1
+      color:
+        type: string
+        minLength: 1
+      documentIds:
+        type: array
+        items:
+          type: string
+          description: Mã định danh do server cấp.
+          example: trip_001
+    required:
+    - vehicleType
+    - plateNumber
+    - brand
+    - model
+    - color
+    - documentIds
+  Vehicle:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      driverId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      vehicleType:
+        $ref: '#/schemas/VehicleType'
+      plateNumber:
+        type: string
+        minLength: 1
+        example: 59A-12345
+      brand:
+        type: string
+        minLength: 1
+      model:
+        type: string
+        minLength: 1
+      color:
+        type: string
+        minLength: 1
+      documentIds:
+        type: array
+        items:
+          type: string
+          description: Mã định danh do server cấp.
+          example: trip_001
+      reviewStatus:
+        type: string
+        enum:
+        - PENDING
+        - APPROVED
+        - REJECTED
+      reviewReason:
+        type: string
+      active:
+        type: boolean
+    required:
+    - id
+    - driverId
+    - vehicleType
+    - plateNumber
+    - reviewStatus
+    - active
+  DriverProfileInput:
+    type: object
+    properties:
+      identityNumber:
+        type: string
+        description: CCCD; dữ liệu riêng tư, chỉ chủ hồ sơ và nhân viên có quyền được đọc.
+        minLength: 1
+      licenseNumber:
+        type: string
+        minLength: 1
+      documentIds:
+        type: array
+        items:
+          type: string
+          description: Mã định danh do server cấp.
+          example: trip_001
+    required:
+    - identityNumber
+    - licenseNumber
+    - documentIds
+  DriverProfile:
+    type: object
+    properties:
+      user:
+        $ref: '#/schemas/User'
+      identityNumber:
+        type: string
+        description: CCCD; dữ liệu riêng tư, chỉ chủ hồ sơ và nhân viên có quyền được đọc.
+        minLength: 1
+      licenseNumber:
+        type: string
+        minLength: 1
+      documentIds:
+        type: array
+        items:
+          type: string
+          description: Mã định danh do server cấp.
+          example: trip_001
+      reviewStatus:
+        type: string
+        enum:
+        - PENDING
+        - APPROVED
+        - REJECTED
+      reviewReason:
+        type: string
+      availability:
+        type: string
+        enum:
+        - OFFLINE
+        - AVAILABLE
+        - BUSY
+      averageRating:
+        type: number
+        description: ''
+        minimum: 1
+        maximum: 5
+        nullable: true
+      vehicle:
+        $ref: '#/schemas/Vehicle'
+    required:
+    - user
+    - reviewStatus
+    - availability
+  Registration:
+    type: object
+    properties:
+      role:
+        type: string
+        enum:
+        - CUSTOMER
+        - DRIVER
+      fullName:
+        type: string
+        minLength: 1
+      phone:
+        type: string
+        minLength: 1
+      email:
+        type: string
+        format: email
+      password:
+        type: string
+        description: Chính sách độ dài/độ mạnh cần chốt trước triển khai.
+        minLength: 1
+        writeOnly: true
+      otpChannel:
+        type: string
+        enum:
+        - SMS
+        - EMAIL
+      driverProfile:
+        $ref: '#/schemas/DriverProfileInput'
+      vehicle:
+        $ref: '#/schemas/VehicleInput'
+    required:
+    - role
+    - fullName
+    - phone
+    - email
+    - password
+    - otpChannel
+    description: DRIVER bắt buộc có driverProfile và vehicle; CUSTOMER không gửi hai trường này. Không cho tự đăng
+      ký vai trò nội bộ.
+  OtpChallenge:
+    type: object
+    properties:
+      registrationId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      expiresAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      resendAvailableAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      maskedDestination:
+        type: string
+        example: a***@example.com
+    required:
+    - registrationId
+    - expiresAt
+    - resendAvailableAt
+    - maskedDestination
+  OtpVerify:
+    type: object
+    properties:
+      registrationId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      otp:
+        type: string
+        description: Mã OTP từ kênh đã chọn; không trả lại mã trong response.
+        minLength: 1
+        writeOnly: true
+    required:
+    - registrationId
+    - otp
+  Login:
+    type: object
+    properties:
+      identifier:
+        type: string
+        description: Số điện thoại hoặc email.
+        example: an@example.com
+      password:
+        type: string
+        writeOnly: true
+        minLength: 1
+    required:
+    - identifier
+    - password
+  Session:
+    type: object
+    properties:
+      accessToken:
+        type: string
+      tokenType:
+        type: string
+        enum:
+        - Bearer
+      expiresAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      user:
+        $ref: '#/schemas/User'
+    required:
+    - accessToken
+    - tokenType
+    - expiresAt
+    - user
+  Document:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      fileName:
+        type: string
+      mediaType:
+        type: string
+      createdAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+    required:
+    - id
+    - fileName
+    - mediaType
+    - createdAt
+  RouteRequest:
+    type: object
+    properties:
+      pickup:
+        $ref: '#/schemas/Point'
+      destination:
+        $ref: '#/schemas/Point'
+      vehicleType:
+        $ref: '#/schemas/VehicleType'
+    required:
+    - pickup
+    - destination
+    - vehicleType
+  Route:
+    type: object
+    properties:
+      points:
+        type: array
+        items:
+          $ref: '#/schemas/Point'
+      distanceMeters:
+        type: number
+        description: ''
+        minimum: 0
+      durationSeconds:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - points
+    - distanceMeters
+    - durationSeconds
+  FareEstimateRequest:
+    type: object
+    properties:
+      pickup:
+        $ref: '#/schemas/Point'
+      destination:
+        $ref: '#/schemas/Point'
+      vehicleType:
+        $ref: '#/schemas/VehicleType'
+    required:
+    - pickup
+    - destination
+    - vehicleType
+  FareEstimate:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      route:
+        $ref: '#/schemas/Route'
+      amount:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      currency:
+        type: string
+        enum:
+        - VND
+      expiresAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      pricingNote:
+        type: string
+        description: Giá dự kiến; giá cuối tính theo hành trình thực tế.
+    required:
+    - id
+    - route
+    - amount
+    - currency
+    - expiresAt
+  TripCreate:
+    type: object
+    properties:
+      pickup:
+        $ref: '#/schemas/Point'
+      destination:
+        $ref: '#/schemas/Point'
+      vehicleType:
+        $ref: '#/schemas/VehicleType'
+      paymentMethod:
+        $ref: '#/schemas/PaymentMethod'
+      estimateId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      note:
+        type: string
+        description: Ghi chú đón khách.
+    required:
+    - pickup
+    - destination
+    - vehicleType
+    - paymentMethod
+    - estimateId
+  DriverPublic:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      fullName:
+        type: string
+      phone:
+        type: string
+        description: Chỉ cung cấp cho khách của chuyến đang được phục vụ.
+      averageRating:
+        type: number
+        description: ''
+        minimum: 1
+        maximum: 5
+        nullable: true
+      vehicleType:
+        $ref: '#/schemas/VehicleType'
+      plateNumber:
+        type: string
+      brand:
+        type: string
+      color:
+        type: string
+    required:
+    - id
+    - fullName
+    - vehicleType
+    - plateNumber
+  Trip:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      customerId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      driver:
+        $ref: '#/schemas/DriverPublic'
+      pickup:
+        $ref: '#/schemas/Point'
+      destination:
+        $ref: '#/schemas/Point'
+      vehicleType:
+        $ref: '#/schemas/VehicleType'
+      status:
+        $ref: '#/schemas/TripStatus'
+      paymentStatus:
+        $ref: '#/schemas/PaymentStatus'
+      paymentMethod:
+        $ref: '#/schemas/PaymentMethod'
+      estimatedFare:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      finalFare:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      currency:
+        type: string
+        enum:
+        - VND
+      version:
+        type: integer
+        description: Phiên bản tăng sau mỗi thay đổi; dùng chống ghi đè khi đồng bộ.
+        minimum: 1
+        example: 1
+      createdAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      assignedAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      arrivedAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      pickedUpAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      startedAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      completedAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      cancelledAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      cancelReason:
+        type: string
+      cancelCode:
+        type: string
+        enum:
+        - CUSTOMER_CANCELLED
+        - DRIVER_CANCELLED
+        - NO_DRIVER_AVAILABLE
+        - CUSTOMER_NO_SHOW
+        - OPERATIONS_CANCELLED
+      cancelledBy:
+        type: string
+        enum:
+        - CUSTOMER
+        - DRIVER
+        - SYSTEM
+        - OPERATOR
+      ratingDeadline:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      replacementTripId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+    required:
+    - id
+    - customerId
+    - pickup
+    - destination
+    - vehicleType
+    - status
+    - paymentStatus
+    - paymentMethod
+    - estimatedFare
+    - currency
+    - version
+    - createdAt
+  Tracking:
+    type: object
+    properties:
+      trip:
+        $ref: '#/schemas/Trip'
+      driverLocation:
+        $ref: '#/schemas/Location'
+      locationStatus:
+        type: string
+        enum:
+        - LIVE
+        - STALE
+        - UNAVAILABLE
+      etaSeconds:
+        type: integer
+        description: ''
+        minimum: 0
+        nullable: true
+      route:
+        $ref: '#/schemas/Route'
+      serverTime:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      warnings:
+        type: array
+        items:
+          type: string
+    required:
+    - trip
+    - locationStatus
+    - serverTime
+    - warnings
+  TripEvent:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      tripId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      type:
+        type: string
+        enum:
+        - CREATED
+        - OFFERED
+        - ASSIGNED
+        - ARRIVED
+        - PICKED_UP
+        - STARTED
+        - COMPLETED
+        - CANCELLED
+        - PAYMENT_UPDATED
+        - INCIDENT_UPDATED
+      occurredAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      status:
+        $ref: '#/schemas/TripStatus'
+      description:
+        type: string
+    required:
+    - id
+    - tripId
+    - type
+    - occurredAt
+    - description
+  Offer:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      tripId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      pickup:
+        $ref: '#/schemas/Point'
+      destination:
+        $ref: '#/schemas/Point'
+      vehicleType:
+        $ref: '#/schemas/VehicleType'
+      estimatedFare:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      pickupDistanceMeters:
+        type: number
+        description: ''
+        minimum: 0
+      expiresAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      status:
+        type: string
+        enum:
+        - PENDING
+        - ACCEPTED
+        - REJECTED
+        - EXPIRED
+        - REVOKED
+    required:
+    - id
+    - tripId
+    - pickup
+    - destination
+    - vehicleType
+    - expiresAt
+    - status
+  StatusChange:
+    type: object
+    properties:
+      status:
+        type: string
+        enum:
+        - ARRIVED
+        - PICKED_UP
+        - IN_PROGRESS
+        - COMPLETED
+      expectedVersion:
+        type: integer
+        description: Phiên bản tăng sau mỗi thay đổi; dùng chống ghi đè khi đồng bộ.
+        minimum: 1
+        example: 1
+      location:
+        $ref: '#/schemas/Location'
+      occurredAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+    required:
+    - status
+    - expectedVersion
+    - location
+    - occurredAt
+  CancelRequest:
+    type: object
+    properties:
+      reason:
+        type: string
+        minLength: 1
+      expectedVersion:
+        type: integer
+        description: Phiên bản tăng sau mỗi thay đổi; dùng chống ghi đè khi đồng bộ.
+        minimum: 1
+        example: 1
+      customerNoShow:
+        type: boolean
+        default: false
+    required:
+    - reason
+    - expectedVersion
+  Fare:
+    type: object
+    properties:
+      tripId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      distanceMeters:
+        type: number
+        description: ''
+        minimum: 0
+      durationSeconds:
+        type: integer
+        description: ''
+        minimum: 0
+      baseAmount:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      distanceAmount:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      otherAmount:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      discountAmount:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      totalAmount:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      currency:
+        type: string
+        enum:
+        - VND
+      calculatedAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      pricingRuleVersion:
+        type: string
+      paymentStatus:
+        $ref: '#/schemas/PaymentStatus'
+    required:
+    - tripId
+    - distanceMeters
+    - totalAmount
+    - currency
+    - calculatedAt
+    - paymentStatus
+  PaymentCreate:
+    type: object
+    properties:
+      method:
+        $ref: '#/schemas/PaymentMethod'
+    required:
+    - method
+  Payment:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      tripId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      method:
+        $ref: '#/schemas/PaymentMethod'
+      status:
+        type: string
+        enum:
+        - PENDING
+        - SUCCEEDED
+        - FAILED
+        - CANCELLED
+      amount:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      currency:
+        type: string
+        enum:
+        - VND
+      providerReference:
+        type: string
+      checkoutUrl:
+        type: string
+        description: URL mô phỏng do server tạo; không chứa thông tin thẻ.
+        format: uri
+      failureCode:
+        type: string
+      createdAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      updatedAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+    required:
+    - id
+    - tripId
+    - method
+    - status
+    - amount
+    - currency
+    - createdAt
+    - updatedAt
+  PaymentCallback:
+    type: object
+    properties:
+      eventId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      paymentId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      providerReference:
+        type: string
+      status:
+        type: string
+        enum:
+        - SUCCEEDED
+        - FAILED
+      amount:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      currency:
+        type: string
+        enum:
+        - VND
+      occurredAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      failureCode:
+        type: string
+    required:
+    - eventId
+    - paymentId
+    - providerReference
+    - status
+    - amount
+    - currency
+    - occurredAt
+  RatingInput:
+    type: object
+    properties:
+      stars:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 5
+        example: 5
+      labels:
+        type: array
+        items:
+          type: string
+      comment:
+        type: string
+      negativeReasons:
+        type: array
+        items:
+          type: string
+    required:
+    - stars
+    description: Điểm 1–2 phải có negativeReasons không rỗng; nhãn tham khảo từ /rating-options.
+  Rating:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      tripId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      stars:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 5
+        example: 5
+      labels:
+        type: array
+        items:
+          type: string
+      comment:
+        type: string
+      negativeReasons:
+        type: array
+        items:
+          type: string
+      flagged:
+        type: boolean
+      createdAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+    required:
+    - id
+    - tripId
+    - stars
+    - flagged
+    - createdAt
+  Notification:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      type:
+        type: string
+        enum:
+        - BOOKING_RECEIVED
+        - DRIVER_ASSIGNED
+        - DRIVER_ARRIVED
+        - TRIP_COMPLETED
+        - PAYMENT_SUCCEEDED
+        - PAYMENT_FAILED
+        - TRIP_OFFER
+        - TRIP_CHANGED
+        - NO_DRIVER_AVAILABLE
+        - CASH_REMINDER
+        - ACCOUNT_UPDATED
+        - INCIDENT_RESOLVED
+      title:
+        type: string
+      body:
+        type: string
+      tripId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      read:
+        type: boolean
+      createdAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      receivedAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      readAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      offerId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+    required:
+    - id
+    - type
+    - title
+    - body
+    - read
+    - createdAt
+  IncidentInput:
+    type: object
+    properties:
+      category:
+        type: string
+        enum:
+        - VEHICLE_BREAKDOWN
+        - ACCIDENT
+        - PAYMENT_DISPUTE
+        - PAYMENT_PENDING
+        - GPS_LOST
+        - ROUTE_DEVIATION
+        - TECHNICAL
+        - OTHER
+      description:
+        type: string
+        minLength: 1
+    required:
+    - category
+    - description
+  Incident:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      tripId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      category:
+        type: string
+        enum:
+        - VEHICLE_BREAKDOWN
+        - ACCIDENT
+        - PAYMENT_DISPUTE
+        - PAYMENT_PENDING
+        - GPS_LOST
+        - ROUTE_DEVIATION
+        - TECHNICAL
+        - OTHER
+      description:
+        type: string
+        minLength: 1
+      status:
+        type: string
+        enum:
+        - OPEN
+        - IN_PROGRESS
+        - AWAITING_APPROVAL
+        - RESOLVED
+      createdAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      resolution:
+        type: string
+    required:
+    - id
+    - tripId
+    - category
+    - description
+    - status
+    - createdAt
+  InterventionInput:
+    type: object
+    properties:
+      action:
+        type: string
+        enum:
+        - CANCEL_TRIP
+        - REASSIGN
+        - ADJUST_FARE
+        - RECONCILE_PAYMENT
+        - REFUND
+        - RESOLVE
+      reason:
+        type: string
+        minLength: 1
+      expectedTripVersion:
+        type: integer
+        description: Phiên bản tăng sau mỗi thay đổi; dùng chống ghi đè khi đồng bộ.
+        minimum: 1
+        example: 1
+      newFare:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      refundAmount:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      paymentId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      evidenceReference:
+        type: string
+        description: Mã bằng chứng đối soát; không chứa dữ liệu thẻ.
+      customerWantsReplacement:
+        type: boolean
+      replacementPickup:
+        $ref: '#/schemas/Point'
+    required:
+    - action
+    - reason
+    - expectedTripVersion
+    description: ADJUST_FARE cần newFare; REFUND cần paymentId và refundAmount > 0; RECONCILE_PAYMENT cần paymentId
+      và evidenceReference; REASSIGN cần customerWantsReplacement=true và replacementPickup. Server kiểm tra quyền
+      theo action. Không sửa trực tiếp trạng thái thanh toán bằng dữ liệu client.
+  Intervention:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      incidentId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      action:
+        type: string
+        enum:
+        - CANCEL_TRIP
+        - REASSIGN
+        - ADJUST_FARE
+        - RECONCILE_PAYMENT
+        - REFUND
+        - RESOLVE
+      status:
+        type: string
+        enum:
+        - PENDING_APPROVAL
+        - APPROVED
+        - REJECTED
+        - EXECUTING
+        - SUCCEEDED
+        - FAILED
+      reason:
+        type: string
+      requestedBy:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      approvedBy:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      createdAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      replacementTripId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      refundId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      failureCode:
+        type: string
+    required:
+    - id
+    - incidentId
+    - action
+    - status
+    - reason
+    - requestedBy
+    - createdAt
+  Refund:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      paymentId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      amount:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      currency:
+        type: string
+        enum:
+        - VND
+      status:
+        type: string
+        enum:
+        - PENDING
+        - SUCCEEDED
+        - FAILED
+      createdAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+    required:
+    - id
+    - paymentId
+    - amount
+    - currency
+    - status
+    - createdAt
+  ReviewInput:
+    type: object
+    properties:
+      decision:
+        type: string
+        enum:
+        - APPROVED
+        - REJECTED
+      reason:
+        type: string
+        minLength: 1
+    required:
+    - decision
+    - reason
+  AuditLog:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      actorId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      action:
+        type: string
+      resourceType:
+        type: string
+      resourceId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      reason:
+        type: string
+      changes:
+        type: array
+        items:
+          type: object
+          properties:
+            field:
+              type: string
+            before:
+              type: string
+              description: Giá trị đã che dữ liệu nhạy cảm.
+            after:
+              type: string
+              description: Giá trị đã che dữ liệu nhạy cảm.
+          required:
+          - field
+      createdAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+    required:
+    - id
+    - actorId
+    - action
+    - resourceType
+    - resourceId
+    - createdAt
+  ReportRow:
+    type: object
+    properties:
+      period:
+        type: string
+      regionId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      driverId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      totalTrips:
+        type: integer
+        description: ''
+        minimum: 0
+      completedTrips:
+        type: integer
+        description: ''
+        minimum: 0
+      cancelledTrips:
+        type: integer
+        description: ''
+        minimum: 0
+      customerCancellations:
+        type: integer
+        description: ''
+        minimum: 0
+      driverCancellations:
+        type: integer
+        description: ''
+        minimum: 0
+      systemCancellations:
+        type: integer
+        description: ''
+        minimum: 0
+      completionRate:
+        type: number
+        description: completedTrips / totalTrips; 0 khi mẫu số bằng 0.
+        minimum: 0
+        maximum: 1
+      cancellationRate:
+        type: number
+        description: cancelledTrips / totalTrips; 0 khi mẫu số bằng 0.
+        minimum: 0
+        maximum: 1
+      grossRevenue:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      refunds:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      commission:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      netRevenue:
+        type: integer
+        description: Số tiền nguyên, đơn vị VND.
+        minimum: 0
+        example: 65000
+      averageRating:
+        type: number
+        description: ''
+        minimum: 1
+        maximum: 5
+        nullable: true
+      acceptedOffers:
+        type: integer
+        description: ''
+        minimum: 0
+      rejectedOffers:
+        type: integer
+        description: ''
+        minimum: 0
+      expiredOffers:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - totalTrips
+    - completedTrips
+    - cancelledTrips
+    - completionRate
+    - cancellationRate
+    - grossRevenue
+    - refunds
+    - commission
+    - netRevenue
+  Report:
+    type: object
+    properties:
+      from:
+        type: string
+        format: date
+      to:
+        type: string
+        format: date
+      timezone:
+        type: string
+        example: Asia/Ho_Chi_Minh
+      currency:
+        type: string
+        enum:
+        - VND
+      summary:
+        $ref: '#/schemas/ReportRow'
+      rows:
+        type: array
+        items:
+          $ref: '#/schemas/ReportRow'
+      generatedAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+    required:
+    - from
+    - to
+    - timezone
+    - currency
+    - summary
+    - rows
+    - generatedAt
+  ExportRequest:
+    type: object
+    properties:
+      from:
+        type: string
+        format: date
+      to:
+        type: string
+        format: date
+      groupBy:
+        type: string
+        enum:
+        - DAY
+        - WEEK
+        - MONTH
+        - QUARTER
+      regionId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      driverId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      vehicleType:
+        $ref: '#/schemas/VehicleType'
+      format:
+        type: string
+        enum:
+        - XLSX
+        - PDF
+    required:
+    - from
+    - to
+    - groupBy
+    - format
+  ExportJob:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      status:
+        type: string
+        enum:
+        - PENDING
+        - PROCESSING
+        - COMPLETED
+        - FAILED
+      format:
+        type: string
+        enum:
+        - XLSX
+        - PDF
+      createdAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      expiresAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+      failureCode:
+        type: string
+    required:
+    - id
+    - status
+    - format
+    - createdAt
+  Permission:
+    type: object
+    properties:
+      code:
+        type: string
+      description:
+        type: string
+    required:
+    - code
+    - description
+  Role:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      name:
+        type: string
+      permissions:
+        type: array
+        items:
+          $ref: '#/schemas/Permission'
+    required:
+    - id
+    - name
+    - permissions
+  Region:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      name:
+        type: string
+    required:
+    - id
+    - name
+  VehicleService:
+    type: object
+    properties:
+      code:
+        $ref: '#/schemas/VehicleType'
+      name:
+        type: string
+      available:
+        type: boolean
+    required:
+    - code
+    - name
+    - available
+  RatingOptions:
+    type: object
+    properties:
+      positiveLabels:
+        type: array
+        items:
+          type: string
+      negativeReasons:
+        type: array
+        items:
+          type: string
+    required:
+    - positiveLabels
+    - negativeReasons
+  AvailabilityInput:
+    type: object
+    properties:
+      status:
+        type: string
+        enum:
+        - OFFLINE
+        - AVAILABLE
+    required:
+    - status
+  Availability:
+    type: object
+    properties:
+      status:
+        type: string
+        enum:
+        - OFFLINE
+        - AVAILABLE
+        - BUSY
+      updatedAt:
+        type: string
+        description: Thời gian RFC 3339, lưu UTC.
+        format: date-time
+        example: '2026-09-07T03:00:00Z'
+    required:
+    - status
+    - updatedAt
+  AccountStatusInput:
+    type: object
+    properties:
+      status:
+        type: string
+        enum:
+        - ACTIVE
+        - LOCKED
+      reason:
+        type: string
+        minLength: 1
+    required:
+    - status
+    - reason
+  AdminUserCreate:
+    type: object
+    properties:
+      role:
+        type: string
+        enum:
+        - CUSTOMER
+        - DRIVER
+      fullName:
+        type: string
+        minLength: 1
+      phone:
+        type: string
+        minLength: 1
+      email:
+        type: string
+        format: email
+      driverProfile:
+        $ref: '#/schemas/DriverProfileInput'
+      vehicle:
+        $ref: '#/schemas/VehicleInput'
+    required:
+    - role
+    - fullName
+    - phone
+    - email
+    description: DRIVER cần driverProfile và vehicle. Tạo đăng ký chờ xác minh và gửi OTP; người dùng tự xác minh
+      và đặt mật khẩu qua /auth/invitations/activate. Không trả mật khẩu tạm.
+  InvitationActivate:
+    type: object
+    properties:
+      registrationId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      otp:
+        type: string
+        writeOnly: true
+        minLength: 1
+      password:
+        type: string
+        writeOnly: true
+        minLength: 1
+    required:
+    - registrationId
+    - otp
+    - password
+  ResendOtp:
+    type: object
+    properties:
+      registrationId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+    required:
+    - registrationId
+  VehicleServicePage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/VehicleService'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  RegionPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/Region'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  PointPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/Point'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  TripPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/Trip'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  TripEventPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/TripEvent'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  OfferPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/Offer'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  Reason:
+    type: object
+    properties:
+      reason:
+        type: string
+        minLength: 1
+    required:
+    - reason
+  PaymentPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/Payment'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  NotificationPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/Notification'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  DeviceInput:
+    type: object
+    properties:
+      pushToken:
+        type: string
+        writeOnly: true
+        minLength: 1
+      platform:
+        type: string
+        enum:
+        - ANDROID
+        - IOS
+        - WEB
+    required:
+    - pushToken
+    - platform
+  Device:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      platform:
+        type: string
+        enum:
+        - ANDROID
+        - IOS
+        - WEB
+    required:
+    - id
+    - platform
+  UserPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/User'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  DriverProfilePage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/DriverProfile'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  VehiclePage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/Vehicle'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  AdminVehicleCreate:
+    type: object
+    properties:
+      driverId:
+        type: string
+        description: Mã định danh do server cấp.
+        example: trip_001
+      vehicleType:
+        $ref: '#/schemas/VehicleType'
+      plateNumber:
+        type: string
+        minLength: 1
+        example: 59A-12345
+      brand:
+        type: string
+        minLength: 1
+      model:
+        type: string
+        minLength: 1
+      color:
+        type: string
+        minLength: 1
+      documentIds:
+        type: array
+        items:
+          type: string
+          description: Mã định danh do server cấp.
+          example: trip_001
+    required:
+    - driverId
+    - vehicleType
+    - plateNumber
+    - brand
+    - model
+    - color
+    - documentIds
+  LocationPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/Location'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  RefundPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/Refund'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  IncidentPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/Incident'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  InterventionPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/Intervention'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  PermissionPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/Permission'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  RolePage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/Role'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+  AuditLogPage:
+    type: object
+    properties:
+      items:
+        type: array
+        items:
+          $ref: '#/schemas/AuditLog'
+      page:
+        type: integer
+        description: ''
+        minimum: 1
+      pageSize:
+        type: integer
+        description: ''
+        minimum: 1
+        maximum: 100
+      total:
+        type: integer
+        description: ''
+        minimum: 0
+    required:
+    - items
+    - page
+    - pageSize
+    - total
+responses:
+  BadRequest:
+    description: Dữ liệu sai định dạng hoặc thiếu trường.
+    content:
+      application/json:
+        schema:
+          $ref: '#/schemas/Error'
+        example:
+          code: VALIDATION_ERROR
+          message: Dữ liệu sai định dạng hoặc thiếu trường.
+          requestId: req_001
+  Unauthorized:
+    description: Chưa xác thực hoặc thông tin xác thực hết hạn.
+    content:
+      application/json:
+        schema:
+          $ref: '#/schemas/Error'
+        example:
+          code: UNAUTHORIZED
+          message: Chưa xác thực hoặc thông tin xác thực hết hạn.
+          requestId: req_001
+  Forbidden:
+    description: Không đủ quyền, sai chủ sở hữu hoặc tài khoản bị khóa.
+    content:
+      application/json:
+        schema:
+          $ref: '#/schemas/Error'
+        example:
+          code: FORBIDDEN
+          message: Không đủ quyền, sai chủ sở hữu hoặc tài khoản bị khóa.
+          requestId: req_001
+  NotFound:
+    description: Không tìm thấy tài nguyên.
+    content:
+      application/json:
+        schema:
+          $ref: '#/schemas/Error'
+        example:
+          code: NOT_FOUND
+          message: Không tìm thấy tài nguyên.
+          requestId: req_001
+  Conflict:
+    description: Xung đột trạng thái, phiên bản, dữ liệu trùng hoặc thao tác đã xử lý.
+    content:
+      application/json:
+        schema:
+          $ref: '#/schemas/Error'
+        example:
+          code: CONFLICT
+          message: Xung đột trạng thái, phiên bản, dữ liệu trùng hoặc thao tác đã xử lý.
+          requestId: req_001
+  Unprocessable:
+    description: Dữ liệu đúng định dạng nhưng vi phạm điều kiện nghiệp vụ.
+    content:
+      application/json:
+        schema:
+          $ref: '#/schemas/Error'
+        example:
+          code: BUSINESS_RULE_VIOLATION
+          message: Dữ liệu đúng định dạng nhưng vi phạm điều kiện nghiệp vụ.
+          requestId: req_001
+  TooManyRequests:
+    description: Vượt giới hạn yêu cầu/OTP. Thử lại theo Retry-After.
+    content:
+      application/json:
+        schema:
+          $ref: '#/schemas/Error'
+        example:
+          code: RATE_LIMITED
+          message: Vượt giới hạn yêu cầu/OTP. Thử lại theo Retry-After.
+          requestId: req_001
+    headers:
+      Retry-After:
+        description: Thời gian chờ tính bằng giây.
+        schema:
+          type: integer
+          description: ''
+          minimum: 1
+  ServerError:
+    description: Lỗi nội bộ; sử dụng requestId khi liên hệ hỗ trợ.
+    content:
+      application/json:
+        schema:
+          $ref: '#/schemas/Error'
+        example:
+          code: INTERNAL_ERROR
+          message: Lỗi nội bộ; sử dụng requestId khi liên hệ hỗ trợ.
+          requestId: req_001
+  Unavailable:
+    description: Dịch vụ phụ thuộc tạm không khả dụng.
+    content:
+      application/json:
+        schema:
+          $ref: '#/schemas/Error'
+        example:
+          code: SERVICE_UNAVAILABLE
+          message: Dịch vụ phụ thuộc tạm không khả dụng.
+          requestId: req_001
