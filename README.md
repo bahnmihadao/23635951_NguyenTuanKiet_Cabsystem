@@ -1,6 +1,8 @@
 # BÁO CÁO PHÂN TÍCH VÀ THIẾT KẾ HỆ THỐNG
 # ĐỀ TÀI: NỀN TẢNG ĐẶT XE TRỰC TUYẾN (CAB SYSTEM)
 
+Tài liệu này đặc tả yêu cầu và quy trình nghiệp vụ của CAB. Phân rã 7 domain, phân loại DDD, dữ liệu sở hữu và đánh giá high cohesion/loose coupling được trình bày tại [Thiết kế domain](SUBDOMAIN_DESIGN.md). Bảng truy vết ở mục 11 liên kết yêu cầu với thiết kế; các nhóm FR không đồng nghĩa với các service triển khai.
+
 **Thông tin đề tài**
 Mã sinh viên: 23635951
 Họ và tên: Nguyễn Tuấn Kiệt
@@ -19,7 +21,7 @@ Thứ ba, dữ liệu về chuyến đi, lịch sử giao dịch và doanh thu c
 Thứ tư, kiến trúc kỹ thuật hiện tại có tính đóng và khó mở rộng quy mô khi số lượng người dùng đồng thời gia tăng nhanh chóng.
 
 ### 1.3. Mục tiêu xây dựng hệ thống mới
-Hệ thống CAB mới được định hướng phát triển nhằm tự động hóa toàn diện quy trình tìm kiếm, khớp nối và phân công tài xế dựa trên vị trí GPS và các tiêu chuẩn vận hành. Đồng thời, hệ thống cung cấp giải pháp giám sát hành trình thời gian thực, tích hợp cổng thanh toán trực tuyến, quản lý tập trung toàn bộ dữ liệu nghiệp vụ và thiết lập kiến trúc module hóa đảm bảo hiệu năng cao, tính sẵn sàng và khả năng mở rộng linh hoạt.
+Hệ thống CAB mới được định hướng phát triển nhằm tự động hóa toàn diện quy trình tìm kiếm, khớp nối và phân công tài xế dựa trên vị trí GPS và các tiêu chuẩn vận hành. Đồng thời, hệ thống cung cấp giải pháp giám sát hành trình thời gian thực, tích hợp cổng thanh toán trực tuyến, quản lý và giám sát nghiệp vụ qua giao diện tập trung, với dữ liệu được sở hữu riêng theo từng domain và thiết lập kiến trúc module hóa đảm bảo hiệu năng cao, tính sẵn sàng và khả năng mở rộng linh hoạt.
 
 ### 1.4. Bảng so sánh cải tiến hệ thống
 
@@ -40,22 +42,33 @@ Hệ thống CAB mới được định hướng phát triển nhằm tự độ
 ### 1.5. Phạm vi của hệ thống (System Scope)
 
 #### 1.5.1. Phạm vi thực hiện (In-Scope)
-Hệ thống đảm nhiệm toàn bộ quy trình từ khâu quản lý tài khoản người dùng (Khách hàng, Tài xế, Nhân viên vận hành), tiếp nhận yêu cầu đặt chuyến, tự động điều phối tài xế, định vị lộ trình di chuyển thời gian thực, tự động tính toán cước phí và xử lý thanh toán đa phương thức. Ngoài ra, hệ thống cung cấp hạ tầng gửi tin nhắn thông báo tự động, cổng quản trị dữ liệu tập trung và hệ thống báo cáo thống kê phục vụ công tác giám sát điều hành.
+Hệ thống đảm nhiệm toàn bộ quy trình từ khâu quản lý tài khoản người dùng (Khách hàng, Tài xế, Nhân viên vận hành), tiếp nhận yêu cầu đặt chuyến, tự động điều phối tài xế, định vị lộ trình di chuyển thời gian thực, tự động tính toán cước phí và xử lý thanh toán đa phương thức. Ngoài ra, hệ thống cung cấp hạ tầng gửi tin nhắn thông báo tự động, cổng quản trị tập trung về giao diện và quyền thao tác và hệ thống báo cáo thống kê phục vụ công tác giám sát điều hành.
 
 #### 1.5.2. Các nội dung cần làm rõ thêm (Pending / Further Clarification)
 Một số nội dung kỹ thuật và quy định nghiệp vụ chi tiết cần tiếp tục làm việc với các bên liên quan để thống nhất:
-Công thức tính cước chi tiết theo hệ số nhu cầu giờ cao điểm và khu vực địa lý.
-Thuật toán trọng số ưu tiên trong việc phân bổ cuốc xe cho tài xế.
-Ngưỡng thời gian chờ (Timeout) tối đa cho phép tài xế phản hồi trước khi hệ thống chuyển sang tài xế khác.
-Chính sách phụ phí hủy chuyến áp dụng đối với khách hàng và chế tài xử lý tài xế hủy cuốc xe.
-Cơ chế đồng bộ và phục hồi dữ liệu khi thiết bị đầu cuối gặp sự cố mất kết nối mạng.
-Quy chuẩn về thời hạn lưu trữ dữ liệu lịch sử chuyến đi và nhật ký hệ thống (Audit Logs).
+Quy tắc điều phối, timeout, phí hủy MVP, OTP, GPS, thanh toán và báo cáo đã chốt tại mục 10–10.1. Các điểm còn mở gồm giá/công thức/làm tròn, thời hạn lưu dữ liệu, chi tiết bảo mật và phục hồi; xem danh sách được quản lý tại mục 11.2. Giá động theo giờ cao điểm nằm ngoài MVP.
 
 ### 1.6. Tích hợp hệ thống bên ngoài (External Integrations)
 Hệ thống thực hiện tích hợp với các đối tác dịch vụ bên thứ ba bao gồm cổng thanh toán điện tử (Payment Gateway) để tiếp nhận và xác thực giao dịch trực tuyến; dịch vụ thông báo (Notification Provider) để truyền tải mã xác thực OTP và thông báo hành trình qua SMS, Email, Push Notification; và dịch vụ bản đồ số (Map/GIS Services) phục vụ tính toán cước phí, lộ trình di chuyển và thời gian dự kiến đón xe.
 
 ### 1.7. Yêu cầu phi chức năng (Non-Functional Requirements)
-Hệ thống đáp ứng các tiêu chuẩn phi chức năng nghiêm ngặt về hiệu năng với độ trễ xử lý dưới 1 giây đối với các tác vụ điều phối và định vị. Kiến trúc hệ thống đảm bảo khả năng mở rộng tài nguyên tính toán độc lập cho các thành phần chịu tải cao, duy trì tính sẵn sàng 24/7 với cơ chế chịu lỗi dự phòng, áp dụng mã hóa bảo mật toàn diện cho dữ liệu cá nhân và giao dịch tài chính, đồng thời ghi vết kiểm toán đầy đủ cho mọi thao tác quản trị.
+Các yêu cầu dưới đây là tiêu chí cần kiểm chứng, không phải tuyên bố hệ thống đã đạt. Những thông số chưa thống nhất được ghi rõ để chốt trước nghiệm thu.
+
+| Mã | Yêu cầu | Cách kiểm chứng và thông số cần chốt |
+| --- | --- | --- |
+| NFR01 | Mục tiêu p95 độ trễ xử lý dưới 1 giây cho tác vụ truy vấn ứng viên điều phối và cập nhật vị trí. Không tính thời gian con người phản hồi lời mời vào thời gian xử lý máy chủ. | Đo từ khi máy chủ nhận request đến khi trả kết quả; tải GPS cơ sở đã chốt là 100 tài xế, mỗi thiết bị gửi theo CFG-GPS-01 (trung bình 20 cập nhật/giây). Ghi cấu hình máy, dữ liệu, thời gian chạy, p95 riêng từng tác vụ và tỷ lệ lỗi; tải truy vấn điều phối/mức lỗi chấp nhận còn cần chốt. Chưa có kết quả đo để kết luận đạt. |
+| NFR02 | Có khả năng vận hành liên tục và phục hồi khi một thành phần gặp lỗi; 24/7 là định hướng vận hành, không có nghĩa không bao giờ gián đoạn. | Cần chốt tỷ lệ sẵn sàng, kỳ đo, thời gian phục hồi và mức mất dữ liệu chấp nhận được; kiểm tra bằng kịch bản ngắt/khởi động lại thành phần. |
+| NFR03 | Có thể mở rộng độc lập các thành phần chịu tải cao theo ranh giới thiết kế. | Kiểm tra mở rộng thành phần và tính đúng của kết quả; cấu hình tài nguyên và tải mục tiêu cần chốt. |
+| NFR04 | Bảo vệ thông tin cá nhân, giấy tờ và vị trí bằng xác thực, phân quyền theo tài nguyên và mã hóa đường truyền; không lưu mật khẩu dạng rõ hay dữ liệu thẻ nhạy cảm. | Kiểm tra truy cập sai vai trò/sai chủ sở hữu, cấu hình đường truyền và dữ liệu/log; danh mục dữ liệu cần mã hóa khi lưu và cách quản lý khóa cần chốt. |
+| NFR05 | Thao tác quản trị quan trọng, thay đổi trạng thái chuyến và giao dịch có audit gồm người thực hiện, thời điểm, đối tượng, hành động và kết quả. | Đối chiếu thao tác với audit; che dữ liệu nhạy cảm; thời hạn lưu và quyền tra cứu cần chốt. |
+| NFR06 | Gửi lại yêu cầu hoặc sự kiện không được gây trùng chuyến, trùng phân công, thu/hoàn tiền nhiều lần cho cùng thao tác. | Kiểm tra gửi lặp, xử lý đồng thời và mất phản hồi; đối chiếu dữ liệu cuối cùng, không chỉ mã phản hồi. |
+| NFR07 | Lỗi gửi thông báo hoặc tạo báo cáo không được làm mất kết quả chuyến/giao dịch đã xác nhận; dữ liệu theo dõi/báo cáo phải thể hiện độ mới. | Mô phỏng lỗi, phục hồi và kiểm tra xử lý lại; ngưỡng GPS theo CFG-GPS-02–CFG-GPS-03; độ trễ báo cáo và giới hạn thử lại thông báo còn cần chốt. |
+
+### 1.8. Ranh giới hệ thống và dữ liệu
+
+CAB bao gồm 7 domain nội bộ theo [SUBDOMAIN_DESIGN.md](SUBDOMAIN_DESIGN.md). Quản lý tập trung là khả năng giám sát và thao tác qua giao diện thống nhất; không yêu cầu các domain dùng chung database. Mỗi service sở hữu dữ liệu của mình và trao đổi qua hợp đồng giao tiếp, không đọc/ghi trực tiếp database của service khác.
+
+Notification Domain là thành phần bên trong CAB. Nhà cung cấp SMS/email/push, bản đồ và cổng thanh toán là các tích hợp bên ngoài hoặc bộ mô phỏng tương ứng trong MVP. Trong use case toàn hệ thống, các domain nội bộ được mô tả ở phía System; chỉ nhà cung cấp bên ngoài mới là actor phụ khi thực sự tham gia.
 
 ## 2. PHÂN TÍCH VÀ MA TRẬN CÁC BÊN LIÊN QUAN (STAKEHOLDER ANALYSIS & MATRIX)
 
@@ -217,7 +230,7 @@ Về thông báo và phân tích, không tích hợp SMS Brandname viễn thông
 | :---: | :--- | :--- |
 | **Tuần 1** | Khảo sát yêu cầu, xác định phạm vi và phân tích Stakeholders | Báo cáo Definition và Stakeholder Matrix |
 | **Tuần 2** | Đặc tả yêu cầu phần mềm và xây dựng sơ đồ Use Case | Use Case Diagram và Use Case Specifications |
-| **Tuần 3** | Thiết kế cơ sở dữ liệu quan hệ và kiến trúc hệ thống | Sơ đồ ERD và Database Schema |
+| **Tuần 3** | Phân rã domain từ nghiệp vụ, xác định dữ liệu sở hữu và tương tác theo quy trình, sau đó thiết kế dữ liệu | Mô hình domain, bảng truy vết FR/UC, sơ đồ tương tác và ERD/schema theo service |
 | **Tuần 4** | Thiết kế giao diện khung và đặc tả các API endpoints | Giao diện mẫu (UI Wireframe) và API Docs |
 | **Tuần 5** | Xây dựng chức năng đăng nhập, đặt xe và phân công tài xế | Bản dựng phân hệ Auth và Booking |
 | **Tuần 6** | Xây dựng chức năng cập nhật chuyến, thanh toán và quản trị | Bản dựng phân hệ Trip và Admin Dashboard |
@@ -287,6 +300,9 @@ Phân hệ kiểm soát chuỗi trạng thái di chuyển và hỗ trợ khách 
 | **FR04.5** | Cập nhật trạng thái "Hoàn thành" | Tài xế xác nhận đã trả khách và hoàn thành chuyến đi |
 | **FR04.6** | Theo dõi trạng thái trực quan | Khách hàng theo dõi vị trí và tiến trình cuốc xe theo thời gian thực |
 | **FR04.7** | Lưu trữ dữ liệu vị trí GPS | Hệ thống liên tục lưu vết vị trí tài xế phục vụ điều phối và ước tính thời gian đón (ETA) |
+| **FR04.8** | Kiểm soát độ mới dữ liệu vị trí | Lưu thời điểm lấy mẫu/tiếp nhận; phân biệt vị trí mới, cũ và chưa có dữ liệu; không để mẫu đến trễ ghi đè vị trí mới. Ngưỡng cũ theo CFG-GPS-02–CFG-GPS-03. |
+| **FR04.9** | Kiểm soát quyền theo dõi | Chỉ chủ chuyến hoặc nhân viên có quyền được xem dữ liệu thuộc phạm vi cho phép; ngừng cung cấp vị trí mới ngoài chuyến khi chuyến kết thúc. |
+| **FR04.10** | Phục hồi theo dõi và chốt hành trình | Khi kết nối trở lại, đọc trạng thái mới nhất và đồng bộ GPS hợp lệ theo chuyến; chỉ sử dụng số liệu hành trình đã xác minh để chốt cước, không tự thay dữ liệu thiếu bằng quãng đường giả định. |
 
 ### 6.5. Phân hệ Tính cước phí
 Phân hệ tự động xác định giá trị thanh toán của chuyến đi, gắn liền với yêu cầu nghiệp vụ BR05 (Hỗ trợ và quản lý thanh toán).
@@ -296,7 +312,7 @@ Phân hệ tự động xác định giá trị thanh toán của chuyến đi, 
 | **FR05.1** | Tính toán cước phí chuyến đi | Hệ thống tự động xác định số tiền cước khách hàng phải trả khi chuyến đi hoàn tất |
 | **FR05.2** | Xác định cước theo loại dịch vụ | Hệ thống áp dụng bảng giá tương ứng theo loại xe và quãng đường thực tế |
 
-*(Ghi chú: Công thức tính cước chi tiết theo hệ số thời gian và khu vực chưa được xác định trong tài liệu – Cần BA làm rõ thêm với stakeholder).*
+*(Ghi chú: MVP dùng bảng giá cố định theo loại dịch vụ/quãng đường. Giá trị bảng giá, công thức và cách làm tròn còn cần chốt; phí hủy theo CFG-TRIP-03; không đưa hệ số giá động giờ cao điểm vào yêu cầu nghiệm thu MVP.)*
 
 ### 6.6. Phân hệ Xử lý thanh toán
 Phân hệ hỗ trợ đa dạng phương thức thanh toán an toàn và lưu trữ lịch sử đối soát, gắn liền với yêu cầu nghiệp vụ BR05 (Hỗ trợ và quản lý thanh toán).
@@ -309,6 +325,8 @@ Phân hệ hỗ trợ đa dạng phương thức thanh toán an toàn và lưu t
 | **FR06.4** | Thông báo thanh toán thất bại | Hệ thống gửi cảnh báo khi giao dịch thanh toán trực tuyến không thành công |
 | **FR06.5** | Xử lý thanh toán lại | Hệ thống hỗ trợ thực hiện lại giao dịch hoặc chuyển sang hình thức thanh toán khác |
 | **FR06.6** | Lưu trữ lịch sử giao dịch | Hệ thống ghi nhận đầy đủ chứng từ thanh toán phục vụ tra cứu và đối soát tài chính |
+| **FR06.7** | Đối soát giao dịch chưa rõ kết quả | Giữ trạng thái chờ khi chưa xác định được kết quả; tra cứu bằng mã giao dịch và chỉ cập nhật sau khi có bằng chứng xác minh; chưa thu thêm khi còn giao dịch cần đối soát. |
+| **FR06.8** | Hoàn tiền theo quyền và phê duyệt | Mọi hoàn tiền cần quản lý đủ quyền khác người tạo phê duyệt theo BR-22; số tiền lớn hơn 0 và không vượt số đã thu trừ số đã hoàn và hạn mức đang giữ cho yêu cầu hoàn xử lý; chống hoàn lặp; chỉ ghi thành công sau xác nhận thực tế. |
 
 ### 6.7. Phân hệ Quản lý thông báo
 Phân hệ gửi thông điệp kịp thời đến người dùng trong từng giai đoạn của chuyến đi, gắn liền với yêu cầu nghiệp vụ BR03 (Nâng cao trải nghiệm khách hàng).
@@ -335,6 +353,7 @@ Phân hệ cung cấp bộ công cụ tập trung cho nhân viên vận hành gi
 | **FR08.5** | Giám sát chuyến đi thời gian thực | Theo dõi các chuyến xe đang diễn ra trực tiếp trên bản đồ điều hành |
 | **FR08.6** | Kiểm tra trạng thái tài xế | Giám sát danh sách tài xế đang trực tuyến, đang chở khách hoặc ngoại tuyến |
 | **FR08.7** | Xử lý chuyến đi bị lỗi | Can thiệp hỗ trợ điều phối lại hoặc hủy cuốc khi phát sinh sự cố vận hành |
+| **FR08.8** | Quản lý yêu cầu và phê duyệt can thiệp | Ghi lý do, bằng chứng, người tạo và kết quả; hành động cần duyệt phải chờ người đủ quyền khác người tạo; được duyệt vẫn phải kiểm tra lại điều kiện trước thực thi. Mọi hoàn tiền cần phê duyệt theo BR-22; chính sách phê duyệt hành động khác cần xác định riêng. |
 
 ### 6.9. Phân hệ Báo cáo và Thống kê
 Phân hệ cung cấp số liệu tổng quan phục vụ quản lý và ra quyết định kinh doanh, gắn liền với yêu cầu nghiệp vụ BR06 (Cung cấp thông tin phục vụ quản lý).
@@ -346,6 +365,7 @@ Phân hệ cung cấp số liệu tổng quan phục vụ quản lý và ra quy�
 | **FR09.3** | Báo cáo tỷ lệ hoàn thành | Đánh giá tỷ lệ cuốc xe thực hiện thành công trên tổng số yêu cầu |
 | **FR09.4** | Báo cáo tỷ lệ hủy chuyến | Phân tích tỷ lệ hủy chuyến từ phía khách hàng và từ phía tài xế |
 | **FR09.5** | Báo cáo hiệu quả tài xế | Cung cấp số liệu đánh giá năng suất và chất lượng phục vụ của tài xế |
+| **FR09.6** | Xuất báo cáo | Tạo tệp XLSX/PDF theo bộ lọc và phạm vi quyền, theo dõi tiến trình xuất; chỉ cho tải tệp đã hoàn tất, còn hạn và đúng quyền; ghi thời điểm tạo/mốc dữ liệu. |
 
 ### 6.10. Phân hệ Bảo mật và Phân quyền quản trị
 Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ liệu, gắn liền với yêu cầu nghiệp vụ BR07 và BR08.
@@ -355,6 +375,15 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **FR10.1** | Xác thực người dùng (Authentication) | Kiểm soát chặt chẽ danh tính trước khi cho phép thực hiện thao tác nghiệp vụ |
 | **FR10.2** | Phân quyền vai trò (Role-Based Access) | Phân chia quyền hạn rõ ràng giữa Khách hàng, Tài xế và Nhân viên vận hành |
 | **FR10.3** | Nhật ký kiểm toán (Audit Logging) | Ghi nhận thời điểm, người thực hiện và nội dung các thao tác quản trị quan trọng |
+
+### 6.11. Chức năng đánh giá sau chuyến
+
+Nhóm yêu cầu này làm rõ UC012 đã có trong phạm vi nghiệp vụ, không tạo thêm một domain hoặc service riêng.
+
+| Mã FR | Chức năng | Mô tả chi tiết |
+| --- | --- | --- |
+| **FR11.1** | Gửi đánh giá chuyến đi | Chủ chuyến được đánh giá một lần khi chuyến COMPLETED, đã PAID và còn hạn; sao là số nguyên 1–5; nhận xét không bắt buộc; 1–2 sao cần lý do phản ánh theo UC012. Khách có thể bỏ qua. |
+| **FR11.2** | Tổng hợp điểm và chuyển phản ánh | Tính điểm từ đánh giá đã lưu, không coi chuyến chưa đánh giá là 0 sao; gắn cờ đánh giá thấp cho vận hành; gửi lặp không làm tăng số đánh giá. Quy tắc làm tròn cần chốt. |
 
 ## 7. SƠ ĐỒ USE CASE HỆ THỐNG (USE CASE DIAGRAM)
 
@@ -397,7 +426,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **5.1. SĐT/Email không tồn tại hoặc mật khẩu sai** | 1. Trả HTTP 401, mã INVALID_CREDENTIALS.<br>2. Hiển thị chung "Tài khoản hoặc mật khẩu không chính xác", không chỉ rõ tài khoản có tồn tại hay không.<br>3. Không cấp phiên; quay lại bước 2. |
 | **5.2. Tài khoản bị khóa, thông tin đăng nhập đúng** | 1. Trả HTTP 403, mã ACCOUNT_LOCKED.<br>2. Hiển thị "Tài khoản đã bị khóa, vui lòng liên hệ quản trị viên".<br>3. Không cấp phiên; kết thúc lần đăng nhập. |
 | **4.1. Mất kết nối hoặc lỗi hệ thống** | 1. Thông báo chưa thể hoàn tất đăng nhập và cho phép thử lại.<br>2. Không chuyển vào hệ thống khi chưa nhận được phiên hợp lệ. Nếu mất phản hồi, không suy diễn máy chủ chắc chắn chưa tạo phiên. |
-| **4.2. Yêu cầu bị giới hạn tần suất** | 1. Nếu API trả HTTP 429, ứng dụng yêu cầu chờ theo Retry-After trước khi thử lại.<br>2. API đã khai báo phản hồi này nhưng số lần và cửa sổ thời gian chưa chốt; không mặc định tài khoản bị khóa sau một số lần nhập sai. |
+| **4.2. Yêu cầu bị giới hạn tần suất** | 1. Nếu API trả HTTP 429, ứng dụng yêu cầu chờ theo Retry-After trước khi thử lại.<br>2. Áp dụng BR-25 và CFG-AUTH-05–CFG-AUTH-07 theo cặp định danh/IP; đây là hạn chế thử, không phải trạng thái khóa quản trị. |
 
 ### 8.2. Đăng ký tài khoản
 
@@ -428,7 +457,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | :--- | :--- |
 | **3.1. Thiếu hoặc sai dữ liệu bắt buộc** | 1. Báo lỗi ở trường tương ứng, không tiếp tục gửi OTP cho bộ dữ liệu chưa hợp lệ.<br>2. Quay lại bước 2; các trường khác hợp lệ được giữ để sửa. |
 | **3.2. SĐT/Email đã tồn tại** | 1. Báo "Số điện thoại/Email này đã được sử dụng".<br>2. Không tạo tài khoản trùng; quay lại bước 2. Nếu trùng được phát hiện lại ở bước 5 cũng không tạo tài khoản thứ hai. |
-| **5.1. OTP rỗng, sai, đã dùng hoặc hết hạn** | 1. Không xác minh tài khoản; yêu cầu nhập OTP nếu rỗng.<br>2. OTP sai/hết hạn theo API trả OTP_INVALID_OR_EXPIRED.<br>3. Cho phép nhập lại hoặc chuyển sang gửi lại OTP. Độ dài mã, giới hạn thử và thời hạn cấu hình chưa chốt. |
+| **5.1. OTP rỗng, sai, đã dùng hoặc hết hạn** | 1. Không xác minh tài khoản; yêu cầu nhập OTP nếu rỗng.<br>2. OTP sai/hết hạn theo API trả OTP_INVALID_OR_EXPIRED.<br>3. Cho phép nhập lại hoặc chuyển sang gửi lại OTP. Độ dài, giới hạn thử, thời hạn và gửi lại áp dụng CFG-AUTH-01–CFG-AUTH-04; mã cũ vô hiệu khi phát hành mã mới. |
 | **5.2. Người dùng yêu cầu gửi lại OTP** | 1. Kiểm tra thời điểm cho phép gửi lại và giới hạn cấu hình.<br>2. Nếu được phép, tạo/gửi mã mới và vô hiệu mã cũ; quay lại bước 5.<br>3. Nếu chưa được phép, thông báo phải chờ, không phát sinh mã mới. |
 | **4.1. Không gửi được OTP hoặc mất kết nối** | 1. Thông báo chưa hoàn tất xác minh; hồ sơ tạm không được coi là tài khoản đã kích hoạt.<br>2. Cho phép tiếp tục/gửi lại khi điều kiện kết nối và thời gian cho phép. |
 
@@ -440,7 +469,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **UCID** | UC003 |
 | **Mô tả** | Khách hàng nhập lộ trình, chọn loại xe và phương thức thanh toán, xem báo giá rồi tạo yêu cầu. Tạo yêu cầu thành công chưa có nghĩa tài xế đã nhận chuyến; việc điều phối thuộc UC004. |
 | **Actor chính** | Khách hàng |
-| **Actor phụ** | Dịch vụ bản đồ, Hệ thống thông báo |
+| **Actor phụ** | Dịch vụ bản đồ, Nhà cung cấp kênh thông báo bên ngoài/mô phỏng (nếu sử dụng) |
 | **Tiền điều kiện** | Khách hàng có phiên đăng nhập hợp lệ, tài khoản được phép sử dụng dịch vụ và kết nối được hệ thống. |
 | **Hậu điều kiện** | Thành công: tạo mã chuyến, trạng thái SEARCHING (Đang tìm tài xế), thanh toán UNPAID và kích hoạt UC004. Dữ liệu bị từ chối: không tạo chuyến. Hủy tìm kiếm: chuyến đã tạo chuyển CANCELLED và điều phối dừng. |
 
@@ -450,7 +479,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | :---: | :--- | :--- |
 | **1** | Mở đặt xe, nhập/chọn điểm đón và điểm đến. | Xác định tọa độ, hiển thị lộ trình và khoảng cách dự kiến. |
 | **2** | Chọn xe máy, ô tô 4 chỗ hoặc ô tô 7 chỗ và phương thức tiền mặt, thẻ hoặc ví điện tử. | Chỉ hiển thị lựa chọn dịch vụ khả dụng theo khu vực. |
-| **3** | | Tính và hiển thị cước dự kiến, thời gian dự kiến và mã báo giá có thời hạn. Công thức bảng giá chi tiết chưa chốt; không áp dụng giá động ngoài phạm vi MVP. |
+| **3** | | Tính và hiển thị cước dự kiến, thời gian dự kiến và mã báo giá có thời hạn theo CFG-FARE-01. Ghi phiên bản bảng giá dùng cho chuyến theo BR-20. Công thức bảng giá chi tiết chưa chốt; không áp dụng giá động ngoài phạm vi MVP. |
 | **4** | Kiểm tra thông tin và nhấn "Đặt xe". | Kiểm tra dữ liệu bắt buộc, báo giá thuộc khách, còn hạn và khớp điểm đón/đến/loại xe theo API tạo chuyến. |
 | **5** | | Tạo chuyến ở trạng thái SEARCHING/UNPAID; trả mã chuyến. Gửi lại cùng một yêu cầu với cùng khóa thao tác không tạo thêm chuyến. |
 | **6** | | Kích hoạt UC004 và hiển thị "Đang tìm tài xế xung quanh bạn". |
@@ -462,7 +491,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **1.1. Điểm đón/đến trống hoặc không xác định được** | 1. Báo trường cần bổ sung hoặc "Không thể định vị địa chỉ này, vui lòng chọn lại điểm đón/đến".<br>2. Không tạo chuyến; quay lại bước 1. Quy định điểm đón trùng điểm đến và phạm vi phục vụ cần chốt thêm. |
 | **4.1. Thiếu lựa chọn hoặc báo giá không còn hợp lệ** | 1. Không tạo chuyến với bộ dữ liệu thiếu/sai.<br>2. Yêu cầu chọn lại dữ liệu; nếu đổi hành trình/loại xe hoặc báo giá hết hạn thì lấy báo giá mới và để khách xác nhận lại. |
 | **6.1. UC004 kết thúc mà không tìm được tài xế** | 1. Cập nhật CANCELLED, lý do NO_DRIVER_AVAILABLE, bên hủy SYSTEM theo API.<br>2. Hiển thị không tìm thấy tài xế và dừng màn hình chờ; không xem đây là lỗi tạo bản ghi tại bước 5. |
-| **6.2. Khách hàng hủy khi đang tìm tài xế** | 1. Khách nhấn "Hủy tìm kiếm".<br>2. Hệ thống kiểm tra trạng thái hiện tại, hủy chuyến, thu hồi lời mời còn hiệu lực và gửi thông báo liên quan.<br>3. Nếu tài xế đã nhận trước lúc xử lý, áp dụng điều kiện hủy của trạng thái mới; không ghi đè trạng thái một cách tự động. Phí/chế tài hủy chưa chốt. |
+| **6.2. Khách hàng hủy khi đang tìm tài xế** | 1. Khách nhấn "Hủy tìm kiếm".<br>2. Hệ thống kiểm tra trạng thái hiện tại, hủy chuyến, thu hồi lời mời còn hiệu lực và gửi thông báo liên quan.<br>3. Nếu tài xế đã nhận trước lúc xử lý, áp dụng điều kiện hủy của trạng thái mới; không ghi đè trạng thái một cách tự động. Áp dụng BR-17 và CFG-TRIP-03; không tự áp chế tài tài xế chưa được quy định. |
 
 ### 8.4. Tìm và phân công tài xế
 
@@ -472,7 +501,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **UCID** | UC004 |
 | **Mô tả** | CAB tự động điều phối sau khi UC003 tạo yêu cầu: tìm tài xế đủ điều kiện, gửi lời mời và xử lý kết quả phản hồi thông qua UC007. |
 | **Actor chính** | Khách hàng có yêu cầu đặt xe; quá trình tìm kiếm do CAB tự động thực hiện, CAB không phải actor bên ngoài của chính nó. |
-| **Actor phụ** | Tài xế, Hệ thống thông báo |
+| **Actor phụ** | Tài xế, Nhà cung cấp kênh thông báo bên ngoài/mô phỏng (nếu sử dụng) |
 | **Tiền điều kiện** | Có chuyến SEARCHING chưa bị hủy và đầy đủ điểm đón, điểm đến, loại xe. |
 | **Hậu điều kiện** | Có người nhận: gán một tài xế, chuyến DRIVER_ASSIGNED và tài xế BUSY. Không có người nhận: chuyến CANCELLED với lý do NO_DRIVER_AVAILABLE. Khách hủy: dừng điều phối và thu hồi lời mời; không gán thêm tài xế vào chuyến đã hủy. |
 
@@ -481,7 +510,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | Bước | Actor (Tài xế / Khách hàng) | System |
 | :---: | :--- | :--- |
 | **1** | | Tìm tài xế AVAILABLE, hồ sơ/xe đã duyệt, loại xe phù hợp và vị trí trong vùng tìm kiếm. Không chọn tài xế đang BUSY hoặc bị khóa. |
-| **2** | | Xếp ưu tiên theo khoảng cách và hiệu quả hoạt động. Bán kính, trọng số và cách xử lý đồng hạng chưa chốt; phải có cấu hình/quy tắc trước khi kiểm thử thứ tự phân công. |
+| **2** | | Xếp khoảng cách đường thẳng gần nhất, rồi điểm đánh giá cao hơn, rồi thời gian chờ nhận cuốc lâu hơn theo BR-16. Bán kính theo CFG-MATCH-01–CFG-MATCH-02; chi tiết tài xế chưa có đánh giá/đồng hạng cuối cùng còn mở tại mục 11.2. |
 | **3** | | Gửi lời mời cho tài xế ưu tiên qua UC005, kèm thời điểm hết hạn do máy chủ xác định; UC006 hiển thị nội dung. |
 | **4** | Tài xế phản hồi chấp nhận qua UC007. | Kiểm tra lại lời mời, trạng thái chuyến và khả năng nhận chuyến ngay lúc xử lý. |
 | **5** | | Nếu còn hợp lệ, gán tài xế và chuyển tài xế sang BUSY trong cùng thao tác; chuyển chuyến sang DRIVER_ASSIGNED. Không cho hai phản hồi tạo hai tài xế được gán cho cùng chuyến. |
@@ -491,7 +520,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 
 | Trường hợp | Các bước xử lý |
 | :--- | :--- |
-| **4.1. Từ chối hoặc hết thời gian phản hồi** | 1. Đánh dấu lời mời REJECTED hoặc EXPIRED tương ứng, không gán tài xế đó.<br>2. Chuyển tài xế tiếp theo trên cùng mã chuyến; quay lại bước 3.<br>3. Thời gian một lời mời và tổng thời gian/lượt tìm kiếm là hai giới hạn riêng, hiện chưa chốt. |
+| **4.1. Từ chối hoặc hết thời gian phản hồi** | 1. Đánh dấu lời mời REJECTED hoặc EXPIRED tương ứng, không gán tài xế đó.<br>2. Chuyển tài xế tiếp theo trên cùng mã chuyến; quay lại bước 3.<br>3. Hạn lời mời và tổng thời gian tìm theo CFG-MATCH-03–CFG-MATCH-04; không mời lại người đã từ chối trong cùng lượt. |
 | **1.1. Không có ứng viên hoặc hết giới hạn tìm kiếm** | 1. Dừng tìm khi không còn tài xế phù hợp hoặc hết giới hạn cấu hình.<br>2. Chuyển CANCELLED, lý do NO_DRIVER_AVAILABLE, bên hủy SYSTEM; thông báo khách thử lại sau.<br>3. Thu hồi lời mời còn hiệu lực và kết thúc. |
 | **4.2. Khách hủy trong lúc điều phối** | 1. Kiểm tra và ghi nhận hủy theo trạng thái hiện tại.<br>2. Dừng tìm kiếm, thu hồi lời mời và thông báo tài xế đang được mời nếu có.<br>3. Phản hồi nhận chuyến đến sau khi hủy thành công bị từ chối. |
 | **4.3. Tài xế/lời mời không còn đủ điều kiện** | 1. Không gán chuyến cho tài xế đang bận, lời mời hết hạn/thu hồi hoặc chuyến không còn SEARCHING.<br>2. Nếu chuyến vẫn SEARCHING, tiếp tục tìm người khác; nếu đã hủy/đã gán thì không khởi động lại điều phối. |
@@ -504,17 +533,17 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **UCID** | UC005 |
 | **Mô tả** | CAB gửi thông báo phát sinh từ sự kiện nghiệp vụ: lời mời chuyến mới, khách hủy hoặc cập nhật vận hành. Không cung cấp thao tác cho người dùng tự gửi thông báo tùy ý tới tài xế khác. |
 | **Actor chính** | Tài xế nhận thông báo; CAB tự kích hoạt gửi khi sự kiện nghiệp vụ phát sinh. |
-| **Actor phụ** | Hệ thống thông báo (Notification Service) |
+| **Actor phụ** | Nhà cung cấp SMS/email/push bên ngoài hoặc bộ mô phỏng kênh gửi trong MVP; Notification Domain thuộc nội bộ CAB. |
 | **Tiền điều kiện** | Có sự kiện hợp lệ và xác định được tài xế nhận. Để nhận trực tiếp, thiết bị đã đăng nhập, có kết nối và quyền nhận thông báo phù hợp. |
 | **Hậu điều kiện** | Thông báo được lưu cho đúng người nhận, trạng thái gửi/đã nhận/đã đọc phản ánh xác nhận thực tế. Gửi thất bại được ghi nhận và xử lý lại; không tự coi đã gửi là đã đọc. |
 
 #### Luồng sự kiện chính
 
-| Bước | Actor (Tài xế / Notification Service) | System |
+| Bước | Actor (Tài xế / Nhà cung cấp kênh gửi) | System |
 | :---: | :--- | :--- |
 | **1** | | Ghi nhận sự kiện, xác định tài xế nhận và tài nguyên liên quan như mã chuyến/lời mời. |
-| **2** | | Tạo nội dung thông báo, lưu lịch sử và chuyển dữ liệu cho Notification Service. |
-| **3** | Notification Service gửi thông báo tới thiết bị. | Ghi nhận kết quả gửi; chưa đánh dấu đã đọc. |
+| **2** | | Notification Domain tạo nội dung, lưu lịch sử và yêu cầu gửi qua kênh bên ngoài hoặc mô phỏng. |
+| **3** | Nhà cung cấp kênh gửi chuyển thông báo và phản hồi kết quả. | Ghi nhận kết quả gửi; chưa đánh dấu đã nhận/đã đọc chỉ từ việc kênh gửi tiếp nhận yêu cầu. |
 | **4** | Thiết bị nhận và xác nhận đã nhận. | Cập nhật đã nhận, hiển thị thông báo; âm thanh phụ thuộc cài đặt thiết bị. |
 | **5** | Tài xế mở thông báo. | Kiểm tra quyền và trạng thái mới nhất của nội dung liên quan, mở màn hình phù hợp; cập nhật đã đọc khi có xác nhận. |
 
@@ -535,7 +564,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **UCID** | UC006 |
 | **Mô tả** | Tài xế mở và xem lời mời được phân bổ để đưa ra quyết định. Việc chấp nhận/từ chối và gán chuyến thuộc UC007, tránh lặp cùng nghiệp vụ ở hai use case. |
 | **Actor chính** | Tài xế |
-| **Actor phụ** | Hệ thống thông báo |
+| **Actor phụ** | Nhà cung cấp kênh thông báo bên ngoài/mô phỏng (nếu sử dụng) |
 | **Tiền điều kiện** | Tài xế đã đăng nhập, có lời mời gửi cho chính mình. Luồng chính áp dụng lời mời PENDING chưa hết hạn và tài xế AVAILABLE. |
 | **Hậu điều kiện** | Hiển thị đúng lời mời và thời gian còn lại; chỉ xem không làm tài xế BUSY hoặc gán chuyến. Quyết định của tài xế chuyển sang UC007; lời mời hết hiệu lực không còn cho phản hồi nhận chuyến. |
 
@@ -566,7 +595,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **UCID** | UC007 |
 | **Mô tả** | Xử lý quyết định của tài xế đối với lời mời đã xem ở UC006; kiểm tra điều kiện tại thời điểm máy chủ tiếp nhận phản hồi. |
 | **Actor chính** | Tài xế |
-| **Actor phụ** | Khách hàng, Hệ thống thông báo |
+| **Actor phụ** | Khách hàng, Nhà cung cấp kênh thông báo bên ngoài/mô phỏng (nếu sử dụng) |
 | **Tiền điều kiện** | Tài xế đã đăng nhập và đang phản hồi lời mời của mình. Luồng chấp nhận thành công yêu cầu lời mời PENDING còn hạn, chuyến SEARCHING, tài xế AVAILABLE và đủ điều kiện nhận chuyến. |
 | **Hậu điều kiện** | Chấp nhận: lời mời ACCEPTED, chuyến DRIVER_ASSIGNED, tài xế BUSY. Từ chối: lời mời REJECTED, tài xế vẫn AVAILABLE và điều phối tiếp trên cùng chuyến. Phản hồi không hợp lệ: không gán chuyến hoặc ghi đè trạng thái đã thay đổi. |
 
@@ -599,20 +628,20 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **UCID** | UC008 |
 | **Mô tả** | Tài xế được phân công cập nhật tuần tự DRIVER_ASSIGNED → ARRIVED → PICKED_UP → IN_PROGRESS → COMPLETED. Trạng thái chuyến độc lập với trạng thái thanh toán; COMPLETED chưa có nghĩa PAID. |
 | **Actor chính** | Tài xế |
-| **Actor phụ** | Khách hàng, Hệ thống thông báo |
+| **Actor phụ** | Khách hàng, Nhà cung cấp kênh thông báo bên ngoài/mô phỏng (nếu sử dụng) |
 | **Tiền điều kiện** | Tài xế có phiên hợp lệ, được phân công cho chuyến đang hoạt động. Mỗi thao tác phải có trạng thái trước phù hợp; không cho tài xế khác cập nhật. |
-| **Hậu điều kiện** | Cập nhật hợp lệ được lưu cùng thời gian/lịch sử và thông báo liên quan. Khi COMPLETED, kết thúc ghi hành trình và chốt cước để sang UC010. Cập nhật bị từ chối không thay đổi trạng thái/cước đã lưu. Thời điểm giải phóng BUSY sau hoàn thành/thanh toán cần chốt riêng. |
+| **Hậu điều kiện** | Cập nhật hợp lệ được lưu cùng thời gian/lịch sử và thông báo liên quan. Khi COMPLETED, kết thúc ghi hành trình và chốt cước để sang UC010. Cập nhật bị từ chối không thay đổi trạng thái/cước đã lưu. Giải phóng Assignment khi COMPLETED theo BR-14; tiền chưa thu vẫn theo dõi ở Payment, không giữ BUSY chỉ vì chưa PAID. |
 
 #### Luồng sự kiện chính
 
 | Bước | Actor (Tài xế) | System |
 | :---: | :--- | :--- |
-| **1** | Tới điểm đón và nhấn "Đã đến điểm đón". | Kiểm tra chuyến DRIVER_ASSIGNED và vị trí nằm trong ngưỡng khoảng cách cho phép; ngưỡng cụ thể chưa chốt. |
+| **1** | Tới điểm đón và nhấn "Đã đến điểm đón". | Kiểm tra chuyến DRIVER_ASSIGNED và vị trí nằm trong ngưỡng khoảng cách cho phép; ngưỡng theo CFG-TRIP-01 và GPS phải còn mới theo CFG-GPS-02. |
 | **2** | | Chuyển ARRIVED, lưu thời điểm đến và thông báo cho khách. |
 | **3** | Khách lên xe, tài xế nhấn "Bắt đầu chuyến đi". | Kiểm tra ARRIVED; ghi mốc PICKED_UP rồi IN_PROGRESS theo thứ tự để lưu đủ sự kiện đón khách/bắt đầu di chuyển như thiết kế API. |
 | **4** | | Lưu thời gian bắt đầu, cập nhật theo dõi hành trình và thông báo trạng thái cho khách. |
 | **5** | Đưa khách đến nơi và nhấn "Hoàn thành chuyến đi". | Kiểm tra IN_PROGRESS và dữ liệu hành trình/thời gian hợp lệ. |
-| **6** | | Chuyển COMPLETED, lưu điểm/thời gian kết thúc, ngừng ghi vị trí mới vào hành trình chuyến. Chốt cước từ hành trình đã xác minh; công thức và cách làm tròn chưa chốt. |
+| **6** | | Chuyển COMPLETED, lưu điểm/thời gian kết thúc, ngừng ghi vị trí mới ngoài hành trình chuyến. Giải phóng Assignment theo BR-14, không chờ PAID; tiền chưa thu vẫn gắn với chuyến cũ. Chốt cước từ hành trình đã xác minh và phiên bản bảng giá lúc đặt theo BR-20; công thức và cách làm tròn chưa chốt. |
 | **7** | | Hiển thị kết quả hoàn thành và hóa đơn khi đã có cước cuối; chuyển UC010. Không ghi PAID chỉ từ thao tác hoàn thành. |
 
 #### Luồng sự kiện thay thế
@@ -620,7 +649,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | Trường hợp | Các bước xử lý |
 | :--- | :--- |
 | **1.1. Bấm Đã đến khi còn ngoài ngưỡng điểm đón** | 1. Từ chối cập nhật ARRIVED; theo API trả PICKUP_TOO_FAR.<br>2. Hiển thị "Bạn chưa đến gần điểm đón, vui lòng kiểm tra lại".<br>3. Giữ DRIVER_ASSIGNED, tài xế di chuyển và thử lại bước 1. |
-| **3.1. Khách không xuất hiện** | 1. Chỉ tài xế được phân công, chuyến ARRIVED và đã hết thời gian chờ cấu hình được báo khách vắng mặt.<br>2. Nếu đủ điều kiện, hủy với lý do tương ứng, lưu log, thông báo và giải phóng tài xế.<br>3. Nếu chưa đủ thời gian, từ chối hủy theo lý do này. Thời gian chờ/phí hủy chưa chốt. |
+| **3.1. Khách không xuất hiện** | 1. Chỉ tài xế được phân công, chuyến ARRIVED và đã hết thời gian chờ cấu hình được báo khách vắng mặt.<br>2. Nếu đủ điều kiện, hủy với lý do tương ứng, lưu log, thông báo và giải phóng tài xế.<br>3. Nếu chưa đủ thời gian, từ chối hủy theo lý do này. Thời gian chờ tính từ ARRIVED theo CFG-TRIP-02; phí hủy theo CFG-TRIP-03. |
 | **5.1. Mất mạng khi bấm hoàn thành** | 1. Lưu tạm yêu cầu và dữ liệu kết thúc trên thiết bị, hiển thị chờ đồng bộ; không thông báo máy chủ đã chốt cước.<br>2. Có mạng thì gửi lại cùng khóa thao tác; máy chủ kiểm tra phiên bản và trình tự.<br>3. Nếu trạng thái đã bị thay đổi, đọc lại chuyến và xử lý xung đột; không ghi đè tự động. |
 | **1.2. Chuyển sai thứ tự, sai tài xế hoặc chuyến đã hủy** | 1. Kiểm tra trước mọi thay đổi tại bước 1, 3, 5.<br>2. Từ chối thao tác; giữ trạng thái/cước hiện tại, hiển thị lý do phù hợp.<br>3. Sự cố trong chuyến đang chở khách chuyển UC015; không tự đưa về trạng thái tìm tài xế. |
 | **6.1. Yêu cầu/sự kiện bị gửi lặp hoặc đảo thứ tự** | 1. Không ghi sự kiện, tính cước hoặc gửi thông báo thành công lần hai cho cùng thao tác.<br>2. Không chấp nhận thời gian tương lai hoặc thứ tự sự kiện không hợp lệ; yêu cầu đọc lại dữ liệu khi xung đột phiên bản. |
@@ -633,7 +662,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **UCID** | UC009 |
 | **Mô tả** | Khách hàng xem trạng thái và vị trí thuộc chuyến của mình từ lúc tìm tài xế đến khi kết thúc. Dữ liệu mới nhất và dữ liệu vị trí đã cũ phải được phân biệt trên giao diện. |
 | **Actor chính** | Khách hàng |
-| **Actor phụ** | Tài xế, Dịch vụ định vị/bản đồ, Hệ thống thông báo |
+| **Actor phụ** | Tài xế, Dịch vụ định vị/bản đồ, Nhà cung cấp kênh thông báo bên ngoài/mô phỏng (nếu sử dụng) |
 | **Tiền điều kiện** | Khách hàng có phiên hợp lệ và mã chuyến thuộc tài khoản của mình. Luồng theo dõi trực tiếp áp dụng chuyến chưa kết thúc. |
 | **Hậu điều kiện** | Hiển thị trạng thái hiện tại, vị trí/ETA khi có dữ liệu và cảnh báo khi dữ liệu không còn trực tiếp. Thao tác xem không làm thay đổi trạng thái chuyến. Sau kết thúc không tiếp tục cung cấp vị trí mới của tài xế ngoài chuyến đó. |
 
@@ -644,7 +673,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **1** | Mở chi tiết chuyến đang diễn ra. | Kiểm tra chủ sở hữu và truy xuất trạng thái hiện tại. |
 | **2** | | Hiển thị điểm đón, điểm đến, lộ trình và trạng thái. Nếu SEARCHING thì hiển thị đang tìm tài xế, chưa hiển thị tài xế/ETA đón như dữ liệu đã có. |
 | **3** | | Khi đã gán tài xế, hiển thị thông tin xe/tài xế, vị trí mới nhất và ETA nếu tính được. |
-| **4** | | Làm mới dữ liệu theo cơ chế polling của API, kèm thời điểm cập nhật; chỉ coi vị trí LIVE là trực tiếp. Chu kỳ cập nhật và ngưỡng STALE chưa chốt. |
+| **4** | | Làm mới dữ liệu theo cơ chế polling của API, kèm thời điểm cập nhật; chỉ coi vị trí LIVE là trực tiếp. Thiết bị tài xế gửi GPS theo CFG-GPS-01; độ mới theo CFG-GPS-02–CFG-GPS-03. Chu kỳ polling phía khách còn cần chốt riêng. |
 | **5** | | Khi UC008 thay đổi trạng thái, cập nhật màn hình và thông báo tương ứng; không yêu cầu khách tạo chuyến mới để xem thay đổi. |
 | **6** | | Khi COMPLETED, ngừng theo dõi vị trí trực tiếp, hiển thị chi tiết/cước và chuyển thanh toán; chỉ cho gửi đánh giá khi đủ điều kiện UC012. |
 
@@ -666,7 +695,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **UCID** | UC010 |
 | **Mô tả** | Khách hàng thanh toán hóa đơn cước cuối bằng tiền mặt hoặc điện tử. Cước do hệ thống chốt từ hành trình và loại dịch vụ ở UC008, không lấy số tiền phải thu do người dùng tự nhập. |
 | **Actor chính** | Khách hàng |
-| **Actor phụ** | Tài xế, Cổng thanh toán mô phỏng, Hệ thống thông báo |
+| **Actor phụ** | Tài xế, Cổng thanh toán mô phỏng, Nhà cung cấp kênh thông báo bên ngoài/mô phỏng (nếu sử dụng) |
 | **Tiền điều kiện** | Khách hàng đã đăng nhập, là chủ chuyến; chuyến đã hoàn thành và có hóa đơn cước cuối, chưa PAID. Một lần thanh toán mới chỉ bắt đầu khi không còn giao dịch trước đang PENDING cần đối soát. |
 | **Hậu điều kiện** | Thành công: giao dịch được ghi nhận một lần, paymentStatus=PAID, lưu hóa đơn/lịch sử và gửi biên lai; trạng thái chuyến vẫn COMPLETED. Chưa được xác nhận hoặc chưa rõ kết quả: giữ trạng thái chờ thích hợp, không tự ghi PAID. |
 
@@ -701,7 +730,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **UCID** | UC011 |
 | **Mô tả** | Xử lý thanh toán thẻ/ví qua cổng mô phỏng trong MVP; xác minh kết quả trước khi cập nhật thanh toán. CAB không lưu trực tiếp dữ liệu thẻ/tài khoản ngân hàng nhạy cảm. |
 | **Actor chính** | Cổng thanh toán điện tử (Payment Gateway), phối hợp với Khách hàng xác nhận thanh toán. |
-| **Actor phụ** | Khách hàng, Hệ thống thông báo |
+| **Actor phụ** | Khách hàng, Nhà cung cấp kênh thông báo bên ngoài/mô phỏng (nếu sử dụng) |
 | **Tiền điều kiện** | UC010 đã tạo giao dịch điện tử cho hóa đơn hợp lệ của khách; giao dịch đang chờ kết quả và chưa ghi nhận thành công. |
 | **Hậu điều kiện** | Phản hồi thành công hợp lệ: giao dịch SUCCEEDED, thanh toán chuyến PAID, có lịch sử/biên lai. Thất bại xác nhận: ghi FAILED để xử lý lại. Chưa rõ kết quả: PENDING để đối soát. Phản hồi không hợp lệ không được dùng làm căn cứ đánh dấu PAID. |
 
@@ -721,7 +750,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | Trường hợp | Các bước xử lý |
 | :--- | :--- |
 | **3.1. Cổng xác nhận thất bại** | 1. Xác minh phản hồi trước khi ghi FAILED; lưu mã lỗi phù hợp.<br>2. Thông báo "Giao dịch thanh toán thất bại".<br>3. Trở về UC010 để thử lại hoặc đổi phương thức khi đủ điều kiện. |
-| **3.2. Mất kết nối/timeout chưa biết đã trừ tiền hay chưa** | 1. Giữ PENDING, không coi là FAILED.<br>2. Truy vấn kết quả giao dịch và chờ phản hồi đã xác minh.<br>3. Chưa có kết quả thì thông báo đang đối soát; nếu cần chuyển UC015. Ngưỡng timeout, số lần tra cứu và thời điểm chuyển hỗ trợ chưa chốt. |
+| **3.2. Mất kết nối/timeout chưa biết đã trừ tiền hay chưa** | 1. Giữ PENDING, không coi là FAILED.<br>2. Truy vấn kết quả giao dịch và chờ phản hồi đã xác minh.<br>3. Chưa có kết quả thì thông báo đang đối soát; nếu cần chuyển UC015. Timeout và lịch tra cứu theo CFG-PAY-01–CFG-PAY-02; hết lượt vẫn chưa rõ thì chuyển hàng đợi đối soát UC015, tiếp tục giữ PENDING. |
 | **4.1. Chữ ký/thời điểm hoặc dữ liệu giao dịch không hợp lệ** | 1. Từ chối phản hồi, lưu dấu vết lỗi phù hợp; không ghi PAID.<br>2. Dữ liệu mã/số tiền/tiền tệ không khớp được xử lý theo PAYMENT_MISMATCH của API; không sửa hóa đơn theo phản hồi sai. |
 | **4.2. Cổng gửi lại cùng phản hồi hợp lệ** | 1. Nhận diện sự kiện đã xử lý, trả xác nhận tiếp nhận theo API.<br>2. Không thu tiền, ghi doanh thu hoặc cập nhật thành công lần hai. |
 | **4.3. Phản hồi sau mâu thuẫn kết quả trước** | 1. Không hạ giao dịch SUCCEEDED xuống FAILED chỉ từ phản hồi mâu thuẫn.<br>2. Lưu sự kiện để đối soát, giữ kết quả đã xác minh cho tới khi có xử lý hợp lệ. |
@@ -735,7 +764,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **Mô tả** | Khách hàng chấm sao và có thể nhận xét tài xế của chuyến mình đã hoàn thành, thanh toán. Mỗi chuyến được gửi một đánh giá; không mô tả chức năng sửa đánh giá khi chưa có yêu cầu tương ứng. |
 | **Actor chính** | Khách hàng |
 | **Actor phụ** | Tài xế |
-| **Tiền điều kiện** | Khách có phiên hợp lệ, là chủ chuyến; chuyến COMPLETED, thanh toán PAID, chưa có đánh giá và còn trong thời hạn ratingDeadline. Độ dài thời hạn đánh giá chưa chốt. |
+| **Tiền điều kiện** | Khách có phiên hợp lệ, là chủ chuyến; chuyến COMPLETED, thanh toán PAID, chưa có đánh giá và còn trong thời hạn ratingDeadline. Thời hạn theo CFG-RATE-01 tính từ lần đầu ghi PAID, không được gia hạn bởi callback lặp. |
 | **Hậu điều kiện** | Thành công: lưu một đánh giá gắn chuyến/tài xế, cập nhật điểm trung bình; đánh giá 1–2 sao được gắn cờ. Bỏ qua hoặc dữ liệu bị từ chối: không tạo đánh giá, không thay đổi điểm trung bình. |
 
 #### Luồng sự kiện chính
@@ -755,7 +784,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **1.1. Khách bỏ qua hoặc đóng biểu mẫu** | 1. Đóng màn hình, không lưu đánh giá rỗng.<br>2. Cho đánh giá từ lịch sử nếu sau đó vẫn còn đủ điều kiện và thời hạn. |
 | **3.1. Chưa chọn sao hoặc sao ngoài miền hợp lệ** | 1. Yêu cầu chọn số nguyên 1–5; từ chối thiếu/null, số ngoài khoảng hoặc sai kiểu qua API.<br>2. Giữ biểu mẫu để sửa, không lưu hoặc tính lại điểm. |
 | **3.2. Chọn 1–2 sao nhưng chưa chọn lý do** | 1. Yêu cầu chọn ít nhất một lý do hợp lệ.<br>2. Chưa lưu đánh giá; quay lại bước 2. Nhận xét tự do không tự thay thế danh sách lý do bắt buộc. |
-| **3.3. Nhận xét để trống** | 1. Vẫn chấp nhận nếu sao và các điều kiện khác hợp lệ.<br>2. Lưu đánh giá không có nhận xét; không báo thiếu trường tùy chọn. Giới hạn độ dài nhận xét chưa chốt. |
+| **3.3. Nhận xét để trống** | 1. Vẫn chấp nhận nếu sao và các điều kiện khác hợp lệ.<br>2. Lưu đánh giá không có nhận xét; không báo thiếu trường tùy chọn. Giới hạn độ dài theo CFG-RATE-02. |
 | **1.2. Không phải chủ chuyến, chưa thanh toán/hoàn thành, hết hạn hoặc đã đánh giá** | 1. Từ chối mở/gửi mới theo điều kiện không đạt; kiểm tra lại khi gửi ở bước 3.<br>2. Không tạo thêm bản ghi và không tăng số lượng đánh giá khi gửi lặp. |
 
 ### 8.13. Quản lý tài khoản và phương tiện
@@ -766,7 +795,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **UCID** | UC013 |
 | **Mô tả** | Nhân viên tra cứu, tạo, cập nhật, duyệt/từ chối hồ sơ và khóa/mở khóa tài khoản khách/tài xế, quản lý phương tiện. Đây là thao tác quản trị; không thay thế việc người dùng tự cập nhật hồ sơ cá nhân. |
 | **Actor chính** | Nhân viên vận hành (Operator/Admin) |
-| **Actor phụ** | Tài xế, Khách hàng, Hệ thống thông báo |
+| **Actor phụ** | Tài xế, Khách hàng, Nhà cung cấp kênh thông báo bên ngoài/mô phỏng (nếu sử dụng) |
 | **Tiền điều kiện** | Nhân viên đã đăng nhập; mỗi hành động cần quyền tương ứng và đối tượng tồn tại nếu là thao tác trên hồ sơ có sẵn. Chỉ có quyền xem không đồng nghĩa được sửa, duyệt hoặc khóa. |
 | **Hậu điều kiện** | Thành công: lưu đúng thay đổi của hành động, ghi người thực hiện/thời gian/nội dung vào audit và thông báo liên quan. Chỉ tra cứu không đổi dữ liệu. Thao tác bị từ chối không cập nhật hồ sơ; tạo tài khoản theo API là gửi lời mời để người dùng tự xác minh và đặt mật khẩu. |
 
@@ -778,7 +807,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **2** | Tìm kiếm, chọn hồ sơ hoặc chọn tạo mới. | Hiển thị dữ liệu được phép xem; không tự thay đổi dữ liệu khi chọn/lọc. |
 | **3** | Chọn tạo tài khoản, cập nhật, duyệt/từ chối, khóa/mở khóa hoặc quản lý xe. | Kiểm tra quyền riêng của hành động và hiển thị biểu mẫu tương ứng. |
 | **4** | Nhập dữ liệu và xác nhận. | Tạo tài khoản: nhận thông tin khách/tài xế, tài xế kèm hồ sơ/xe, không cho tạo ADMIN qua chức năng này. Cập nhật: nhận trường được phép sửa, không cho đổi vai trò/trạng thái qua biểu mẫu thông tin chung. Duyệt: yêu cầu đủ giấy tờ; từ chối cần lý do. Khóa: cần lý do khóa. Quản lý xe: kiểm tra chủ xe là tài xế và dữ liệu xe hợp lệ. |
-| **5** | | Kiểm tra trường bắt buộc theo hành động, tính duy nhất SĐT/email/biển số trong phạm vi áp dụng, quyền tài liệu và trạng thái hiện tại. Độ dài/định dạng chi tiết CCCD, bằng lái, biển số và giới hạn tệp chưa chốt; không dùng quy tắc tự suy đoán. |
+| **5** | | Kiểm tra trường bắt buộc theo hành động, tính duy nhất SĐT/email/biển số trong phạm vi áp dụng, quyền tài liệu và trạng thái hiện tại. Tệp theo BR-24 và CFG-DOC-01–CFG-DOC-02; độ dài/định dạng chi tiết CCCD, bằng lái và biển số còn mở, không dùng quy tắc tự suy đoán. |
 | **6** | | Thực hiện nhánh đã chọn: gửi lời mời tạo tài khoản; lưu thông tin sửa; ghi APPROVED/REJECTED cho hồ sơ/xe; khóa/mở khóa tài khoản. Thay đổi giấy tờ/xe cần duyệt lại theo API. |
 | **7** | | Ghi audit, gửi thông báo kết quả cho người liên quan và hiển thị kết quả hành động; phân biệt "Đã gửi lời mời" với tài khoản đã được người dùng kích hoạt. |
 
@@ -822,7 +851,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **1.1. Không đủ quyền** | 1. Từ chối truy cập dữ liệu giám sát.<br>2. Hiển thị không có quyền; không cung cấp vị trí cá nhân ngoài phạm vi được phép. |
 | **2.1. Không có chuyến hoặc bộ lọc không có kết quả** | 1. Hiển thị danh sách rỗng và thông báo phù hợp.<br>2. Cho đổi bộ lọc; không hiển thị chuyến cũ như dữ liệu đang hoạt động. |
 | **4.1. Có cảnh báo đứng yên lâu/sai lộ trình** | 1. Khi đạt điều kiện cấu hình, gắn cờ cảnh báo và nêu loại cảnh báo.<br>2. Nhân viên xem chi tiết rồi liên hệ/hỗ trợ qua UC015.<br>3. Ngưỡng thời gian/khoảng cách gây cảnh báo chưa chốt; cảnh báo không tự kết luận lỗi của tài xế. |
-| **4.2. Mất tín hiệu tài xế hoặc chưa có GPS** | 1. Mất tín hiệu: hiển thị "Mất tín hiệu GPS / Ngoại tuyến", vị trí và thời điểm cuối.<br>2. Chưa có GPS: hiển thị chưa có dữ liệu, không nhầm với tọa độ trực tiếp.<br>3. Có tín hiệu trở lại thì cập nhật; chu kỳ/ngưỡng dữ liệu cũ cần chốt. |
+| **4.2. Mất tín hiệu tài xế hoặc chưa có GPS** | 1. Mất tín hiệu: hiển thị "Mất tín hiệu GPS / Ngoại tuyến", vị trí và thời điểm cuối.<br>2. Chưa có GPS: hiển thị chưa có dữ liệu, không nhầm với tọa độ trực tiếp.<br>3. Có tín hiệu trở lại thì cập nhật; chu kỳ GPS và ngưỡng dữ liệu cũ theo CFG-GPS-01–CFG-GPS-03. |
 | **4.3. Chuyến kết thúc trong lúc đang xem** | 1. Hiển thị trạng thái kết thúc, ngừng vị trí trực tiếp và loại khỏi danh sách đang hoạt động khi làm mới.<br>2. Cho xem chi tiết lịch sử theo quyền, không tiếp tục theo dõi vị trí ngoài chuyến. |
 
 ### 8.15. Xử lý chuyến lỗi
@@ -845,7 +874,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **2** | Chọn sự cố cần xử lý. | Hiển thị chuyến, lịch sử trạng thái, lộ trình, giao dịch và thông tin đối soát được phép xem. |
 | **3** | Chọn hủy khẩn cấp, xe thay thế, điều chỉnh cước, đối soát thanh toán hoặc hoàn tiền. | Hiển thị dữ liệu cần nhập riêng theo phương án; không cung cấp thao tác sửa tùy ý trạng thái thanh toán. |
 | **4** | Nhập lý do và dữ liệu liên quan, nhấn "Xác nhận can thiệp". | Kiểm tra quyền, phiên bản/trạng thái hiện tại, tính hợp lệ số tiền/bằng chứng; lưu yêu cầu can thiệp. |
-| **5** | | Với hành động trong thẩm quyền và đủ điều kiện, thực thi phương án. Điều chỉnh cước chỉ khi chưa PAID và không có thanh toán PENDING; tiền đã thu xử lý bằng hoàn tiền. Hoàn tiền phải lớn hơn 0 và không vượt số đã thu trừ các khoản đã hoàn. |
+| **5** | | Với hành động trong thẩm quyền và đủ điều kiện, thực thi phương án. Điều chỉnh cước chỉ khi chưa PAID và không có thanh toán PENDING; tiền đã thu xử lý bằng hoàn tiền. Hoàn tiền phải lớn hơn 0 và không vượt số đã thu trừ khoản đã hoàn và hạn mức đã giữ cho yêu cầu hoàn đang xử lý theo BR-22. |
 | **6** | | Kiểm tra kết quả thực thi; ghi thành công và cập nhật dữ liệu liên quan khi có căn cứ xác nhận, không đánh dấu hoàn tiền thành công chỉ vì đã gửi yêu cầu sang cổng. |
 | **7** | | Lưu audit gồm người, thời gian, hành động, lý do/kết quả; thông báo khách và tài xế. |
 
@@ -856,7 +885,7 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | **3.1. Hỏng xe/tai nạn giữa đường** | 1. Chọn hủy do sự cố; tính cước phần đã đi hoặc miễn theo chính sách cần chốt, không tự mặc định miễn phí.<br>2. Xử lý chuyến/tài xế phù hợp sự cố; việc kết thúc chuyến không có nghĩa xe hỏng đủ điều kiện nhận cuốc mới.<br>3. Nếu khách đồng ý đi tiếp, tạo chuyến thay thế liên kết chuyến cũ từ điểm đón mới; không đưa chuyến đang chở khách ngược về SEARCHING. |
 | **3.2. Treo thanh toán điện tử** | 1. Tra cứu và xác minh kết quả bên cổng theo mã giao dịch.<br>2. Chỉ ghi PAID khi có bằng chứng thanh toán thành công đã được kiểm chứng.<br>3. Nếu xác nhận thất bại/chưa thu thì cho thanh toán lại theo UC010; nếu còn chưa rõ thì giữ chờ đối soát, không thu thêm. |
 | **4.1. Thiếu lý do, dữ liệu sai hoặc vượt số tiền được phép** | 1. Báo trường/điều kiện không hợp lệ.<br>2. Không thực thi can thiệp; quay lại bước 4. |
-| **4.2. Hành động cần cấp quản lý phê duyệt** | 1. Lưu yêu cầu PENDING_APPROVAL và chuyển hàng đợi, chưa thực thi phương án.<br>2. Quản lý đủ quyền, khác người tạo, duyệt hoặc từ chối kèm kết quả.<br>3. Được duyệt: kiểm tra lại điều kiện trước bước 5; bị từ chối: lưu REJECTED và không thực thi.<br>4. Ngưỡng tiền/chính sách hành động cần duyệt chưa chốt; người không có quyền tạo yêu cầu bị từ chối, không mặc định luôn được gửi duyệt. |
+| **4.2. Hành động cần cấp quản lý phê duyệt** | 1. Lưu yêu cầu PENDING_APPROVAL và chuyển hàng đợi, chưa thực thi phương án.<br>2. Quản lý đủ quyền, khác người tạo, duyệt hoặc từ chối kèm kết quả.<br>3. Được duyệt: kiểm tra lại điều kiện trước bước 5; bị từ chối: lưu REJECTED và không thực thi.<br>4. Mọi hoàn tiền phải duyệt theo BR-22; hành động khác theo chính sách được xác định riêng. Người không có quyền tạo yêu cầu bị từ chối, không mặc định luôn được gửi duyệt. |
 | **5.1. Trạng thái thay đổi hoặc thực thi thất bại** | 1. Không ghi đè dữ liệu mới hoặc báo đã giải quyết.<br>2. Lưu kết quả lỗi/chờ xử lý thực tế, đọc lại dữ liệu và tra cứu kết quả bên cổng nếu có.<br>3. Gửi lại cùng thao tác không tạo thêm chuyến thay thế/hoàn tiền lặp. |
 | **1.1. Không có sự cố hoặc không có quyền** | 1. Đủ quyền nhưng danh sách rỗng: hiển thị chưa có sự cố.<br>2. Không đủ quyền: từ chối truy cập; không hiển thị dữ liệu sự cố ngoài phạm vi quyền. |
 
@@ -877,12 +906,12 @@ Phân hệ kiểm soát an toàn hệ thống và lưu vết kiểm toán dữ l
 | Bước | Actor (Ban lãnh đạo / Nhân viên vận hành) | System |
 | :---: | :--- | :--- |
 | **1** | Mở "Báo cáo thống kê". | Kiểm tra quyền xem và quyền doanh thu riêng, hiển thị bộ lọc phù hợp. |
-| **2** | Chọn ngày bắt đầu/kết thúc, có thể chọn nhanh tuần/tháng/quý; tùy chọn loại dịch vụ, khu vực, tài xế. | Quy đổi lựa chọn nhanh thành khoảng ngày cụ thể; ngày bắt đầu không lớn hơn ngày kết thúc. Theo API, tính trọn hai ngày biên theo Asia/Ho_Chi_Minh. |
+| **2** | Chọn ngày bắt đầu/kết thúc, có thể chọn nhanh tuần/tháng/quý; tùy chọn loại dịch vụ, khu vực, tài xế. | Quy đổi lựa chọn nhanh thành khoảng ngày cụ thể; ngày bắt đầu không lớn hơn ngày kết thúc. Theo CFG-REPORT-01, tính trọn hai ngày biên. |
 | **3** | Nhấn "Xem báo cáo". | Kiểm tra dữ liệu lọc và quyền ở máy chủ trước tổng hợp. |
-| **4** | | Tổng hợp số chuyến, doanh thu, tỷ lệ và hiệu quả theo quy tắc báo cáo đã thống nhất. API hiện đề xuất lấy tập chuyến theo ngày tạo, xét trạng thái tại thời điểm tạo báo cáo và tính doanh thu đã thu trừ hoàn/chiết khấu; đây vẫn là đề xuất cần chốt cùng định nghĩa mẫu số và hạch toán, không tự áp tỷ lệ chiết khấu. |
+| **4** | | Tổng hợp số chuyến, doanh thu, tỷ lệ và hiệu quả theo quy tắc báo cáo đã thống nhất. Theo BR-26, số chuyến/tỷ lệ dùng tập chuyến tạo trong khoảng ngày, xét trạng thái tại mốc dữ liệu báo cáo; mẫu số là tổng chuyến trong tập. Thu và hoàn dùng ngày giao dịch thành công, trình bày riêng; không trộn cước dự kiến hoặc tự áp chiết khấu. Định nghĩa API cũ phải được đồng bộ theo quyết định này. |
 | **5** | | Hiển thị bảng/biểu đồ, bộ lọc và thời điểm tạo. Tỷ lệ API nằm trong 0–1; giao diện hiển thị phần trăm tương ứng. Cách làm tròn cần thống nhất; không đánh đồng giá cước chưa thu với doanh thu đã thu. |
 | **6** | Chọn "Xuất báo cáo" và định dạng XLSX hoặc PDF nếu cần. | Tạo yêu cầu xuất với cùng bộ lọc/quyền; hiển thị đang xử lý trong khi tệp chưa sẵn sàng. |
-| **7** | Tải tệp khi hoàn tất. | Kiểm tra quyền người tải, trạng thái xuất COMPLETED và tệp chưa hết hạn; trả tệp đúng định dạng. Báo cáo có thời điểm tạo riêng; nếu dữ liệu nguồn thay đổi, không mặc định hai lần tạo có số liệu giống nhau. |
+| **7** | Tải tệp khi hoàn tất. | Kiểm tra quyền người tải, trạng thái xuất COMPLETED và tệp chưa hết hạn theo CFG-REPORT-02; trả tệp đúng định dạng. Báo cáo có thời điểm tạo riêng; nếu dữ liệu nguồn thay đổi, không mặc định hai lần tạo có số liệu giống nhau. |
 
 #### Luồng sự kiện thay thế
 
@@ -914,23 +943,26 @@ flowchart TD
         C_Cancel([✖ Hủy đặt xe]):::stateNode
         C3["3. Nhận thông tin xe & Chờ đón"]:::client
         C4["4. Lên xe & Di chuyển"]:::client
-        C5{"5. Chọn phương thức thanh toán"}:::decision
+        C5{"5. Xác nhận / đổi phương thức hợp lệ"}:::decision
         C_Cash["6. Trả tiền mặt trực tiếp"]:::client
         C_Online["7. Xác thực thanh toán Online"]:::client
         C6["8. Đánh giá chất lượng (1 - 5 sao)"]:::client
-        EndSuccess([★ Kết thúc chuyến đi]):::stateNode
+        C_Rate{"Khách muốn đánh giá?"}:::decision
+        EndSuccess([★ Kết thúc quy trình phục vụ]):::stateNode
     end
 
     %% 2. LÀN HỆ THỐNG CAB
     subgraph LAN_SYSTEM["🖥️ 2. Hệ thống CAB (System)"]
         S1["Tính cước phí dự kiến"]:::system
-        S2["Tạo yêu cầu & Quét tài xế gần nhất"]:::system
+        S_Create["Tạo chuyến SEARCHING một lần"]:::system
+        S2["Tìm ứng viên tiếp theo trên cùng mã chuyến"]:::system
         S3{"Tìm thấy tài xế?"}:::decision
         S_NoDriver["Thông báo không tìm thấy xe"]:::system
         S_EndNoDriver([✖ Kết thúc yêu cầu]):::stateNode
         S4["Gán chuyến & Điều phối lộ trình"]:::system
         S5["Cập nhật GPS theo thời gian thực"]:::system
-        S6["Tính cước phí thực tế & Lập hóa đơn"]:::system
+        S_Completed["Ghi COMPLETED; kết thúc theo dõi trực tiếp"]:::system
+        S6["Chốt cước từ hành trình đã xác minh & Lập hóa đơn"]:::system
         S7["Ghi nhận thanh toán thành công"]:::system
     end
 
@@ -947,8 +979,10 @@ flowchart TD
     %% 4. LÀN CỔNG THANH TOÁN
     subgraph LAN_PAYMENT["💳 4. Cổng thanh toán (Payment Gateway)"]
         P1["Xử lý trừ tiền tài khoản"]:::payment
-        P2{"Giao dịch thành công?"}:::decision
+        P2{"Kết quả giao dịch đã xác minh?"}:::decision
         P_Fail["Báo lỗi trừ tiền"]:::payment
+        P_Pending["Giữ PENDING; chưa thu thêm"]:::payment
+        P_Reconcile["Tra cứu / đối soát giao dịch cũ"]:::payment
     end
 
     %% KẾT NỐI LUỒNG NGHIỆP VỤ (CORE FLOW)
@@ -957,7 +991,7 @@ flowchart TD
     S1 --> C2
     
     C2 -- "Không" --> C_Cancel
-    C2 -- "Đồng ý" --> S2
+    C2 -- "Đồng ý" --> S_Create --> S2
     
     S2 --> S3
     S3 -- "Hết tài xế" --> S_NoDriver --> S_EndNoDriver
@@ -975,7 +1009,7 @@ flowchart TD
     D4 --> S5
     S5 --> D5
     
-    D5 --> S6
+    D5 --> S_Completed --> S6
     S6 --> C5
     
     %% RẼ NHÁNH THANH TOÁN
@@ -986,14 +1020,19 @@ flowchart TD
     C5 -- "Điện tử" --> C_Online
     C_Online --> P1
     P1 --> P2
-    P2 -- "Thất bại" --> P_Fail
+    P2 -- "Thất bại đã xác nhận" --> P_Fail
+    P2 -- "Chưa rõ / Timeout" --> P_Pending --> P_Reconcile --> P2
     P_Fail --> C5
     P2 -- "Thành công" --> S7
     
     %% HOÀN TẤT
-    S7 --> C6
+    S7 --> C_Rate
+    C_Rate -- "Có, còn đủ điều kiện" --> C6
+    C_Rate -- "Bỏ qua" --> EndSuccess
     C6 --> EndSuccess
 ```
+Sơ đồ trên mô tả quy trình tổng quan. Khi đối soát chưa có kết quả, tiếp tục chờ hoặc chuyển UC015 theo chính sách, không lặp truy vấn vô hạn. Nếu cước chưa sẵn sàng, áp dụng UC010/1.1 và chưa thu tiền. Chi tiết nhánh lỗi nằm trong UC; sơ đồ tương tác giữa các domain được quản lý riêng tại [SUBDOMAIN_DESIGN.md](SUBDOMAIN_DESIGN.md).
+
 ### 10. Business Rules (Quy tắc nghiệp vụ)
 
 | Mã quy tắc | Tên quy tắc | Mô tả chi tiết & Điều kiện áp dụng | Phạm vi áp dụng |
@@ -1009,3 +1048,100 @@ flowchart TD
 | **BR-09** | **Phân quyền thao tác quản trị** | Các chức năng quản trị hệ thống phải được phân cấp quyền hạn chặt chẽ; nhân viên thông thường không được phép thực hiện các thao tác nhạy cảm (như can thiệp doanh thu, duyệt hồ sơ đặc biệt). | Quản trị & Vận hành |
 | **BR-10** | **Ghi vết nhật ký hệ thống (Audit Log)** | Mọi thao tác quản trị quan trọng, lịch sử giao dịch và thay đổi trạng thái cuốc xe phải được lưu vết tự động để phục vụ công tác đối soát, kiểm tra khi có sự cố. | Bảo mật & Vận hành |
 | **BR-11** | **Bảo vệ dữ liệu nhạy cảm** | Dữ liệu vị trí theo thời gian thực, thông tin cá nhân của người dùng, phương tiện và lịch sử giao dịch phải được mã hóa và bảo vệ quyền riêng tư. | Bảo mật |
+| **BR-12** | **Phân công duy nhất** | Mỗi chuyến chỉ có một tài xế được phân công hoạt động; mỗi tài xế chỉ có một phân công hoạt động. Phản hồi lặp hoặc đồng thời không được vi phạm hai điều kiện này. | Điều phối xe |
+| **BR-13** | **Phân biệt điều kiện hoạt động và trạng thái phục vụ** | Hồ sơ/xe đã duyệt và bật nhận cuốc chưa đủ để coi là AVAILABLE: tài khoản phải được phép hoạt động, vị trí đáp ứng điều kiện điều phối và không có phân công hoạt động. BUSY phản ánh phân công, không được tự xóa chỉ vì tắt ứng dụng hoặc mất GPS. | Tài xế và điều phối |
+| **BR-14** | **Giải phóng phân công có điều kiện** | Giải phóng Assignment khi COMPLETED hoặc CANCELLED hợp lệ, không chờ PAID. Payment tiếp tục quản lý khoản chưa thu của chuyến cũ. Chỉ trở lại khả dụng khi vẫn bật nhận cuốc, đủ điều kiện hoạt động và GPS còn mới; xe hỏng/tài khoản khóa không tự AVAILABLE. | Chuyến và điều phối |
+| **BR-15** | **Tách hoàn thành chuyến khỏi thu tiền** | COMPLETED không suy ra PAID; thông báo gửi thành công hoặc can thiệp được duyệt cũng không thay thế bằng chứng giao dịch thành công. PENDING chưa rõ kết quả phải đối soát trước khi thu lại. | Chuyến, thanh toán, vận hành |
+
+
+| **BR-16** | **Tìm và xếp ưu tiên tài xế** | Áp dụng CFG-MATCH-01–CFG-MATCH-04. Lọc điều kiện hoạt động, GPS còn mới và chưa có phân công; xếp khoảng cách đường thẳng gần nhất, rồi điểm đánh giá cao hơn, rồi thời gian chờ nhận cuốc lâu hơn. Không gán 0 sao cho người chưa có đánh giá. Không mời lại người đã từ chối trong cùng lượt; mở rộng bán kính khi chưa có người nhận và vẫn còn thời gian tìm. | Điều phối |
+| **BR-17** | **Cạnh tranh nhận và hủy chuyến** | Thứ tự commit tại máy chủ quyết định kết quả; thao tác sau kiểm tra trạng thái mới. Khách được hủy khi SEARCHING, DRIVER_ASSIGNED hoặc ARRIVED; từ PICKED_UP trở đi xử lý qua sự cố. Phí hủy theo CFG-TRIP-03; vẫn lưu bên hủy, lý do và thời điểm. | Chuyến |
+| **BR-18** | **Bật/tắt nhận cuốc và khóa tài khoản** | Tắt nhận cuốc ngăn phân công mới, không hủy chuyến đang phục vụ. Khóa tài khoản thu hồi phiên, chặn thao tác thông thường và phân công mới; nếu có chuyến đang hoạt động thì tạo sự cố để vận hành tiếp quản. | Identity, Driver, Booking, Operations |
+| **BR-19** | **Độ mới GPS và xác nhận đến nơi** | Áp dụng CFG-GPS-01–CFG-GPS-03 và CFG-TRIP-01–CFG-TRIP-02. Không tự hủy chuyến hoặc xóa phân công do mất GPS. ARRIVED cần GPS còn mới trong khoảng cách cho phép; thời gian chờ khách tính từ thời điểm máy chủ ghi ARRIVED. | Location, Booking |
+| **BR-20** | **Báo giá và phiên bản cước** | Báo giá có hạn CFG-FARE-01; đổi điểm đón/đến hoặc loại xe phải lấy báo giá mới. Cước cuối dùng phiên bản bảng giá đã xác nhận khi đặt chuyến và hành trình đã xác minh; không lấy số tiền người gọi tự khai báo. Giá trị giá/công thức/làm tròn còn mở tại mục 11.2. | Booking, Payment |
+| **BR-21** | **Timeout và đối soát thanh toán** | Theo CFG-PAY-01–CFG-PAY-02, timeout giữ PENDING; hết các lượt tra cứu vẫn chưa rõ thì chuyển hàng đợi đối soát UC015. Chưa thu lại/đổi tiền mặt khi còn PENDING. Callback hợp lệ đến muộn vẫn được xử lý qua xác minh và chống trùng. | Payment, Operations |
+| **BR-22** | **Phê duyệt và giữ hạn mức hoàn tiền** | Mọi hoàn tiền trong MVP cần quản lý đủ quyền khác người tạo phê duyệt, không phân ngưỡng tiền. Khoản hoàn lớn hơn 0 và không vượt tiền đã thu trừ tiền đã hoàn và tiền đã giữ cho yêu cầu hoàn đang xử lý. Giữ/giải phóng hạn mức phải chống cạnh tranh; timeout chưa rõ kết quả không tự giải phóng hạn mức. Phê duyệt không đồng nghĩa đã hoàn thành công. | Payment, Operations |
+| **BR-23** | **Đánh giá sau thanh toán** | Đúng chủ chuyến, COMPLETED và PAID; mỗi chuyến một đánh giá trong CFG-RATE-01 tính từ lần đầu ghi PAID. Sao nguyên 1–5, nhận xét tùy chọn theo CFG-RATE-02; 1–2 sao phải chọn lý do. Gửi lặp không gia hạn hoặc tạo đánh giá mới. | Booking |
+| **BR-24** | **Tài liệu hồ sơ và xe** | Áp dụng CFG-DOC-01–CFG-DOC-02, kiểm tra nội dung thực ngoài phần mở rộng. Thay giấy tờ ảnh hưởng điều kiện hoạt động chuyển hồ sơ liên quan về chờ duyệt. Không cho đổi xe đang phục vụ chuyến. | Driver |
+| **BR-25** | **OTP và giới hạn đăng nhập** | Theo CFG-AUTH-01–CFG-AUTH-07. Gửi lại OTP vô hiệu mã cũ; đạt số lần sai tối đa thì không tiếp tục dùng mã đó. Giới hạn đăng nhập theo cặp định danh và IP; trả thời gian chờ, không chuyển tài khoản sang LOCKED chỉ vì rate limit. Khóa bởi quản trị là quy trình riêng. | Identity |
+| **BR-26** | **Cơ sở thời gian báo cáo** | Theo CFG-REPORT-01–CFG-REPORT-02. Số chuyến/tỷ lệ lấy tập chuyến tạo trong khoảng ngày; trạng thái xét tại mốc dữ liệu báo cáo, mẫu số là tổng chuyến trong tập. Thu và hoàn trình bày riêng theo ngày giao dịch thành công, không trộn với cước dự kiến. Chưa chốt chiết khấu thì không suy ra doanh thu thuần sau chiết khấu. | Operations & Reporting |
+
+### 10.1. Tham số cấu hình nghiệp vụ đã chốt
+
+Được người dùng xác nhận cho phạm vi đồ án ngày 21/09/2026. Bảng này là nguồn duy nhất của các giá trị; use case và tài liệu domain tham chiếu bằng mã CFG. “Đã chốt” là quyết định yêu cầu, không có nghĩa đã triển khai hoặc kiểm thử đạt.
+
+| Mã | Tham số | Giá trị đã chốt | Điều kiện áp dụng | Trạng thái |
+| --- | --- | --- | --- | --- |
+| CFG-MATCH-01 | Bán kính tìm ban đầu | 3 km | Khoảng cách đường thẳng từ điểm đón. | Đã chốt |
+| CFG-MATCH-02 | Bán kính mở rộng | 5 km | Chưa có người nhận sau lượt ban đầu, còn thời gian tìm. | Đã chốt |
+| CFG-MATCH-03 | Hạn một lời mời | 20 giây | Gửi lần lượt; expiresAt do máy chủ xác định. | Đã chốt |
+| CFG-MATCH-04 | Tổng thời gian tìm | 120 giây | Từ lúc bắt đầu điều phối cho chuyến; bao gồm các lượt/bán kính. | Đã chốt |
+| CFG-TRIP-01 | Khoảng cách xác nhận ARRIVED | Không quá 200 m | GPS còn mới so với điểm đón. | Đã chốt |
+| CFG-TRIP-02 | Chờ khách vắng mặt | Tối thiểu 5 phút | Từ lúc máy chủ ghi ARRIVED. | Đã chốt |
+| CFG-TRIP-03 | Phí hủy MVP | 0 VND | Hủy hợp lệ; không mặc định miễn cước phần đã đi khi xử lý sự cố. | Đã chốt |
+| CFG-GPS-01 | Chu kỳ gửi GPS | 5 giây | Thiết bị trực tuyến/bật nhận cuốc hoặc đang phục vụ. Không yêu cầu tiếp tục gửi khi ngoại tuyến và không có chuyến. | Đã chốt |
+| CFG-GPS-02 | Ngưỡng STALE | Quá 15 giây | Từ thời điểm lấy mẫu hợp lệ mới nhất; không dùng mẫu cũ cho nhận cuốc/xác nhận đến. | Đã chốt |
+| CFG-GPS-03 | Ngưỡng mất tín hiệu | Quá 60 giây | Ưu tiên nhãn mất tín hiệu khi vượt ngưỡng này; chưa có mẫu thì hiển thị chưa có dữ liệu. | Đã chốt |
+| CFG-FARE-01 | Hiệu lực báo giá | 5 phút | Từ thời điểm máy chủ tạo báo giá; thay lựa chọn liên quan cần báo giá mới. | Đã chốt |
+| CFG-PAY-01 | Timeout chờ kết quả thanh toán | 30 giây | Hết thời gian mà chưa rõ kết quả vẫn giữ PENDING. | Đã chốt |
+| CFG-PAY-02 | Mốc tra cứu tự động | Sau 10, 30 và 60 giây kể từ khi ghi nhận timeout | Mốc tuyệt đối tính từ timeout, không cộng dồn; dừng khi có kết quả xác minh. Vẫn chưa rõ sau lượt cuối thì chuyển đối soát. | Đã chốt |
+| CFG-RATE-01 | Thời hạn đánh giá | 24 giờ từ lần đầu PAID | Đồng thời phải COMPLETED và chưa đánh giá. | Đã chốt |
+| CFG-RATE-02 | Độ dài nhận xét tối đa | 500 ký tự | Nhận xét không bắt buộc. | Đã chốt |
+| CFG-DOC-01 | Định dạng tài liệu | JPEG, PNG, PDF | Kiểm tra MIME/nội dung thực. | Đã chốt |
+| CFG-DOC-02 | Dung lượng tối đa | 5 MB/tệp, quy ước 5.000.000 byte | Chấp nhận đúng giới hạn, từ chối vượt giới hạn. | Đã chốt |
+| CFG-AUTH-01 | Độ dài OTP | 6 chữ số | Giữ số 0 ở đầu; OTP là chuỗi. | Đã chốt |
+| CFG-AUTH-02 | Thời hạn OTP | 5 phút | Từ lúc phát hành mã hiện tại. | Đã chốt |
+| CFG-AUTH-03 | Chờ gửi lại OTP | 60 giây | Từ lần phát hành gần nhất; gửi mã mới vô hiệu mã cũ. | Đã chốt |
+| CFG-AUTH-04 | Số lần nhập sai OTP tối đa | 5 lần/mã | Đạt giới hạn thì mã không còn được dùng; gửi lại vẫn theo cooldown. | Đã chốt |
+| CFG-AUTH-05 | Ngưỡng đăng nhập sai | 5 lần | Theo cặp định danh và IP trong cửa sổ CFG-AUTH-06. | Đã chốt |
+| CFG-AUTH-06 | Cửa sổ đếm đăng nhập sai | 5 phút | Cửa sổ trượt; không dùng làm trạng thái khóa quản trị. | Đã chốt |
+| CFG-AUTH-07 | Thời gian hạn chế đăng nhập | 5 phút | Bắt đầu khi đạt ngưỡng; trả Retry-After còn lại. | Đã chốt |
+| CFG-REPORT-01 | Múi giờ báo cáo | Asia/Ho_Chi_Minh | Tính cả hai ngày biên; triển khai bằng đầu ngày đến đầu ngày sau ngày kết thúc, cận trên loại trừ. | Đã chốt |
+| CFG-REPORT-02 | Hạn tải tệp báo cáo | 1 giờ | Từ thời điểm ExportJob hoàn tất và tệp sẵn sàng. | Đã chốt |
+
+Quy ước kiểm thử thời gian: dùng thời gian máy chủ; tại expiresAt, OTP/báo giá/lời mời/tệp đã hết hạn; chỉ đánh giá trước ratingDeadline. Điều kiện “quá” của GPS dùng so sánh lớn hơn, điều kiện chờ tối thiểu dùng lớn hơn hoặc bằng. Đơn vị và điểm bắt đầu trong bảng làm rõ cách áp dụng các giá trị đã chốt.
+
+
+## 11. Truy vết yêu cầu sang 7 domain
+
+Đây là bảng liên kết từ yêu cầu sang thiết kế, không thay đổi mã FR/UC đã có. Phân loại DDD, dữ liệu sở hữu và high cohesion/loose coupling xem tại [SUBDOMAIN_DESIGN.md](SUBDOMAIN_DESIGN.md). Một use case có thể cần nhiều domain; domain chủ trì chịu trách nhiệm kết quả tương ứng, không được sửa database của domain phối hợp.
+
+| Tên domain | Yêu cầu chủ trì | Use case chính | Domain phối hợp / quy tắc liên quan |
+| --- | --- | --- | --- |
+| **Identity & Access Domain** | FR01.1–FR01.3, FR08.1, quản lý danh tính/quyền FR10.1–FR10.2 | UC001, UC002; phần tài khoản UC013 | Driver & Vehicle tạo hồ sơ nghề nghiệp; Notification chuyển OTP/kết quả. BR-01, BR-09, BR-11; mỗi domain tự kiểm tra quyền tài nguyên. |
+| **Driver & Vehicle Domain** | FR01.4–FR01.5, FR08.2–FR08.3; điều kiện hoạt động trong FR08.6 | Phần tài xế/xe UC002, UC013 | Identity & Access cung cấp danh tính; Booking & Dispatch quản lý phân công; Notification báo duyệt. BR-09, BR-13–BR-14. |
+| **Booking & Dispatch Domain** | FR02.1–FR02.5, FR03.1–FR03.7, FR04.1–FR04.5, FR05.1–FR05.2, FR08.4, FR11.1–FR11.2 | UC003, UC004, UC006–UC008, UC012 | Driver & Vehicle cung cấp điều kiện; Location & Tracking cung cấp vị trí/hành trình; Payment thu tiền; Notification gửi sự kiện; Operations & Reporting nhận kết quả. BR-02–BR-05, BR-08, BR-12–BR-15. |
+| **Location & Tracking Domain** | Dữ liệu vị trí FR04.6–FR04.10 | Phần vị trí UC009, UC014; hỗ trợ UC003, UC004, UC008 | Booking & Dispatch kiểm tra quyền/trạng thái chuyến; Operations & Reporting giám sát theo quyền. BR-11; vị trí không quyết định phân công hoặc tiền. |
+| **Payment Domain** | FR06.1–FR06.8 | UC010–UC011; phần tài chính UC015 | Booking & Dispatch gửi cước; Operations & Reporting gửi yêu cầu can thiệp đủ quyền/phê duyệt; Notification gửi kết quả. BR-05–BR-07, BR-09, BR-15. |
+| **Notification Domain** | FR07.1–FR07.7 | UC005; gửi thông báo trong các UC liên quan | Nhận yêu cầu/sự kiện hợp lệ từ các domain, chuyển qua nhà cung cấp kênh gửi. BR-11; gửi/nhận/đọc là trạng thái riêng. |
+| **Operations & Reporting Domain** | FR08.5, tổng hợp FR08.6, FR08.7–FR08.8, FR09.1–FR09.6 | UC014–UC016 | Đọc dữ liệu theo quyền; gửi lệnh tới Identity, Driver, Booking hoặc Payment thực thi. BR-09–BR-11, BR-14–BR-15. |
+
+FR10.3 và BR-10 áp dụng tại mọi domain có thao tác cần audit; Operations & Reporting chỉ tập hợp bản đọc để tra cứu. BR01–BR08 ở mục 5 là mã yêu cầu nghiệp vụ, khác BR-01–BR-26 ở mục 10 là mã quy tắc nghiệp vụ.
+
+### 11.1. Trình tự từ nghiệp vụ đến thiết kế
+
+1. Dùng FR, UC, Business Diagram và quy tắc nghiệp vụ làm đầu vào xác định domain.
+2. Xác định trách nhiệm, dữ liệu sở hữu và lý do tách/gộp từng domain.
+3. Với mỗi quy trình, ánh xạ bước nghiệp vụ sang domain xử lý và dữ liệu trao đổi.
+4. Vẽ sequence diagram cho luồng chính và ngoại lệ; kiểm tra high cohesion, loose coupling, quyền truy cập và tính đúng khi xử lý lặp/đồng thời.
+5. Sau đó mới thiết kế schema theo service và hợp đồng giao tiếp; không chia domain chỉ theo bảng dữ liệu hoặc thư mục code.
+
+Tài liệu domain đã có 9 sơ đồ demo tương tác theo quy trình; hợp đồng giao tiếp và các nhánh phục hồi chi tiết vẫn cần hoàn thiện, chưa được coi là đã triển khai chỉ từ bảng truy vết.
+
+### 11.2. Danh sách quyết định còn mở trước nghiệm thu
+
+Các giá trị đã chốt nằm tại mục 10.1; không đưa chúng trở lại danh sách chưa thống nhất.
+
+| Nhóm | Nội dung còn mở | Ảnh hưởng |
+| --- | --- | --- |
+| Giá và sự cố | Giá tiền từng loại xe, công thức/làm tròn cước, tính cước phần đã đi khi sự cố, chiết khấu và cách trình bày doanh thu thuần. | Chưa dùng số tiền tự đặt để nghiệm thu cước hoặc doanh thu thuần. |
+| Lưu trữ/bảo mật | Thời hạn lưu GPS, hồ sơ cá nhân, giao dịch/audit; phạm vi mã hóa khi lưu, quản lý khóa và quyền tra cứu audit chi tiết. | Chính sách dữ liệu và NFR04–NFR05. |
+| Tài khoản/hồ sơ | Chuẩn hóa SĐT/email, độ mạnh/độ dài mật khẩu, định dạng CCCD/bằng lái/biển số; giới hạn gửi OTP tổng theo ngày/IP và biện pháp chống thử phân tán. | Các ngưỡng OTP/login đã chốt không thay thế toàn bộ chính sách bảo mật. |
+| Điều phối | Cách xếp tài xế chưa có đánh giá khi đồng khoảng cách; định nghĩa bắt đầu thời gian chờ; độ chính xác so sánh khoảng cách và đồng hạng cuối cùng. | Không gán 0 sao hoặc tự đặt thứ tự có lợi/bất lợi cho tài xế mới. |
+| Phối hợp khi khóa | Thời điểm hiệu lực chính xác và giao thức xử lý khóa/tắt nhận cuốc đồng thời với accept; phục hồi thao tác đang chạy. | Quy tắc chặn đã chốt, cơ chế bảo đảm giữa các service cần thiết kế. |
+| GPS/bản đồ | Phạm vi phục vụ, điểm đón trùng điểm đến, kiểm tra GPS giả/sai, mẫu trễ khi chốt hành trình; chu kỳ polling phía khách; cảnh báo đứng yên/sai lộ trình. | Ngưỡng độ mới đã chốt; các ngưỡng khác không suy ra từ đó. |
+| Tích hợp/phục hồi | Giới hạn thử lại thông báo, nhắc tiền mặt; chữ ký/cửa sổ callback; giữ hạn mức hoàn tiền khi lỗi chưa rõ; phục hồi đăng ký dang dở. | Hợp đồng kỹ thuật và kiểm thử lỗi. |
+| Báo cáo/đánh giá | Độ trễ báo cáo, thời gian lọc tối đa, làm tròn tỷ lệ/điểm, cách đếm Unicode trong nhận xét; cách tính chỉ số từ chối/hết hạn. | Công thức tập chuyến và thời hạn đã chốt; chi tiết biểu diễn vẫn cần thống nhất. |
+| Hiệu năng/sẵn sàng | Cấu hình máy, tập dữ liệu, thời gian chạy đo, tải truy vấn điều phối, mức lỗi cho phép; mục tiêu sẵn sàng và phục hồi. | Tải GPS cơ sở và p95 đã chốt, chưa có kết quả kiểm thử để tuyên bố đạt. |
+
+API YAML hiện còn các mô tả “chưa chốt” và định nghĩa báo cáo cần đồng bộ với quyết định ở mục 10. Chưa coi hợp đồng API/code đã được cập nhật chỉ từ việc sửa SRS; việc đồng bộ phải được kiểm tra trước triển khai hoặc nghiệm thu.
